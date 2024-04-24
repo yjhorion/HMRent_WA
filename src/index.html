@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>이미지 업로드</title>
+</head>
+<body>
+  <h1>이미지 업로드</h1>
+  <form id="uploadForm" action="/upload" method="post" enctype="multipart/form-data">
+    <input type="file" name="images" accept="image/*" multiple>
+    <button type="submit">업로드</button>
+  </form>
+
+  <div id="errorMessage" style="display: none; color: red;">
+    1MB 이하의 파일만 전송 가능합니다.
+  </div>
+
+  <script>
+    document.getElementById('uploadForm').addEventListener('submit', function(event) {
+      const fileInput = document.querySelector('input[type="file"]');
+      const errorMessage = document.getElementById('errorMessage');
+      const maxFileSize = 10 * 1024 * 100; // 1MB
+      const maxFiles = 50;
+
+      if(fileInput.files.length > maxFiles) {
+        errorMessage.innerText = `이미지 업로드는 ${maxFiles}개 까지 가능`;
+        errorMessage.style.display = 'block';
+        event.preventDefault();
+        return;
+      }
+
+      if (fileInput.files.length > 0) {
+        for (let i = 0; i < fileInput.files.length; i++) {
+            if (fileInput.files[i].size > maxFileSize) {
+            errorMessage.style.display = 'block';
+            event.preventDefault();
+            return;
+          }
+        }
+      }
+    });
+  </script>
+</body>
+</html>
