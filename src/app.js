@@ -87,7 +87,7 @@ app.listen(PORT, () => {
 
 
 
-/** 
+  /**기존 데이터 유실이 나오던 업로드 코드. 원인 분석이 되지 않아 남겨둠.
 require('dotenv').config();
 
 const {S3ACCESS, S3SECRET, S3BUCKETNAME, //SQSQUEUEURL
@@ -99,18 +99,18 @@ const PORT = 3000;
 
 app.use(morgan('combined'));
 
-const s3 = new AWS.S3({
-    accessKeyId: S3ACCESS,
-    secretAccessKey: S3SECRET,
-    region: "us-east-1" 
-});
-
 // 랜딩페이지
 app.get('/', (req,res) => {
     
     res.sendFile('index.html', { root: __dirname });
 });
 
+
+const s3 = new AWS.S3({
+    accessKeyId: S3ACCESS,
+    secretAccessKey: S3SECRET,
+    region: "us-east-1" 
+});
 
 const upload = multer({
     storage: multerS3({
