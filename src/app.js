@@ -27,14 +27,11 @@ AWS.config.update({
     encoding: 'utf8'
 })
 
-
-
 const s3 = new AWS.S3({
     accessKeyId: S3ACCESS,
     secretAccessKey: S3SECRET,
     region: 'us-east-1'
 });
-
 
 const upload = multer({
     storage: multerS3({
@@ -42,6 +39,7 @@ const upload = multer({
         bucket: S3BUCKETNAME,
         acl: 'public-read',
         limits: { fileSize: 5 * 1024 * 1024},
+        contentType: multerS3.AUTO_CONTENT_TYPE,
         key: function(req, file, cb) {
             const currentDate = new Date().toISOString().slice(0, 10).replace(/-/g, '');
             const ext = path.extname(file.originalname);
@@ -49,7 +47,7 @@ const upload = multer({
             console.log(carNumber);
             const fileName = `${carNumber}_${currentDate}`
             const shortUUID = uuidv4().split('-')[0]
-            cb(null,  `${shortUUID}-${carNumber}-${currentDate}`)
+            cb(null,  `${shortUUID}-${carNumber}-${currentDate}${ext}`)
         }
     })
 });
@@ -58,7 +56,6 @@ app.get('/', (req,res) => {
     
     res.sendFile('index.html', { root: __dirname });
 });
-
 
 // 이미지 업로드를 라우트
 app.post('/upload', upload.array('images', 50), (req, res) => {
@@ -76,11 +73,9 @@ app.post('/upload', upload.array('images', 50), (req, res) => {
 
 app.use(express.static('public'));
 
-
 app.listen(PORT, () => {
     console.log(`서버가 http://localhost:${PORT} 에서 실행 중입니다.`);
   });
-  
 
 
 
