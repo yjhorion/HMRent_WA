@@ -7,11 +7,11 @@ const multerS3 = require('multer-s3');
 
 require('dotenv').config();
 
-const {S3ACCESS, S3SECRET, S3BUCKETNAME} = process.env;
+const {S3ACCESS, S3SECRET, S3BUCKETNAME, SQSQUEUEURL} = process.env;
 
 const app = express();
 const PORT = 3000;
-const router = express.Router()
+// const router = express.Router() //라우터 아직 미사용중
 
 app.use(morgan('combined'));
 
@@ -36,6 +36,12 @@ const upload = multer({
     })
 })
 
+const sqs = new AWS.SQS({
+    accessKeyId: S3ACCESS,
+    secretAccessKey: S3SECRET,
+    region: "us-east-1"
+})
+
 app.get('/', (req,res) => {
     res.sendFile('index.html', { root: __dirname });
 });
@@ -48,6 +54,21 @@ app.post('/upload', upload.array('images', 50), (req, res) => {
     
     uploadedFiles.forEach((file, index) => {
         console.log(`${index + 1}번 파일 : ${file.originalname} : 업로드 성공`);
+    });
+
+    // 이미지 업로드 요청을 SQS에 보냄
+    const params = {
+        MessageBody: 'Image uploaded',
+        QueueUrl: SQSQUEUEURL,
+        MessageGroupId: 'S3UploadTest'
+    };
+
+    sqs.sendMessage(params, (err, data) => {
+        if (err) {
+            console.error('SQS 전송 오류:', err);
+        } else {
+            console.log('SQS 전송 성공:', data.MessageId);
+        }
     });
 
     res.send('업로드 완료')
