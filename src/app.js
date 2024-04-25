@@ -4,6 +4,7 @@ const morgan = require('morgan');
 const path = require('path');
 const AWS = require('aws-sdk');
 const multerS3 = require('multer-s3');
+const { v4: uuidv4 } = require('uuid');
 require('dotenv').config();
 
 // router = express.Router()
@@ -13,14 +14,27 @@ const PORT = 3000;
 
 const { S3ACCESS, S3SECRET, S3BUCKETNAME } = process.env;
 
-
 app.use(morgan('combined'));
+
+AWS.config.update({
+    correctClockSkew: true,
+    region: 'us-east-1',
+    signatureVersion: 'V4',
+    httpOptions: {
+        timeout: 240000,
+        connectTimeout: 120000,
+    },
+    encoding: 'utf8'
+})
+
+
 
 const s3 = new AWS.S3({
     accessKeyId: S3ACCESS,
     secretAccessKey: S3SECRET,
     region: 'us-east-1'
 });
+
 
 const upload = multer({
     storage: multerS3({
@@ -29,8 +43,13 @@ const upload = multer({
         acl: 'public-read',
         limits: { fileSize: 5 * 1024 * 1024},
         key: function(req, file, cb) {
+            const currentDate = new Date().toISOString().slice(0, 10).replace(/-/g, '');
             const ext = path.extname(file.originalname);
-            cb(null, path.basename(file.originalname, ext) + '-' + Date.now() +ext)
+            const carNumber = req.body.carNumber;
+            console.log(carNumber);
+            const fileName = `${carNumber}_${currentDate}`
+            const shortUUID = uuidv4().split('-')[0]
+            cb(null,  `${shortUUID}-${carNumber}-${currentDate}`)
         }
     })
 });
@@ -47,7 +66,10 @@ app.post('/upload', upload.array('images', 50), (req, res) => {
     console.log('업로드된 파일 정보:', req.files);
     
 
-    const imageURLs = req.files.map(file => file.location);
+    const imageURLs = req.files.map(file => {
+        const decodedFilename = decodeURIComponent(file.originalname);
+        return { filename: decodedFilename, location: file.location };
+    });
     
     res.json({ imageURLs });
 });

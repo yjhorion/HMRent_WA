@@ -8,6 +8,7 @@
 <body>
   <h1>이미지 업로드</h1>
   <form id="uploadForm" action="/upload" method="post" enctype="multipart/form-data">
+    <input type="text" id="carNumber" name="carNumber" placeholder="차량번호를 입력하세요">
     <input type="file" name="images" accept="image/*" multiple>
     <button type="submit">업로드</button>
   </form>
@@ -20,9 +21,18 @@
     document.getElementById('uploadForm').addEventListener('submit', function(event) {
       const fileInput = document.querySelector('input[type="file"]');
       const errorMessage = document.getElementById('errorMessage');
-      const maxFileSize = 5 * 1024 * 1024; // 1MB
+      const carNumberInput = document.getElementById('carNumber');
+      const maxFileSize = 5 * 1024 * 1024; // 5MB
       const maxFiles = 50;
 
+      //차량번호 입력여부 확인
+      if (!carNumberInput.value.trim()) {
+        alert('차량번호를 입력해야 합니다.');
+        event.preventDefault();
+        return;
+      }
+
+      //파일 갯수 확인
       if(fileInput.files.length > maxFiles) {
         errorMessage.innerText = `이미지 업로드는 ${maxFiles}개 까지 가능`;
         errorMessage.style.display = 'block';
@@ -30,6 +40,7 @@
         return;
       }
 
+      //파일 크기 제한 확인
       if (fileInput.files.length > 0) {
         for (let i = 0; i < fileInput.files.length; i++) {
             if (fileInput.files[i].size > maxFileSize) {
@@ -38,6 +49,17 @@
             return;
           }
         }
+
+      // 파일명 지정
+      // const currentDate = new Date().toISOString().slice(0, 10).replace(/-/g, '');
+      // const carNumber = carNumberInput.value.trim();
+      // for (let i = 0; i < fileInput.files.length; i++) {
+      //   const file = fileInput.files[i];
+      //   const ext = file.name.slice(file.name.lastIndexOf('.'));
+      //   const fileName = `${carNumber}-${currentDate}-${i + 1}${ext}`;
+      //   fileInput.files[i].name = fileName;
+      // }
+        
       }
     });
   </script>
