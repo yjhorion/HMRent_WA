@@ -16,6 +16,7 @@ const { S3ACCESS, S3SECRET, S3BUCKETNAME } = process.env;
 
 app.use(morgan('combined'));
 
+/* AWS SDK configuration */
 AWS.config.update({
     correctClockSkew: true,
     region: 'us-east-1',
@@ -27,12 +28,14 @@ AWS.config.update({
     encoding: 'utf8'
 })
 
+/* S3 configuration */
 const s3 = new AWS.S3({
     accessKeyId: S3ACCESS,
     secretAccessKey: S3SECRET,
-    region: 'us-east-1'
+    region: 'us-east-1'         // 전역 설정을 무시하고 s3객체 생성시에 명시된 설정을 우선시해서, 서비스를 특정할 때 사용할 수 있음. (명시적 구분을 위해 다시 설정)
 });
 
+/* S3 configuration */
 const upload = multer({
     storage: multerS3({
         s3: s3,
