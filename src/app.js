@@ -5,8 +5,10 @@ const path = require('path');
 const AWS = require('aws-sdk');
 const multerS3 = require('multer-s3');
 const { v4: uuidv4 } = require('uuid');
+
 require('dotenv').config();
 
+const { prisma } = require('./utils/prisma/index.js')
 // router = express.Router()
 
 const app = express();
@@ -61,18 +63,63 @@ app.get('/', (req,res) => {
 });
 
 // 이미지 업로드를 라우트
-app.post('/upload', upload.array('images', 50), (req, res) => {
-
-    console.log('업로드된 파일 정보:', req.files);
+app.post('/upload', upload.array('images', 50), async (req, res, next) => {
     
+    try{
+        console.log('업로드된 파일 정보:', req.files);
+        
+        const VehicleNumber = req.files[0].split('-')[1]
 
-    const imageURLs = req.files.map(file => {
-        const decodedFilename = decodeURIComponent(file.originalname);
-        return { filename: decodedFilename, location: file.location };
-    });
+        const RecentPost = await prisma.Vehicles.create({ 
+            data : { VehicleNumber }
+        })
+
+
     
-    res.json({ imageURLs });
+        const imageURLs = req.files.map(file => {
+            const decodedFilename = decodeURIComponent(file.originalname);
+            const vehicleNumber = decodedFilename.split('-')[1]
+  
+            return { filename: decodedFilename, location: file.location, vehicleNumber };
+        }); 
+
+        /* 차량 이미지에 대한 데이터를 저장하는 곳. VehicleId 값을 어떻게 가져올지 미구현. */
+        for (i = 0; i < imageURLs.length; i++) {
+            await prisma.VehicleImages.create({
+            data : { VehicleId: "id값을 어떻게 받아올지 고민", ImgURL: imageURLs[i].location, vehicleNumber: imageURLs[i].vehicleNumber}
+        })
+
+        }
+
+
+
+
+        // imageURLs를 map으로 돌며 VehicleImage에 URL을 저장시켜야함.
+
+        
+        res.json({ imageURLs });
+    } catch (error) {
+        console.log(error);
+        next(error)
+    }
+ 
 });
+
+
+// 이미지 delete를 라우트
+
+
+/** 구현부 s3.deleteObject를 이용해서 delete를 구현.
+ * 
+ * 
+ * 
+ * 
+ * 
+ * 
+ * 
+ * 
+ * 
+ */
 
 app.use(express.static('public'));
 

@@ -1,0 +1,65 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model Vehicles {
+  VehicleId           Int             @id         @default(autoincrement())    @map("VehicleId")
+  confirm             Int             @default("0")                            @map("confirm")       // *(0 : 미승인, 미확인, 1: 승인, 확인, 2: 수정필요, 보류,  **추가적인 상태값이 필요할 경우, 오름차순 수열로 정리**)
+  VehicleNumber       Int             @map("VehicleNumber")
+  
+  CreatedAt           DateTime        @default(now())                          @map("CreatedAt")
+
+  Comment           Comments[]    
+  SecondaryComment  SecondaryComments[]
+  VehicleImage      VehicleImages[]
+}
+
+model Comments {
+  CmtId             Int       @id   @default(autoincrement()) @map("CmtId")
+  VehicleId         Int       @map("VehicleId")
+  UserId            Int       @map("UserId")
+  
+  comment           String    @map("comment")
+
+  CreatedAt         DateTime  @default(now()) @map("CreatedAt")
+  UpdatedAt         DateTime  @updatedAt  @map("UpdatedAt")
+
+  Vehicle           Vehicles   @relation(fields: [VehicleId], references: [VehicleId], onDelete: Cascade)
+  SecondaryComment  SecondaryComments[]
+}
+
+model SecondaryComments {
+  SndCmtId          Int         @id     @default(autoincrement())     @map("SndCmtId")
+  VehicleId         Int         @map("VehicleId")
+  CmtId             Int         @map("CmtId")
+  
+  SecondaryComment  String      @map("SecondaryComment")
+
+  CreatedAt         DateTime    @default(now()) @map("CreatedAt")
+  UpdatedAt         DateTime    @updatedAt  @map("UpdatedAt")
+
+  Vehicle           Vehicles    @relation(fields: [VehicleId], references: [VehicleId], onDelete: Cascade)
+  Comment           Comments    @relation(fields: [CmtId], references: [CmtId], onDelete: Cascade)
+}
+
+model VehicleImages {
+  ImgId             Int            @id                      @default(autoincrement())              @map("ImgId")
+  VehicleId         Int            @map("VehicleId")
+  ImgURL            String         @map("ImgURL")
+  VehicleNumber     Int            @map("VehicleNumber")
+
+  CreatedAt         DateTime       @map("CreatedAt")
+
+  Vehicle Vehicles  @relation(fields: [VehicleId], references: [VehicleId], onDelete: Cascade)
+}
