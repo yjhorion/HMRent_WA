@@ -3,3 +3,5 @@
 ## local에서 테스팅이 끝나면 main으로 commit 및, 라이브 서버에 적용 예정
 
 ### CICD적용 이후, 기본기능 구현이 끝나면 EC2 dev 서버 운영예정
+
+#### main에 push 이전에 .env > db 주소값 cd에 추가
