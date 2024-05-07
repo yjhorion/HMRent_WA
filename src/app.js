@@ -5,6 +5,9 @@ const path = require('path');
 const AWS = require('aws-sdk');
 const multerS3 = require('multer-s3');
 const { v4: uuidv4 } = require('uuid');
+const listRouter = require('./routes/list.js')
+const landingRouter = require('./routes/landing.js')
+
 
 require('dotenv').config();
 
@@ -57,8 +60,11 @@ const upload = multer({
     })
 });
 
+app.use('/', listRouter, landingRouter)
+
+app.use(express.static(path.join(__dirname, 'public')));
+
 app.get('/', (req,res) => {
-    
     res.sendFile('index.html', { root: __dirname });
 });
 
@@ -68,33 +74,29 @@ app.post('/upload', upload.array('images', 50), async (req, res, next) => {
     try{
         console.log('업로드된 파일 정보:', req.files);
         
-        const VehicleNumber = req.files[0].split('-')[1]
+        const VehicleNumber = req.body.carNumber
+        console.log("차량번호 콘솔 여기 >>>>>>>>>>" + VehicleNumber)
 
-        const RecentPost = await prisma.Vehicles.create({ 
+        const RecentPost = await prisma.vehicles.create({ 
             data : { VehicleNumber }
         })
 
-
-    
         const imageURLs = req.files.map(file => {
             const decodedFilename = decodeURIComponent(file.originalname);
             const vehicleNumber = decodedFilename.split('-')[1]
-  
+            
             return { filename: decodedFilename, location: file.location, vehicleNumber };
         }); 
+        
+        const VehicleId = RecentPost.VehicleId
 
         /* 차량 이미지에 대한 데이터를 저장하는 곳. VehicleId 값을 어떻게 가져올지 미구현. */
         for (i = 0; i < imageURLs.length; i++) {
-            await prisma.VehicleImages.create({
-            data : { VehicleId: "id값을 어떻게 받아올지 고민", ImgURL: imageURLs[i].location, vehicleNumber: imageURLs[i].vehicleNumber}
+            await prisma.vehicleImages.create({
+            data : { VehicleId, ImgURL: imageURLs[i].location, VehicleNumber}
         })
 
         }
-
-
-
-
-        // imageURLs를 map으로 돌며 VehicleImage에 URL을 저장시켜야함.
 
         
         res.json({ imageURLs });
