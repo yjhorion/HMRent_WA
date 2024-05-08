@@ -1,4 +1,4 @@
-<!-- index.html -->
+<!-- main.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -6,9 +6,32 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Landing Page</title>
     <style>
+
+        /*반응형 ui*/
+
+        @media only screen and (max-width: 600px) {
+            /* 모바일 */
+            .icon-container {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            icon-box {
+                width: 150px;
+                height: 150px;
+                margin: 10px 0;
+            }
+
+            .icon-text {
+                font-size: 16px;
+            }
+        }
+
+
+
         body, html {
             height: 100%;
-            margin: 0;
+            margin: 0; 
             display: flex;
             justify-content: center;
             align-items: center;
