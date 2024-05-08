@@ -5,8 +5,13 @@ const path = require('path');
 const AWS = require('aws-sdk');
 const multerS3 = require('multer-s3');
 const { v4: uuidv4 } = require('uuid');
+
 const listRouter = require('./routes/list.js')
 const landingRouter = require('./routes/landing.js')
+const retrievalRouter = require('./routes/retrieval.js')
+const INCQRouter = require('./routes/INQC.js')
+const compQCRouter = require('./routes/compQC.js')
+const dismissedRouter = require('./routes/dismissed.js')
 
 
 require('dotenv').config();
@@ -60,7 +65,7 @@ const upload = multer({
     })
 });
 
-app.use('/', listRouter, landingRouter)
+app.use('/', listRouter, landingRouter, retrievalRouter, INCQRouter, compQCRouter, dismissedRouter)
 
 app.use(express.static(path.join(__dirname, 'public')));
 

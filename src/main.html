@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Landing Page</title>
+    <title>메인페이지</title>
     <style>
         body, html {
             height: 100%;
@@ -17,7 +17,7 @@
         }
 
         .navbar {
-            background-color: #333;
+            background-color: white;
             color: white;
             padding: 20px 0;
             text-align: center;
@@ -28,7 +28,7 @@
         }
 
         .navbar .logo {
-            width: 100px;
+            width: 200px;
             height: auto;
         }
     
@@ -64,6 +64,10 @@
     
         .icon-box:nth-child(3)  .icon-box-inner {
             background-color: #1E90FF;
+        }
+
+        .icon-box:nth-child(4)  .icon-box-inner {
+            background-color: #FF5733;
         }
     
         .icon-box a {
@@ -105,14 +109,14 @@
 <body>
     <!-- navbar -->
     <div class="navbar">
-        <img class="logo" src="../public/images/HMLogo.png" alt="하모니로고">
+        <a href="/main"><img class="logo" src="https://pds.saramin.co.kr/company/logo/202203/08/r8etng_ipfy-1p4vv0n_logo.png" alt="하모니로고"/></a>
     </div>
 
     <!-- 메뉴 3개 이동을 위한 링크 아이콘 -->
     <div class="icon-container">
         <div class="icon-box">
             <div class="icon-box-inner">
-                <a href="/endpoint1">
+                <a href="../INQC">
                     <div class="icon-text">입고 QC</div>
                 </a>
             </div>
@@ -120,7 +124,7 @@
         
         <div class="icon-box">
             <div class="icon-box-inner">
-                <a href="/endpoint2">
+                <a href="../compQC">
                     <div class="icon-text">상품화완료 QC</div>
                 </a>
             </div>
@@ -128,11 +132,20 @@
         
         <div class="icon-box">
             <div class="icon-box-inner">
-                <a href="/endpoint3">
+                <a href="../retrieval">
                     <div class="icon-text">회수차량 조회</div>
                 </a>
             </div>
         </div>
+
+        <div class="icon-box">
+            <div class="icon-box-inner">
+                <a href="../dismissed">
+                    <div class="icon-text">예약 해제 리스트</div>
+                </a>
+            </div>
+        </div>
+
     </div>
 </body>
 </html>
