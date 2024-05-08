@@ -9,9 +9,27 @@
         body, html {
             height: 100%;
             margin: 0; 
+            padding: 0;
             display: flex;
             justify-content: center;
             align-items: center;
+            flex-direction: column;
+        }
+
+        .navbar {
+            background-color: #333;
+            color: white;
+            padding: 20px 0;
+            text-align: center;
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 1000;
+        }
+
+        .navbar .logo {
+            width: 100px;
+            height: auto;
         }
     
         .icon-container {
@@ -85,6 +103,12 @@
     </style>
 </head>
 <body>
+    <!-- navbar -->
+    <div class="navbar">
+        <img class="logo" src="../public/images/HMLogo.png" alt="하모니로고">
+    </div>
+
+    <!-- 메뉴 3개 이동을 위한 링크 아이콘 -->
     <div class="icon-container">
         <div class="icon-box">
             <div class="icon-box-inner">
