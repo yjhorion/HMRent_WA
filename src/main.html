@@ -6,29 +6,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Landing Page</title>
     <style>
-
-        /*반응형 ui*/
-
-        @media only screen and (max-width: 600px) {
-            /* 모바일 */
-            .icon-container {
-                flex-direction: column;
-                align-items: center;
-            }
-
-            icon-box {
-                width: 150px;
-                height: 150px;
-                margin: 10px 0;
-            }
-
-            .icon-text {
-                font-size: 16px;
-            }
-        }
-
-
-
         body, html {
             height: 100%;
             margin: 0; 
@@ -36,13 +13,13 @@
             justify-content: center;
             align-items: center;
         }
-
+    
         .icon-container {
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
-
+    
         .icon-box {
             text-align: center;
             position: relative;
@@ -52,33 +29,32 @@
             border-radius: 20px;
             overflow: hidden;
         }
-
+    
         .icon-box .icon-box-inner {
             width: 100%;
             height: 100%;
             background-color: transparent;
         }
-
+    
         .icon-box:nth-child(1)  .icon-box-inner {
             background-color: #4CAF99;
         }
-
+    
         .icon-box:nth-child(2)  .icon-box-inner {
-            background-color: #FFA500
+            background-color: #FFA500;
         }
-
-
+    
         .icon-box:nth-child(3)  .icon-box-inner {
             background-color: #1E90FF;
         }
-
+    
         .icon-box a {
             display: block;
             width: 100%;
             height: 100%;
             text-decoration: none;
         }
-
+    
         .icon-text {
             position: absolute;
             top: 50%;
@@ -86,6 +62,25 @@
             transform: translate(-50%, -50%);
             color: black;
             font-size: 20px;
+        }
+    
+        /*반응형 ui*/
+        @media only screen and (max-width: 600px) {
+            /* 모바일 */
+            .icon-container{
+                flex-direction:column;
+                align-items:center;
+            }
+
+            .icon-box {
+                width: 300px;
+                height: 150px;
+                margin: 10px 0;
+            }
+    
+            .icon-text {
+                font-size: 20px;
+            }
         }
     </style>
 </head>
