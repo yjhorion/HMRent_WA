@@ -6,32 +6,96 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Landing Page</title>
     <style>
+        body, html {
+            height: 100%;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
         .icon-container {
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
 
-        .icon {
-            width:  30px;
-            height: 30px;
-            border-radius: 50%;
+        .icon-box {
+            text-align: center;
+            position: relative;
+            width: 200px;
+            height: 200px;
+            margin: 0 10px;
+            border-radius: 20px;
+            overflow: hidden;
         }
 
-        .icon:not(:first-child) {
-            margin-left: 20px;
+        .icon-box .icon-box-inner {
+            width: 100%;
+            height: 100%;
+            background-color: transparent;
         }
 
-        .icon:not(:last-child) {
-            margin-right: 20px;
+        .icon-box:nth-child(1)  .icon-box-inner {
+            background-color: #4CAF99;
+        }
+
+        .icon-box:nth-child(2)  .icon-box-inner {
+            background-color: #FFA500
+        }
+
+
+        .icon-box:nth-child(3)  .icon-box-inner {
+            background-color: #1E90FF;
+        }
+
+        .icon-box a {
+            display: block;
+            width: 100%;
+            height: 100%;
+            text-decoration: none;
+        }
+
+        .icon-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: black;
+            font-size: 16px;
         }
     </style>
 </head>
 <body>
-    <div>
-        <a href="/endpoint1"><img src="/images/icon.png" alt="Icon 1" width="200" height="200"></a>
-        <a href="/endpoint2"><img src="/images/icon.png" alt="Icon 2" width="200" height="200"></a>
-        <a href="/endpoint3"><img src="/images/icon.png" alt="Icon 3" width="200" height="200"></a>
+    <div class="icon-container">
+        <div class="icon-box">
+            <div class="icon-box-inner">
+                <a href="/endpoint1">
+                    <div class="icon-text">입고 QC</div>
+                </a>
+            </div>
+        </div>
+        
+        <div class="icon-box">
+            <div class="icon-box-inner">
+                <a href="/endpoint2">
+                    <div class="icon-text">상품화완료 QC</div>
+                </a>
+            </div>
+        </div>
+        
+        <div class="icon-box">
+            <div class="icon-box-inner">
+                <a href="/endpoint3">
+                    <div class="icon-text">회수대상 리스트</div>
+                </a>
+            </div>
+        </div>
     </div>
 </body>
 </html>
+
+
+<!-- <a href="/endpoint1"><img src="/images/icon.png" alt="Icon 1" width="200" height="200"></a>
+<a href="/endpoint2"><img src="/images/icon.png" alt="Icon 2" width="200" height="200"></a>
+<a href="/endpoint3"><img src="/images/icon.png" alt="Icon 3" width="200" height="200"></a> -->
