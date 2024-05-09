@@ -1,4 +1,1 @@
-INSERT INTO Icons (IconURL) VALUES ('/CommerceDone/QCComplete/submit1')
-
-
-Select * FROM Icons
+INSERT INTO INQC (GUBUN, exeNo, carNo, CliName, InReason) VALUES ('재렌트', 'LT24050033001', '177호5232', '김옥정', '만기종료')

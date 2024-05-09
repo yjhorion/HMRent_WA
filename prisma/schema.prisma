@@ -70,3 +70,12 @@ model VehicleImages {
 
   Vehicle Vehicles  @relation(fields: [VehicleId], references: [VehicleId], onDelete: Cascade)
 }
+
+model INQC {
+  INQCId            Int           @id                 @default(autoincrement())               @map("INCQId")
+  GUBUN             String        @map("GUBUN")
+  exeNo             String        @map("exeNo")
+  carNo             String        @map("carNo")
+  CliName           String        @map("CliName")
+  InReason          String        @map("InReason")
+}

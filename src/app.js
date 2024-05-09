@@ -5,6 +5,7 @@ const path = require('path');
 const AWS = require('aws-sdk');
 const multerS3 = require('multer-s3');
 const { v4: uuidv4 } = require('uuid');
+const bodyParser = require('body-parser');
 
 const listRouter = require('./routes/list.js')
 const landingRouter = require('./routes/landing.js')
@@ -65,9 +66,13 @@ const upload = multer({
     })
 });
 
-app.use('/', listRouter, landingRouter, retrievalRouter, INCQRouter, compQCRouter, dismissedRouter)
-
 app.use(express.static(path.join(__dirname, 'public')));
+app.use(bodyParser.urlencoded({ extended: true}));
+app.use(bodyParser.json());
+app.set('view engine', 'ejs');          // ejs 템플릿 엔진 세팅부분.
+app.set('views', path.join(__dirname, '../views')) // views 디렉토리에 파일이 있다고 가정. 디렉토리 위치수정 필요
+
+app.use('/', listRouter, landingRouter, retrievalRouter, INCQRouter, compQCRouter, dismissedRouter)
 
 app.get('/', (req,res) => {
     res.sendFile('index.html', { root: __dirname });
