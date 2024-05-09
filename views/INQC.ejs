@@ -135,6 +135,7 @@
     </div>
 
 <!-- 데이터 출력 -->
+<p style="color: red; font-size: 9px; margin-bottom: 10px;">**실행번호를 클릭하시면 수정 페이지로 이동합니다**</p>
 <div class="data-container">
     <% if (data && data.length) { %>
         <!-- 스키마 내용 출력 -->
@@ -149,7 +150,7 @@
         <% data.forEach(item => { %>
             <div class="grid-row">
                 <div><%= item.GUBUN %></div>
-                <div><%= item.exeNo %></div>
+                <div class="exeNo" onclick="sendRequest('<%= item.exeNo %>')"><%= item.exeNo %></div>
                 <div><%= item.carNo %></div>
                 <div><%= item.CliName %></div>
                 <div><%= item.InReason %></div>

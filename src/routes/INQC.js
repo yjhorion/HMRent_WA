@@ -48,6 +48,26 @@ router.get('/INQC', async (req, res, next) => {
     }
 })
 
+router.get('/editINQC/:exeNo', async (req, res, next) => {
+    try {
+        const { exeNo } = +req.params;
+
+        const data = await prisma.INQC.findFirst({
+            where : { exeNo }
+        })
+
+        if (!data) {
+            return res.status(400).json({ message : "실행번호로 검색된 데이터가 없습니다"})
+        }
+
+        res.status(200).json({ data })
+
+    } catch(error) {
+        console.error(error);
+        return res.status(500).json({ message: error })
+    }
+})
+
 
 
 

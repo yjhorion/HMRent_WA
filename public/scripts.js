@@ -78,3 +78,30 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 });
+
+const exeNoDivs = document.querySelectorAll('.exeNo');
+exeNoDivs.forEach(div => {
+    div.addEventListener('click', function() {
+        const exeNo = this.innerText;
+        sendRequest(exeNo);
+    });
+});
+
+function sendRequest(exeNo) {
+    // 클릭한 실행번호를 사용하여 HTTP 요청을 보내는 로직
+    // fetch API등을  사용하여 백엔드에 요청 보낼 것
+    fetch(`../editINQC/:${exeNo}`)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
+        .then(data => {
+            // 요청에 대한 응답을 처리하는 로직 추가
+            console.log(data);
+        })
+        .catch(error => {
+            console.error('There was a problem with your fetch operation:', error);
+        });
+}
