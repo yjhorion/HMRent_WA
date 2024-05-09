@@ -54,7 +54,7 @@ model SecondaryComments {
   SecondaryComment  String      @map("SecondaryComment")
 
   CreatedAt         DateTime    @default(now()) @map("CreatedAt")
-  UpdatedAt         DateTime    @updatedAt  @map("UpdatedAt")
+  UpdatedAt         DateTime?    @updatedAt  @map("UpdatedAt")
 
   Vehicle           Vehicles    @relation(fields: [VehicleId], references: [VehicleId], onDelete: Cascade)
   Comment           Comments    @relation(fields: [CmtId], references: [CmtId], onDelete: Cascade)
@@ -78,4 +78,11 @@ model INQC {
   carNo             String        @map("carNo")
   CliName           String        @map("CliName")
   InReason          String        @map("InReason")
+
+  Mileage           Int?          @map("Mileage")
+  EntryLocation     String?       @map("EntryLocation")
+  DetailLocation    String?       @map("DetailLocation")
+  Remark            String?       @map("Remark")
+
+  UpdatedAt         DateTime?      @updatedAt   @map("updatedAt")
 }
