@@ -55,7 +55,10 @@ router.get('/editINQC/:exeNo', async (req, res, next) => {
         const  exeNo  = req.params.exeNo
 
         const data = await prisma.INQC.findFirst({
-            where : { exeNo : exeNo }
+            where : { 
+                exeNo : exeNo,
+                UpdatedAt : null
+             }
         })
 
         if (!data) {

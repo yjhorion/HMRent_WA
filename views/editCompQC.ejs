@@ -1,10 +1,10 @@
-<!-- editINQC.ejs -->
+<!-- editCompQC.ejs -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>입고QC 정보 입력</title>
+    <title>상품화완료QC 정보 입력</title>
     <style>
         body, html {
             height: 100%;
@@ -42,14 +42,14 @@
 
         .grid-container {
             display: grid;
-            grid-template-columns: repeat(5, 1fr);
+            grid-template-columns: repeat(4, 1fr);
             grid-gap: 1px;
         }
 
         .grid-header,
         .grid-row {
             display: grid;
-            grid-template-columns: repeat(5, 1fr);
+            grid-template-columns: repeat(4, 1fr);
             align-items: center;
         }
 
@@ -58,7 +58,8 @@
             border : 1px solid #ccc;
             padding: 10px;
             text-align: center;
-            min-width: 120px;
+            min-width: 330px;
+            font-size: 9px;
         }
 
         .grid-header {
@@ -67,7 +68,7 @@
         }
 
         .grid-row:first-child {
-            background-color: #4CAF99
+            background-color: #FFA500;
         }
 
         /* 입력창 스타일 */
@@ -118,8 +119,8 @@
             .grid-header div,
             .grid-row div {
                 padding: 5px;
-                min-width: 60px;
-                font-size: 8px;
+                min-width: 80px;
+                font-size: 2px;
             }
 
             .grid-header {
@@ -141,19 +142,17 @@
             <!-- 스키마 내용 출력 -->
             <div class="grid-row">
                 <div>신차구분</div>
-                <div>실행번호</div>
                 <div>차량번호</div>
-                <div>고객명</div>
-                <div>입고사유</div>
+                <div>모델명</div>
+                <div>정비상태</div>
             </div>
             <!-- 실제 데이터 출력 -->
 
             <div class="grid-row">
                 <div><%= GUBUN %></div>
-                <div><%= exeNo %></div>
                 <div><%= carNo %></div>
-                <div><%= CliName %></div>
-                <div><%= InReason %></div>
+                <div><%= modelName %></div>
+                <div><%= mainTstatus %></div>
             </div>
 
     </div>
@@ -168,6 +167,15 @@
         <div class="input-label">차량상세위치</div>
         <input type="text" class="input-field" id="detailLocation" placeholder="차량상세위치를 입력하세요">
 
+        <div class="input-label">차키보유수량</div>
+        <input type="text" class="input-field" id="KeyAmountPres" placeholder="차키보유수량를 입력하세요">
+        
+        <div class="input-label">차키총수량</div>
+        <input type="text" class="input-field" id="KeyAmountTot" placeholder="차키총수량를 입력하세요">
+        
+        <div class="input-label">차키보관위치</div>
+        <input type="text" class="input-field" id="KeyLocation" placeholder="차키보관위치를 입력하세요">
+
         <div class="input-label">비고</div>
         <input type="text" class="input-field" id="remark" placeholder="비고를 입력하세요">
 
@@ -180,27 +188,35 @@
             var mileage = document.getElementById('mileage').value;
             var entryLocation = document.getElementById('entryLocation').value;
             var detailLocation = document.getElementById('detailLocation').value;
+            var KeyAmountPres = document.getElementById('KeyAmountPres').value;
+            var KeyAmountTot = document.getElementById('KeyAmountTot').value;
+            var KeyLocation = document.getElementById('KeyLocation').value;
             var remark = document.getElementById('remark').value;
-            var exeNo = '<%= exeNo %>';
+            var carNo = '<%= carNo %>';
 
             // 예시: 입력된 정보를 콘솔에 출력
             console.log("주행거리:", mileage);
             console.log("차량입고위치:", entryLocation);
             console.log("차량상세위치:", detailLocation);
+            console.log("차키보유수량:", KeyAmountPres);
+            console.log("차키총수량:", KeyAmountTot);
+            console.log("차키보관위치:", KeyLocation);
             console.log("비고:", remark);
 
 
             var xhr = new XMLHttpRequest();
-            xhr.open('POST', '/submitINQC', true);
+            xhr.open('POST', '/submitCompQC', true);
             xhr.setRequestHeader('Content-Type', 'application/json');
             xhr.send(JSON.stringify({
                 mileage: mileage,
                 entryLocation: entryLocation,
                 detailLocation: detailLocation,
                 remark: remark,
-                exeNo: exeNo
+                KeyAmountPres: KeyAmountPres,
+                KeyAmountTot: KeyAmountTot,
+                KeyLocation: KeyLocation,
+                carNo: carNo
             }));
-
         }
     </script>
 

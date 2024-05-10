@@ -73,16 +73,34 @@ model VehicleImages {
 
 model INQC {
   INQCId            Int           @id                 @default(autoincrement())               @map("INCQId")
-  GUBUN             String        @map("GUBUN")
-  exeNo             String        @map("exeNo")
-  carNo             String        @map("carNo")
-  CliName           String        @map("CliName")
-  InReason          String        @map("InReason")
+  GUBUN             String        @map("GUBUN")             //신차구분
+  exeNo             String        @map("exeNo")             //실행번호
+  carNo             String        @map("carNo")             //차량번호
+  CliName           String        @map("CliName")           //고객명
+  InReason          String        @map("InReason")          //입고사유
 
-  Mileage           Int?          @map("Mileage")
-  EntryLocation     String?       @map("EntryLocation")
-  DetailLocation    String?       @map("DetailLocation")
+  Mileage           Int?          @map("Mileage")           //주행거리
+  EntryLocation     String?       @map("EntryLocation")     //차량입고위치
+  DetailLocation    String?       @map("DetailLocation")    //차량상세위치
   Remark            String?       @map("Remark")
 
-  UpdatedAt         DateTime?      @updatedAt   @map("updatedAt")
+  UpdatedAt         DateTime?      @updatedAt   @map("UpdatedAt")
+}
+
+model CompQC {
+  CompQCId        Int           @id                 @default(autoincrement())             @map("CompQCId")
+  GUBUN           String        @map("GUBUN")               //신차구분
+  carNo           String        @map("carNo")               //차량번호
+  modelName       String        @map("modelName")           //모델명
+  mainTstatus     String        @map("mainTstatus")         //정비상태
+
+  Mileage        Int?           @map("Mileage")             //주행거리
+  EntryLocation   String?       @map("EntryLocation")       //차량입고위치
+  DetailLocation  String?       @map("DetailLocation")      //차량상세위치
+  KeyAmountPres   Int?          @map("KeyAmountPres")       //차키보유수량
+  KeyAmountTot    Int?          @map("KeyAmountTot")        //차키 총 수량
+  KeyLocation     String?       @map("KeyLocation")         //차키보관위치
+  Remark          String?       @map("Remark")              //비고
+
+  UpdatedAt       DateTime?     @updatedAt    @map("updatedAt")
 }
