@@ -1,3 +1,4 @@
+/* 입고QC 라우터 */
 const express = require('express')
 const path = require('path');
 const { prisma } = require('../utils/prisma/index.js')

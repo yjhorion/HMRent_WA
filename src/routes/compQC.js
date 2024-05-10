@@ -1,22 +1,9 @@
+/* 상품화완료QC 라우터 */
 const express = require('express')
 const path = require('path');
 const { prisma } = require('../utils/prisma/index.js')
 
 router = express.Router()
-
-/* 상품화완료 QC */
-
-// router.get('/compQC', async (req, res, next) => {
-//     try{
-
-//         const mainPagePath = path.join(__dirname, '../INQC.html');
-
-//         res.sendFile(mainPagePath)
-//     } catch (error) {
-//         console.log(error);
-//         next(error);
-//     }
-// })
 
 /* 렌더링으로 화면 표시 */
 router.get('/CompQC', async (req, res, next) => {

@@ -104,3 +104,24 @@ model CompQC {
 
   UpdatedAt       DateTime?     @updatedAt    @map("updatedAt")
 }
+
+model RetVehicle {
+  RetVId          Int           @id                 @default(autoincrement())             @map("RetVId")
+  carNo           String        @map("carNo")               //차량번호
+  modelName       String        @map("modelName")           //모델명
+  CliName         String        @map("CliName")             //고객명
+  GUBUN           String        @map("GUBUN")               //신차구분
+  RetReason       String        @map("RetReason")           //회수사유
+  requester       String        @map("requester")           //요청자
+  RentalMethod    String        @map("RentalMethod")        //렌탈방식
+}
+
+model reservation {
+  resId           Int           @id                  @default(autoincrement())            @map("resId")
+  AssetNo         String        @map("AssetNo")             //자산번호
+  carNo           String        @map("carNo")               //차량번호
+  modelName       String        @map("modelName")           //모델명
+
+  dismissed       Boolean       @default(false)      @map("dismissed")           //기본값 false 예약 해지된 대상은 true
+  UpdatedAt       DateTime?     @updatedAt           @map("updatedAt")           //예약 해지된 대상을 조회할 때, updatedAt 순서로 내림차순 배치, 해지 취소처리 가능
+}

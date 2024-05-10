@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>입고QC</title>
+    <title>예약 해제 적용된 목록</title>
     <style>
         body, html {
             height: 100%;
@@ -60,14 +60,14 @@
 
         .grid-container {
             display: grid;
-            grid-template-columns: repeat(5, 1fr);
+            grid-template-columns: repeat(3, 1fr);
             grid-gap: 1px;
         }
 
         .grid-header,
         .grid-row {
             display: grid;
-            grid-template-columns: repeat(5, 1fr);
+            grid-template-columns: repeat(3, 1fr);
             align-items: center;
         }
 
@@ -76,7 +76,8 @@
             border : 1px solid #ccc;
             padding: 10px;
             text-align: center;
-            min-width: 120px;
+            min-width: 300px;
+            font-size: 10px;
         }
 
         .grid-header {
@@ -113,14 +114,37 @@
             .grid-header div,
             .grid-row div {
                 padding: 5px;
-                min-width: 60px;
-                font-size: 8px;
+                min-width: 140px;
+                min-height: 15px;
+                font-size: 4.5px;
             }
 
             .grid-header {
-                font-size: 14px;
+                font-size: 7px;
             }
         }
+
+            .dismiss-button {
+                margin-top: 50px;
+                position: fixed;
+                top: 60px;
+                left: 50%;
+                transform: translateX(-50%);
+            }
+
+            .dismiss-link {
+                display: inline-block;
+                background-color: green;
+                color: white;
+                padding: 10px 20px;
+                border-radius: 5px;
+                text-decoration: none;
+                font-weight: bold;
+            }
+
+            .dismiss-link:hover {
+                background-color: green
+            }
     </style>
 </head>
 <body>
@@ -129,38 +153,35 @@
         <a href="/main"><img class="logo" src="https://pds.saramin.co.kr/company/logo/202203/08/r8etng_ipfy-1p4vv0n_logo.png" alt="하모니로고"/></a>
     </div>
 
-    <!-- 차량번호 검색 입력창 -->
-    <div class="input-container">
-        <input type="text" id="inputBox" placeholder="차량번호를 입력하세요">
+
+    <!-- 예약목록 버튼 -->
+    <div class="dismiss-button">
+        <a href="../reservation" class="dismiss-link">예약 차량</a>
     </div>
 
 <!-- 데이터 출력 -->
-<p style="color: red; font-size: 9px; margin-bottom: 10px;">**실행번호를 클릭하시면 수정 페이지로 이동합니다**</p>
+<p style="color: red; font-size: 9px; margin-bottom: 10px;">**자산번호를 더블클릭 하시면 예약취소 됩니다**</p>
 <div class="data-container">
     <% if (data && data.length) { %>
         <!-- 스키마 내용 출력 -->
         <div class="grid-row">
-            <div>신차구분</div>
-            <div>실행번호</div>
+            <div>자산번호</div>
             <div>차량번호</div>
-            <div>고객명</div>
-            <div>입고사유</div>
+            <div>모델명</div>
         </div>
         <!-- 실제 데이터 출력 -->
         <% data.forEach(item => { %>
             <div class="grid-row">
-                <div><%= item.GUBUN %></div>
-                <div class="exeNo" onclick="sendRequest('<%= item.exeNo %>')"><%= item.exeNo %></div>
+                <div class="AssetNo" ondblclick="sendRequest('<%= item.AssetNo %>')"><%= item.AssetNo %></div>
                 <div><%= item.carNo %></div>
-                <div><%= item.CliName %></div>
-                <div><%= item.InReason %></div>
+                <div><%= item.modelName %></div>
             </div>
         <% }) %>
     <% } else { %>
-        <p>존재하는 입고QC 데이터가 없습니다.</p>
+        <p>존재하는 취소차량 데이터가 없습니다.</p>
     <% } %>
 </div>
 
-    <script src="scripts.js"></script>
+    <script src="UndoDismissing.js"></script>
 </body>
 </html>

@@ -7,20 +7,20 @@ router = express.Router()
 
 
 /* 렌더링으로 화면 표시 */
-router.get('/dismissed', async (req, res, next) => {
+router.get('/reservation', async (req, res, next) => {
     try {
-        const dismissed = await prisma.reservation.findMany({
-            where : { dismissed : true },
+        const reservation = await prisma.reservation.findMany({
+            where : { dismissed : false },
             orderBy : { 
-                UpdatedAt : "desc",
+                resId : "desc",
             }
         })
 
-        if (!dismissed.length) {
-            return res.status(404).json({ message : " 취소차량 데이터가 없습니다 "})
+        if (!reservation.length) {
+            return res.status(404).json({ message : " 예약차랑 데이터가 없습니다 "})
         }
 
-        return res.status(200).render('dismissed', { data: dismissed })
+        return res.status(200).render('reservation', { data: reservation })
 
     } catch (error) {
         console.error(error);
@@ -28,13 +28,13 @@ router.get('/dismissed', async (req, res, next) => {
     }
 })
 
-router.post('/dismissed', async (req, res, next) => {
+router.post('/reservation', async (req, res, next) => {
     try {
         const { assetNo } = req.body
         
         await prisma.reservation.updateMany({
             where: { AssetNo : assetNo },
-            data : { dismissed : false }
+            data : { dismissed :  true }
         })
 
         return res.status(200).json({message : '수정되었습니다'})
