@@ -84,7 +84,9 @@ model INQC {
   DetailLocation    String?       @map("DetailLocation")    //차량상세위치
   Remark            String?       @map("Remark")
 
-  UpdatedAt         DateTime?      @updatedAt   @map("UpdatedAt")
+  UpdatedAt         DateTime?     @updatedAt   @map("UpdatedAt")
+
+  VehicleImages     INQCIMG[]
 }
 
 model CompQC {
@@ -103,6 +105,8 @@ model CompQC {
   Remark          String?       @map("Remark")              //비고
 
   UpdatedAt       DateTime?     @updatedAt    @map("updatedAt")
+
+  VehicleImages     CompQCIMG[]
 }
 
 model RetVehicle {
@@ -124,4 +128,27 @@ model reservation {
 
   dismissed       Boolean       @default(false)      @map("dismissed")           //기본값 false 예약 해지된 대상은 true
   UpdatedAt       DateTime?     @updatedAt           @map("updatedAt")           //예약 해지된 대상을 조회할 때, updatedAt 순서로 내림차순 배치, 해지 취소처리 가능
+}
+
+model INQCIMG {
+  INQCIMGID       Int           @id                   @default(autoincrement())             @map("INQCIMGID")
+
+  exeNo           String        @map("exeNo")
+  carNo           String        @map("carNo")
+  ImgURL          String        @map("ImgURL")
+  
+  INQCId          Int           @map("INQCID")
+
+  inqc            INQC          @relation(fields: [INQCId], references: [INQCId], onDelete:Cascade)    
+}
+
+model CompQCIMG {
+  CompQCIMGID       Int           @id                   @default(autoincrement())             @map("INQCIMGID")
+
+  carNo           String          @map("carNo")
+  ImgURL          String          @map("ImgURL")
+  
+  CompQCId          Int           @map("INQCID")
+
+  compQC            CompQC        @relation(fields: [CompQCId], references: [CompQCId], onDelete:Cascade)    
 }

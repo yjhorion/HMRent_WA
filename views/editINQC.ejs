@@ -171,35 +171,57 @@
         <div class="input-label">비고</div>
         <input type="text" class="input-field" id="remark" placeholder="비고를 입력하세요">
 
+        <div class="input-label">사진 업로드</div>
+        <input type="file" id="fileInput" accept="image/*" multiple>
+
         <button class="submit-button" onclick="submitForm()">전송</button>
     </div>
+
 
     <script>
         function submitForm() {
             // 입력된 정보를 가져와서 처리할 수 있는 코드를 작성하세요.
-            var mileage = document.getElementById('mileage').value;
-            var entryLocation = document.getElementById('entryLocation').value;
-            var detailLocation = document.getElementById('detailLocation').value;
-            var remark = document.getElementById('remark').value;
-            var exeNo = '<%= exeNo %>';
+            const mileage = document.getElementById('mileage').value;
+            const entryLocation = document.getElementById('entryLocation').value;
+            const detailLocation = document.getElementById('detailLocation').value;
+            const remark = document.getElementById('remark').value;
+            const carNo = '<%= carNo %>';
+            const exeNo = '<%= exeNo %>';
 
-            // 예시: 입력된 정보를 콘솔에 출력
-            console.log("주행거리:", mileage);
-            console.log("차량입고위치:", entryLocation);
-            console.log("차량상세위치:", detailLocation);
-            console.log("비고:", remark);
+            const formData = new FormData();
+            formData.append('mileage', mileage);
+            formData.append('entryLocation', entryLocation);
+            formData.append('detailLocation', detailLocation);
+            formData.append('remark', remark);
+            formData.append('carNo', carNo);
+            formData.append('exeNo', exeNo);
 
+            // 파일 추가
+            for (const file of fileInput.files) {
+                formData.append('images', file);
+            }
 
-            var xhr = new XMLHttpRequest();
-            xhr.open('POST', '/submitINQC', true);
-            xhr.setRequestHeader('Content-Type', 'application/json');
-            xhr.send(JSON.stringify({
-                mileage: mileage,
-                entryLocation: entryLocation,
-                detailLocation: detailLocation,
-                remark: remark,
-                exeNo: exeNo
-            }));
+            // 서버로 전송
+            fetch('/submitINQC', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.message) {
+                    alert(data.message);
+                    if (data.data) {
+                        console.log('데이터/파일 전송 성공');
+                        window.location.href = '/INQC';     //페이지로 이동
+                    } else {
+                        console.error('데이터/파일 전송 실패')
+                    }
+                }
+            })
+
+            .catch(error => {
+                console.error('네트워크 에러: ', error)
+            })
 
         }
     </script>

@@ -27,8 +27,9 @@ const PORT = 3000;
 const { S3ACCESS, S3SECRET, S3BUCKETNAME } = process.env;
 
 app.use(morgan('combined'));
+/* multer 부분 주석처리 (중복업로드됨) 
 
-/* AWS SDK configuration */
+// AWS SDK configuration
 AWS.config.update({
     correctClockSkew: true,
     region: 'us-east-1',
@@ -40,14 +41,14 @@ AWS.config.update({
     encoding: 'utf8'
 })
 
-/* S3 configuration */
+// S3 configuration
 const s3 = new AWS.S3({
     accessKeyId: S3ACCESS,
     secretAccessKey: S3SECRET,
     region: 'us-east-1'         // 전역 설정을 무시하고 s3객체 생성시에 명시된 설정을 우선시해서, 서비스를 특정할 때 사용할 수 있음. (명시적 구분을 위해 다시 설정)
 });
 
-/* S3 configuration */
+// S3 configuration 
 const upload = multer({
     storage: multerS3({
         s3: s3,
@@ -60,23 +61,10 @@ const upload = multer({
             const ext = path.extname(file.originalname);
             const carNumber = req.body.carNumber;
             console.log(carNumber);
-            const fileName = `${carNumber}_${currentDate}`
             const shortUUID = uuidv4().split('-')[0]
             cb(null,  `${shortUUID}-${carNumber}-${currentDate}${ext}`)
         }
     })
-});
-
-app.use(express.static(path.join(__dirname, 'public')));
-app.use(bodyParser.urlencoded({ extended: true}));
-app.use(bodyParser.json());
-app.set('view engine', 'ejs');          // ejs 템플릿 엔진 세팅부분.
-app.set('views', path.join(__dirname, '../views')) // views 디렉토리에 파일이 있다고 가정. 디렉토리 위치수정 필요
-
-app.use('/', listRouter, landingRouter, retrievalRouter, INCQRouter, compQCRouter, RetVehicleRouter, reservationRouter, dismissedRouter)
-
-app.get('/', (req,res) => {
-    res.sendFile('index.html', { root: __dirname });
 });
 
 // 이미지 업로드를 라우트
@@ -101,7 +89,7 @@ app.post('/upload', upload.array('images', 50), async (req, res, next) => {
         
         const VehicleId = RecentPost.VehicleId
 
-        /* 차량 이미지에 대한 데이터를 저장하는 곳. VehicleId 값을 어떻게 가져올지 미구현. */
+        // 차량 이미지에 대한 데이터를 저장하는 곳. VehicleId 값을 어떻게 가져올지 미구현. 
         for (i = 0; i < imageURLs.length; i++) {
             await prisma.vehicleImages.create({
             data : { VehicleId, ImgURL: imageURLs[i].location, VehicleNumber}
@@ -117,6 +105,20 @@ app.post('/upload', upload.array('images', 50), async (req, res, next) => {
     }
  
 });
+*/
+
+app.use(express.static(path.join(__dirname, 'public')));
+app.use(bodyParser.urlencoded({ extended: true}));
+app.use(bodyParser.json());
+app.set('view engine', 'ejs');          // ejs 템플릿 엔진 세팅부분.
+app.set('views', path.join(__dirname, '../views')) // views 디렉토리에 파일이 있다고 가정. 디렉토리 위치수정 필요
+
+app.use('/', listRouter, landingRouter, retrievalRouter, INCQRouter, compQCRouter, RetVehicleRouter, reservationRouter, dismissedRouter)
+
+app.get('/', (req,res) => {
+    res.sendFile('index.html', { root: __dirname });
+});
+
 
 
 // 이미지 delete를 라우트
