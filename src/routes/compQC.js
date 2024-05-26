@@ -90,8 +90,9 @@ function decrypt(encrypted, key, iv) {
 
 /* COMP-QC GET (3000) */
 /* /CompQC의 렌더링 부분이 프론트로 전달되는 방식으로 구현 된 이후에 endpoint 변경할 것. */
-router.get('/com-test/dev/CompQC', async (req, res, next) => {
+router.get('/com-test/dev/CompQC/:STATUSREQ', async (req, res, next) => {
     try {
+        const { STATUSREQ } = req.params
         // const user = req.session.user;  
         // const USERID = user.USERID
 
@@ -107,7 +108,7 @@ router.get('/com-test/dev/CompQC', async (req, res, next) => {
                 "RGTFLDPWR" : '!Ekdzhd123', // req.session.user.USERPW
             },
             "data" : {
-                "REQSTATUS" : "D" // 상품화를 의미하는 STATUS값 - 문서(3000) 참조
+                "REQSTATUS" : STATUSREQ // 상품화를 의미하는 STATUS값 - 문서(3000) 참조
             }
         })
 
