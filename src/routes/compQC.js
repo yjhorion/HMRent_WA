@@ -143,7 +143,7 @@ router.get('/com-test/dev/CompQC/:STATUSREQ', async (req, res, next) => {
 
         /* 프론트에 데이터를 보내는 부분. stringify 되었던 데이터를 parse 해서 json형식으로 보내줌 */
         res.send({
-            data: JSON.parse(decryptedresponse).data,
+            data: JSON.parse(decryptedresponse),
         })
 
     } catch (error) {
@@ -153,6 +153,11 @@ router.get('/com-test/dev/CompQC/:STATUSREQ', async (req, res, next) => {
 });
 
 
+
+/**********************************************************************************************************************************************************************************************/
+/*********************************************************** 사진이 없을 경우의 동작에 대한 예외처리가 필요할 '수'도 있음 **************************************************************************/
+/***********************************************************   multerS3를 이용해 실제로 데이터를 넣으면서 확인해볼 것 **************************************************************************/
+/**********************************************************************************************************************************************************************************************/
 
 /// filesize가 출력되거나 전달되지 않고있음. 
 router.post('/com-test/dev/CompQC/:ASSETNO', async (req, res, next) => { // multerS3를 통한 이미지 업로드는 INQC에서 참조하여 구성할 것.
@@ -206,15 +211,20 @@ router.post('/com-test/dev/CompQC/:ASSETNO', async (req, res, next) => { // mult
         /* 응답값이 0000 (처리완료)가 아니라면, 업로드한 이미지를 롤백(삭제)하는 부분 */
         if (JSON.parse(decryptedresponse).result.CODE !== "0000"){
             await rollbackUploadedFiles()
+            res.status(410).send({
+                data: JSON.parse(decryptedresponse),
+            })
+        } else {
+            res.status(201).send({
+                data: JSON.parse(decryptedresponse),
+            })
         }
 
         /* 프론트에 데이터를 보내는 부분. stringify 되었던 데이터를 parse 해서 json형식으로 보내줌 */
-        res.send({
-            data: JSON.parse(decryptedresponse),
-        })
         
 
     } catch (error) {
+        await rollbackUploadedFiles() // 이부분이 잘 작동할지 테스트를 아직 못함. 응답서버가 꺼져있다던지 하는경우에 테스트 필요.
         console.error('통신에러: ', error.message);
         res.status(500).send('통신 에러');
     }

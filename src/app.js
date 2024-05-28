@@ -22,6 +22,10 @@ const reservationRouter = require('./routes/reservation.js')
 const dismissedRouter = require('./routes/dismissed.js')
 const loginRouter = require('./routes/login.js')
 
+/* swagger module */
+const swaggerUi = require('swagger-ui-express');
+const YAML = require('yamljs')
+
 require('dotenv').config();
 
 const { prisma } = require('./utils/prisma/index.js');
@@ -47,22 +51,9 @@ app.get('/', (req,res) => {
     res.sendFile('index.html', { root: __dirname });
 });
 
-
-
-// 이미지 delete를 라우트
-
-
-/** 구현부 s3.deleteObject를 이용해서 delete를 구현.
- * 
- * 
- * 
- * 
- * 
- * 
- * 
- * 
- * 
- */
+/* swagger 세팅 */
+const swaggerDocument = YAML.load('./src/swagger/swagger.yaml');
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 /* ERP 통신이 되는지 확인 (개발)*/
 
@@ -173,8 +164,6 @@ app.get('/com-test/dev', async (req, res, next) => {
         res.status(500).send('통신 에러');
     }
 });
-
-
 
 app.use(express.static('public'));
 

@@ -1,0 +1,17 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "version": "1.0.0",
+    "title": "SOPT API docs",
+    "description": "SOPT SERVER SEMINAR",
+    "license": {
+      "name": "Jionee"
+    }
+  },
+  "servers": [
+    {
+      "url": "http://localhost:3000/"
+    }
+  ],
+  "paths": {}
+}

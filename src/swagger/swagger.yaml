@@ -1,0 +1,284 @@
+openapi: 3.0.0
+info:
+  title: HMRent_WA
+  description: WA_API-TEST
+  version: 1.0.0
+servers:
+  - url: http://3.34.198.148:3000
+paths:
+  /login:
+    post:
+      summary: LOGIN 요청
+      responses:
+        "200":
+        description: 정상 처리 시 응답
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                message:
+                  type: string
+                  description: 처리 메세지
+                data:
+                  type: object
+                  description: 로그인한 이용자의 상세 정보값
+                  properties:
+                    BRANCH:
+                      type: string
+                      description: 지점
+                    USERID:
+                      type: string
+                      description: 사용자 ID
+                    USERNAME:
+                      type: string
+                      description: 사용자 이름
+                    DEPARTMENT:
+                      type: string
+                      description: 소속 부서
+      responses:
+        "400":
+        description: 로그인 정보 오류
+        content:
+          application/json:
+            schema:
+              type: object
+              properies:
+                message:
+                  type: string
+                  description: 실패 메세지
+                data:
+                  type: null
+                  description: 응답 데이터 없음
+      responses:
+        "400":
+        description: 잘못된 요청 (body에 값이 없을경우 등)
+        content:
+          application/json:
+            schema:
+              type: object
+              properies:
+                message:
+                  type: string
+                  description: 실패 메세지
+                data:
+                  type: null
+                  description: 응답 데이터 없음
+
+  /com-test/dev/CompQC/{STARTUSREQ}:
+    get:
+      summary: STARTUSREQ (상태값)에 대한 데이터 조회
+      parameters:
+        - in: path
+          name: STATUSREQ
+          required: true
+          description: 상태값에 따른 조회를 위한 변수 (A, B, C, D) - 현재는 D값을 default 요청으로 고정
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Success response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      result:
+                        type: object
+                        properties:
+                          MSGE:
+                            type: string
+                            description: Result message
+                          CODE:
+                            type: string
+                            description: Result code
+                      data:
+                        type: object
+                        properties:
+                          REPT:
+                            type: array
+                            items:
+                              type: object
+                              properties:
+                                STATUS:
+                                  type: string
+                                  description: 상품화 상태
+                                ASSETNO:
+                                  type: string
+                                  description: ID값으로 활용되는 자산번호
+                                CARNO:
+                                  type: string
+                                  description: 차량번호
+                                MODEL:
+                                  type: string
+                                  description: 차량 모델명
+                                GUBUN:
+                                  type: string
+                                  description: 재랜트/신차 구분
+        '404':
+          description: Not Found
+        '505':
+          description: 서버측 에러. 백앤드 코드 수정/조율 필요
+
+  /com-test/dev/CompQC/{ASSETNO}:
+    post:
+      summary: 상품화 완료 요청 (자산번호로 지정)
+      parameters:
+        - in: path
+          name: ASSETNO
+          required: true
+          description: 자산번호를 parameter로 전달
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                year:
+                  type: integer
+                month:
+                  type: integer
+                day:
+                  type: integer
+                hour:
+                  type: integer
+                minute:
+                  type: integer
+                second:
+                  type: integer
+      responses:
+        '201':
+          description: 요청(변경) 성공
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      result:
+                        type: object
+                        properties:
+                          MSGE:
+                            type: string
+                            description: 처리 메세지
+                          CODE:
+                            type: string
+                            description: 처리 코드
+        '400':
+          description: 자산정보 혹은 자산입고 정보가 존재하지 않음
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      result:
+                        type: object
+                        properties:
+                          MSGE:
+                            type: string
+                            description: 에러 메시지
+                          CODE:
+                            type: string
+                            description: 에러 코드
+        '410':
+          description: 상품화 진행중인 건만 처리 가능
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      result:
+                        type: object
+                        properties:
+                          MSGE:
+                            type: string
+                            description: 에러 메시지
+                          CODE:
+                            type: string
+                            description: 에러 코드
+        '500':
+          description: 서버 내부 오류
+
+  /retrieval:
+    get:
+      summary: 회수차량 조회
+      responses:
+        '200':
+          description: Success response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      result:
+                        type: object
+                        properties:
+                          MSGE:
+                            type: string
+                            description: 성공 메세지
+                          CODE:
+                            type: string
+                            description: 결과(성공) 코드
+                      data:
+                        type: object
+                        properties:
+                          REPT:
+                            type: array
+                            items:
+                              type: object
+                              properties:
+                                STATUS:
+                                  type: string
+                                  description: 회수완료 회수요청 등의 현재 상태값
+                                RRSONDTL:
+                                  type: string
+                                  description: 회수요청사유(상세사유)
+                                RQDDAY:
+                                  type: string
+                                  description: 회수요청경과일
+                                PHONE:
+                                  type: string
+                                  description: 전화번호
+                                ASSETNO:
+                                  type: string
+                                  description: 자산번호
+                                RRSON:
+                                  type: string
+                                  description: 회수요청사유
+                                CNAME:
+                                  type: string
+                                  description: 고객명
+                                CARNO:
+                                  type: string
+                                  description: 차량번호
+                                MODEL:
+                                  type: string
+                                  description: 차량 모델명
+                                RQNAME:
+                                  type: string
+                                  description: 요청자(직원명)
+                                RCOMPDATE:
+                                  type: string
+                                  description: 회수완료일시
+                                RQDATE:
+                                  type: string
+                                  description: 요청일시
+        '500':
+          description: Internal Server Error

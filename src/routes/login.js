@@ -23,17 +23,6 @@ const testServerUrl = process.env.testServerUrl;
 const secret_key = Buffer.from(process.env.CRYPTO_SECRET_KEY, 'utf8')
 const IV         = Buffer.from(process.env.IV, 'utf8')
 
-
-/* 로그인 페이지에 대한 endpoint 관리. 프론트 페이지가 작성되면 수정할 부분 */
-router.get('login', async (req, res, next) => {
-    try {
-
-    } catch (error) { 
-        console.error("WA에러: ", error.message)
-        res.status(400).send('WA쪽 에러')
-    }
-})
-
 /* 로그인 요청값을 보내는 endpoint. POST요청 */
 router.post('/login', async (req, res, next) => {
     try {
@@ -141,11 +130,12 @@ router.post('/login', async (req, res, next) => {
             console.log("세션에 저장될 코드값",req.session.reqCode)
 
             /* 프론트에 데이터를 보내는 부분. stringify 되었던 데이터를 parse 해서 json형식으로 보내줌 */
-            res.send({
-                message : decryptedresponse.result.MSGE,
-                data: decryptedresponse.data,
-        })
 
+                res.status(200).send({
+                    message : decryptedresponse.result.MSGE,
+                    data: decryptedresponse.data,
+            })
+            
     } else { // 로그인 실패시
         req.session.regenerate((err) => {
             if (err) {
@@ -157,15 +147,13 @@ router.post('/login', async (req, res, next) => {
                 req.session.user = sessioninfo;
                 console.log("세션에 담을 정보 : ", req.session.user);
 
-                res.send({
+                res.status(400).send({
                     message : decryptedresponse.result.MSGE,
                     data: null, // 실패시 데이터는 보내주지 않지만, 혹시나 다시 로그인 시도를 할 때, 입력했던 사번으로 다시 로그인 할 수 있도록, 아이디 정보를 채운채로 보여주고싶다면 받은 데이터를 전달해줄 것 (받은 데이터에 접속을 시도한 USERID값이 입력되어있음.)
                 })
             }
         })
     }
-
-
 
     } catch (error) {
         console.error('통신 에러: ', error.message);
