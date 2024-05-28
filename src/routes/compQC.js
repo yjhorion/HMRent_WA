@@ -5,11 +5,11 @@ const { prisma } = require('../utils/prisma/index.js')
 const axios = require('axios');
 const crypto= require('crypto');
 const iconv = require('iconv-lite');
+const getCurrentDateTime = require('../utils/Time/DateTime.js')
 
 require('dotenv').config();
 
 const router = express.Router()
-const getCurrentDateTime = require('../utils/Time/DateTime.js');
 
 const {uploadImages, rollbackUploadedFiles} = require('../utils/IMAGEUPLOAD/imageupload.js')
 
@@ -19,8 +19,6 @@ const multerS3 = require('multer-s3');
 const AWS = require('aws-sdk');
 
 const { v4: uuidv4 } = require('uuid');
-
-require('dotenv').config();
 
 const { S3ENDPOINT, S3ACCESS, S3SECRET, S3BUCKETNAME } = process.env;
 
@@ -103,7 +101,7 @@ router.get('/com-test/dev/CompQC/:STATUSREQ', async (req, res, next) => {
                 "DOCTRDCDE" : "3000",
                 "DOCPORTAL" : "M",
                 "DOCSNDDAT" : `${year}${month}${day}`,
-                "DOCSNDTIM" : `${hour}24${minute}${second}`,
+                "DOCSNDTIM" : `${hour}${minute}${second}`,
                 "RGTFLDUSR" : `H202404010`, // req.session.user.USERID로 담아 보낼 것. 테스트 단계에서만 하드코딩 된 데이터 전송
                 "RGTFLDPWR" : '!Ekdzhd123', // req.session.user.USERPW
             },
@@ -145,7 +143,7 @@ router.get('/com-test/dev/CompQC/:STATUSREQ', async (req, res, next) => {
 
         /* 프론트에 데이터를 보내는 부분. stringify 되었던 데이터를 parse 해서 json형식으로 보내줌 */
         res.send({
-            data: JSON.parse(decryptedresponse).data.REPT,
+            data: JSON.parse(decryptedresponse).data,
         })
 
     } catch (error) {
@@ -154,20 +152,25 @@ router.get('/com-test/dev/CompQC/:STATUSREQ', async (req, res, next) => {
     }
 });
 
+
+
+/// filesize가 출력되거나 전달되지 않고있음. 
 router.post('/com-test/dev/CompQC/:ASSETNO', async (req, res, next) => { // multerS3를 통한 이미지 업로드는 INQC에서 참조하여 구성할 것.
     try {
-        const { ASSETNO }= req.params;
-        // const { MILEAGE, ENTRYLOCATION, DETAILLOCATION, KEYQUANT, KEYTOTAL, KEYLOCATION, BIGO } = req.body; // 프론트가 구현되면 바디에서 받아올 것.
-        const { year, month, day, hour, minute, second } = getCurrentDateTime();
 
-        const uploadedFilesInfo = uploadImages();
+            const { ASSETNO }= req.params;
+            const { year, month, day, hour, minute, second } = getCurrentDateTime();
+
+        // const { MILEAGE, ENTRYLOCATION, DETAILLOCATION, KEYQUANT, KEYTOTAL, KEYLOCATION, BIGO } = req.body; // 프론트가 구현되면 바디에서 받아올 것.
+
+        const uploadedFilesInfo = await uploadImages();
 
         const sendingdata = JSON.stringify({
             "request" : {
-                "DOCTRDCDE" : "3100",
+                "DOCTRDCDE" : "3001",
                 "DOCPORTAL" : "M",
                 "DOCSNDDAT" :  `${year}${month}${day}`,
-                "DOCSNDTIM" : `${hour}24${minute}${second}`,
+                "DOCSNDTIM" : `${hour}${minute}${second}`,
                 "RGTFLDUSR" : `H202404010`, // req.session.user.USERID로 담아 보낼 것. 테스트 단계에서만 하드코딩 된 데이터 전송
                 "RGTFLDPWR" : '!Ekdzhd123', // req.session.user.USERPW
             },
@@ -179,7 +182,6 @@ router.post('/com-test/dev/CompQC/:ASSETNO', async (req, res, next) => { // mult
                 "KEYQUANT" : "2", // 이 값도 전달받은 값으로 전달. (일관되게 string datatype으로 전달)
                 "KEYTOTAL" : "3", // 프론트와 백에서 (보유수량 =< 총수량) 조건에 맞는 값인지 validate
                 "KEYLOCATION" : "차키보관위치value",
-                "BIGO" : "",
                 "IMGLIST" : uploadedFilesInfo
             }
         })
@@ -201,15 +203,19 @@ router.post('/com-test/dev/CompQC/:ASSETNO', async (req, res, next) => { // mult
         console.log("Response received:", response.data);
         console.log("복호화 된 응답값 :", decryptedresponse);
 
+        /* 응답값이 0000 (처리완료)가 아니라면, 업로드한 이미지를 롤백(삭제)하는 부분 */
+        if (JSON.parse(decryptedresponse).result.CODE !== "0000"){
+            await rollbackUploadedFiles()
+        }
+
         /* 프론트에 데이터를 보내는 부분. stringify 되었던 데이터를 parse 해서 json형식으로 보내줌 */
         res.send({
-            data: JSON.parse(decryptedresponse).data,
+            data: JSON.parse(decryptedresponse),
         })
         
 
     } catch (error) {
         console.error('통신에러: ', error.message);
-        await rollbackUploadedFiles(); // 중간에 에러가 발생하여 router가 모든 작업을 마무리하지 못했을 경우, 버켓에 업로드한 데이터 롤백
         res.status(500).send('통신 에러');
     }
 })

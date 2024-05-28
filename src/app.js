@@ -18,7 +18,6 @@ const landingRouter = require('./routes/landing.js')
 const retrievalRouter = require('./routes/retrieval.js')
 const INCQRouter = require('./routes/INQC.js')
 const compQCRouter = require('./routes/compQC.js')
-const RetVehicleRouter = require('./routes/RetVehicle.js')
 const reservationRouter = require('./routes/reservation.js')
 const dismissedRouter = require('./routes/dismissed.js')
 const loginRouter = require('./routes/login.js')
@@ -42,7 +41,7 @@ app.use(bodyParser.json());
 app.set('view engine', 'ejs');          // ejs 템플릿 엔진 세팅부분.
 app.set('views', path.join(__dirname, '../views')) // views 디렉토리에 파일이 있다고 가정. 디렉토리 위치수정 필요
 
-app.use('/', listRouter, landingRouter, retrievalRouter, INCQRouter, compQCRouter, RetVehicleRouter, reservationRouter, dismissedRouter, loginRouter)
+app.use('/', listRouter, landingRouter, retrievalRouter, INCQRouter, compQCRouter, reservationRouter, dismissedRouter, loginRouter)
 
 app.get('/', (req,res) => {
     res.sendFile('index.html', { root: __dirname });

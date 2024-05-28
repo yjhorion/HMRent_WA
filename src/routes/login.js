@@ -45,7 +45,7 @@ router.post('/login', async (req, res, next) => {
                 "DOCTRDCDE" : "1000",
                 "DOCPORTAL" : "M",
                 "DOCSNDDAT" : `${year}${month}${day}`,
-                "DOCSNDTIM" : `${hour}24${minute}${second}`,
+                "DOCSNDTIM" : `${hour}${minute}${second}`,
                 "RGTFLDUSR" : "",
                 "RGTFLDPWR" : "",
             },
@@ -104,7 +104,7 @@ router.post('/login', async (req, res, next) => {
         
         /* 세션에 유저 정보 저장 */
         req.session.user = sessioninfo;
-        console.log("세션에 담을 정보 : ", req.session.user);
+        console.log("세션에 담을 유저 정보 : ", req.session.user);
 
         // 로그인 성공, 실패여부에 상관없이 입력받고 전달한 값을 세션에 저장. 전달한 정보에 대한 검수와 응답처리는 ERP에서 처리 될 예정이기 때문에 올바른 값만 저장할 필요가 없음. 검수를 받을 값을 세션에 저장해놓고 전송.
         if (decryptedresponse.result.CODE === '0000') // 로그인 성공시
@@ -116,12 +116,12 @@ router.post('/login', async (req, res, next) => {
                     "DOCPORTAL" : "M",
                     "DOCSNDDAT" : `${year}${month}${day}`,
                     "DOCSNDTIM" : `${hour}24${minute}${second}`,
-                    "RGTFLDUSR" : "",
-                    "RGTFLDPWR" : "",
+                    "RGTFLDUSR" : req.session.user.USERID, 
+                    "RGTFLDPWR" : req.session.user.USERPW, 
                 },
-                "data" : {
-            "REQCODE" : ["HR58", "HR65"]    // "HR58 : 차량입고위치, HR65: 1차탁송출고지"
-                }
+                "data" : 
+            ["HR58", "HR65"]    // "HR58 : 차량입고위치, HR65: 1차탁송출고지"
+                
             })
 
             const additionalencryptedData = encrypt(additionalData, secret_key, IV);
@@ -137,8 +137,8 @@ router.post('/login', async (req, res, next) => {
             console.log("복호화 된 코드값 :", additionalDecryptedresponse);
 
             // 코드값에 대해 전달받은 데이터를 세션에 저장. 다른페이지에서 req.session.reqCode를 호출하여 필요한 값 사용.
-            req.session.reqCode = decryptedresponse.data.REQCODE;
-            console.log(req.session.reqCode)
+            req.session.reqCode = additionalDecryptedresponse.data;
+            console.log("세션에 저장될 코드값",req.session.reqCode)
 
             /* 프론트에 데이터를 보내는 부분. stringify 되었던 데이터를 parse 해서 json형식으로 보내줌 */
             res.send({
@@ -182,3 +182,34 @@ router.post('/login', async (req, res, next) => {
 */ 
 
 module.exports = router;
+
+
+
+/* 현재 req.session.reqCode에 저장되는 데이터
+
+[
+  {
+    HR58: {
+      HR580003: '아산 차고지',
+      HR580004: '상품화센터',
+      HR580006: '본사',
+      HR580099: '기타',
+      HR580001: '하모니파크',
+      HR580002: '송도 차고지'
+    }
+  },
+  {
+    HR65: {
+      HR650001: '기본출고지',
+      HR650002: '아산출고지',
+      HR650005: '화성출고지',
+      HR650006: '광주출고지',
+      HR650003: '울산출고지',
+      HR650004: '칠곡출고지',
+      HR650007: '소하리출고지',
+      HR650008: '서산출고지'
+    }
+  }
+]
+
+*/
