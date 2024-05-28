@@ -10,11 +10,11 @@ const router = express.Router()
 const getCurrentDateTime = require('../utils/Time/DateTime.js');
 
 router.use(session({
-    secret: 'secret',
+    secret: crypto.randomBytes(32).toString('hex'), //crypto 함수를 이용하여, 랜덤한 세션 secret값 부여
     resave: false,
     saveUninitialized: true,
     cookie: {
-        maxAge: 60 * 60 * 1000 * 14 // 세션 수명을 20시간으로 설정
+        maxAge: 60 * 60 * 1000 * 10 // 세션 수명을 10시간으로 설정
     }
 }));
 

@@ -27,7 +27,14 @@
     "multer-s3": "^2.10.0",
     "prisma": "^5.13.0",
     "s3": "^2.0.0",
+    "swagger-cli": "^4.0.4",
+    "swagger-ui-express": "^5.0.0",
     "uuid": "^9.0.1",
-    "uuidv4": "^6.2.13"
+    "uuidv4": "^6.2.13",
+    "yamljs": "^0.3.0"
+  },
+  "devDependencies": {
+    "@types/swagger-ui-express": "^4.1.6",
+    "@types/yamljs": "^0.2.34"
   }
 }
