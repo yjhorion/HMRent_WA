@@ -25,6 +25,7 @@ async function uploadImages(files) {
     uploadedFilesInfo = [];
 
     for (const file of files) {
+        const file = files[i];
         const fileName = getRandomFileName();
         const fileSizeInKB = Math.floor(file.size / 1024);
 
@@ -48,47 +49,47 @@ async function uploadImages(files) {
 }
 
 // 각 이미지 파일의 용량을 저장할 배열
-const fileLength = [];
+// const fileLength = [];
 
 // 각 이미지 파일의 용량을 구하여 fileLength 배열에 저장
-for (let i = 0; i < imageFiles.length; i++) {
-    const filePath = path.join(__dirname, `../IMAGEUPLOAD/IMAGE_SAMPLE/image${i + 1}.png`);
-    const fileStats = fs.statSync(filePath);
-    const fileSizeInBytes = fileStats.size;
-    const fileSizeInKB = Math.floor(fileSizeInBytes / 1024);
+// for (let i = 0; i < imageFiles.length; i++) {
+//     const filePath = path.join(__dirname, `../IMAGEUPLOAD/IMAGE_SAMPLE/image${i + 1}.png`);
+//     const fileStats = fs.statSync(filePath);
+//     const fileSizeInBytes = fileStats.size;
+//     const fileSizeInKB = Math.floor(fileSizeInBytes / 1024);
 
-    fileLength.push(fileSizeInKB);
-}
+//     fileLength.push(fileSizeInKB);
+// }
 
 // 각 이미지 파일을 S3에 업로드하고 파일명과 파일 사이즈를 uploadedFilesInfo 배열에 저장
-async function uploadImages() {
-    // 초기화
-    uploadedFilesInfo = [];
+// async function uploadImages() {
+//     // 초기화
+//     uploadedFilesInfo = [];
 
-    for (let i = 0; i < imageFiles.length; i++) {
-        const file = imageFiles[i];
-        const fileSize = fileLength[i];
+//     for (let i = 0; i < imageFiles.length; i++) {
+//         const file = imageFiles[i];
+//         const fileSize = fileLength[i];
 
-        const params = {
-            Bucket: bucketName,
-            Key: folderPath + file.fileName,
-            Body: fs.readFileSync(file.filePath)
-        };
+//         const params = {
+//             Bucket: bucketName,
+//             Key: folderPath + file.fileName,
+//             Body: fs.readFileSync(file.filePath)
+//         };
 
-        try {
-            const data = await s3.upload(params).promise();
-            uploadedFilesInfo.push({ "IMGNAME": file.fileName, "IMGSIZE": fileSize });
-            console.log(`${file.fileName} 업로드 완료, FILESIZE : ${fileSize} KB`);
-            // console.dir(data);
-        } catch (err) {
-            await rollbackUploadedFiles();
-            console.error(`파일 업로드 중 에러 발생: ${err.message}`);
-            return;
-        }
-    }
+//         try {
+//             const data = await s3.upload(params).promise();
+//             uploadedFilesInfo.push({ "IMGNAME": file.fileName, "IMGSIZE": fileSize });
+//             console.log(`${file.fileName} 업로드 완료, FILESIZE : ${fileSize} KB`);
+//             // console.dir(data);
+//         } catch (err) {
+//             await rollbackUploadedFiles();
+//             console.error(`파일 업로드 중 에러 발생: ${err.message}`);
+//             return;
+//         }
+//     }
 
-    return uploadedFilesInfo;
-}
+//     return uploadedFilesInfo;
+// }
 
 // 전송 과정에서 실패하는 부분이 생기면 S3에 업로드한 부분을 롤백하는 함수
 async function rollbackUploadedFiles() {
