@@ -83,9 +83,6 @@ function decrypt(encrypted, key, iv) {
     return iconv.decode(decrypted, 'euc-kr');
 }
 
-
-
-
 /* COMP-QC GET (3000) */
 /* /CompQC의 렌더링 부분이 프론트로 전달되는 방식으로 구현 된 이후에 endpoint 변경할 것. */
 router.get('/com-test/dev/CompQC/:STATUSREQ', async (req, res, next) => {
@@ -102,8 +99,8 @@ router.get('/com-test/dev/CompQC/:STATUSREQ', async (req, res, next) => {
                 "DOCPORTAL" : "M",
                 "DOCSNDDAT" : `${year}${month}${day}`,
                 "DOCSNDTIM" : `${hour}${minute}${second}`,
-                "RGTFLDUSR" : `H202404010`, // req.session.user.USERID로 담아 보낼 것. 테스트 단계에서만 하드코딩 된 데이터 전송
-                "RGTFLDPWR" : '!Ekdzhd123', // req.session.user.USERPW
+                "RGTFLDUSR" : eq.session.user.USERID,
+                "RGTFLDPWR" : req.session.user.USERPW
             },
             "data" : {
                 "REQSTATUS" : STATUSREQ // 상품화를 의미하는 STATUS값 - 문서(3000) 참조

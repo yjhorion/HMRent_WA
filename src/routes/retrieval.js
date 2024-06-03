@@ -67,8 +67,8 @@ router.get('/retrieval', async (req, res, next) => {
                 "DOCPORTAL" : "M",
                 "DOCSNDDAT" : `${year}${month}${day}`,
                 "DOCSNDTIM" : `${hour}24${minute}${second}`,
-                "RGTFLDUSR" : `H202404010`, //req.session.user.USERID
-                "RGTFLDPWR" : `!Ekdzhd123`, //req.session.user.USERPW
+                "RGTFLDUSR" : req.session.user.USERID,
+                "RGTFLDPWR" : req.session.user.USERPW
             },
             "data" : {
                 "RETSTS" : "", // 회수완료여부 null - 전체 , "A" - 회수완료 , "B" - 회수요청

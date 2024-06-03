@@ -47,8 +47,8 @@ router.get('/reservation', async (req, res, next) => {
                 "DOCPORTAL" : "M",
                 "DOCSNDDAT" : `${year}${month}${day}`,
                 "DOCSNDTIM" : `${hour}${minute}${second}`,
-                "RGTFLDUSR" : `H202404010`, // req.session.user.USERID로 담아 보낼 것. 테스트 단계에서만 하드코딩 된 데이터 전송
-                "RGTFLDPWR" : '!Ekdzhd123', // req.session.user.USERPW
+                "RGTFLDUSR" : req.session.user.USERID,
+                "RGTFLDPWR" : req.session.user.USERPW
             },
             "data" : {
 
