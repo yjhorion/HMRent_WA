@@ -20,13 +20,32 @@ const folderPath = './HR380009/202401/';
 let uploadedFilesInfo = [];
 
 // 업로드할 이미지 파일 목록
-const imageFiles = [
-    { "fileName": getRandomFileName(), "filePath": path.join(__dirname, '../IMAGEUPLOAD/IMAGE_SAMPLE/image1.png') }, // 해당 경로값등은 프론트에서 전달받게 될것이지만. 일단은 샘플 이미지 파일을 사용
-    { "fileName": getRandomFileName(), "filePath": path.join(__dirname, '../IMAGEUPLOAD/IMAGE_SAMPLE/image2.png') },
-    { "fileName": getRandomFileName(), "filePath": path.join(__dirname, '../IMAGEUPLOAD/IMAGE_SAMPLE/image3.png') },
-    { "fileName": getRandomFileName(), "filePath": path.join(__dirname, '../IMAGEUPLOAD/IMAGE_SAMPLE/image4.png') },
-    { "fileName": getRandomFileName(), "filePath": path.join(__dirname, '../IMAGEUPLOAD/IMAGE_SAMPLE/image5.png') },
-];
+async function uploadImages(files) {
+    //초기화
+    uploadedFilesInfo = [];
+
+    for (const file of files) {
+        const fileName = getRandomFileName();
+        const fileSizeInKB = Math.floor(file.size / 1024);
+
+        const params = {
+            Bucket : bucketName,
+            Key: folderPath + fileName,
+            Body: file.buffer
+        };
+
+        try {
+            const data = await s3.upload(params).promise();
+            uploadedFilesInfo.push({ "IMGNAME": fileName, "IMGSIZE": fileSizeInKB });
+            console.log(`${fileName} 업로드 완료, FILESIZE : ${fileSizeInKB} KB`)
+        } catch (error) {
+            await rollbackUploadedFiles();
+            console.error(`파일 업로드 중 에러 발생: ${error.message}`)
+            return;
+        }
+    }
+    return uploadedFilesInfo
+}
 
 // 각 이미지 파일의 용량을 저장할 배열
 const fileLength = [];

@@ -42,23 +42,38 @@ const s3 = new AWS.S3({
     region: 'us-east-1'         // 전역 설정을 무시하고 s3객체 생성시에 명시된 설정을 우선시해서, 서비스를 특정할 때 사용할 수 있음. (명시적 구분을 위해 다시 설정)
 });
 
-const upload = multer({         // 프론트에서 전송버튼이 구현되면, multer를 이용해서 버켓에 데이터를 저장한다.
-    storage: multerS3({
-        s3: s3,
-        bucket: S3BUCKETNAME,
-        acl: 'public-read',
-        limits: { fileSize: 5 * 1024 * 1024},
-        contentType: multerS3.AUTO_CONTENT_TYPE,
-        key: function(req, file, cb) {
-            const currentDate = new Date().toISOString().slice(0, 10).replace(/-/g, '');
-            const ext = path.extname(file.originalname);
-            const carNo = req.body.carNo;
-            const fileName = `${carNo}`
-            const shortUUID = uuidv4().split('-')[0]
-            cb(null,  `${shortUUID}-${carNo}-${ext}`)
+const storage = multer.memoryStorage();
+
+const upload = multer({
+    storage : storage,
+    limits: { fileSize: 5 * 1024 * 1024 }, // 파일 크기 제한
+    fileFilter: (req, file, cb) => {
+        if (!file.mimetype.startsWith('image/')) {
+            return cb(new Error('이미지 파일만 업로드 가능합니다.'));
         }
-    })
+        cb(null, true)
+    }
 });
+
+
+
+// const upload = multer({      
+//     storage: multerS3({
+//         s3: s3,
+//         bucket: S3BUCKETNAME,
+//         acl: 'public-read',
+//         limits: { fileSize: 5 * 1024 * 1024},
+//         contentType: multerS3.AUTO_CONTENT_TYPE,
+//         key: function(req, file, cb) {
+//             const currentDate = new Date().toISOString().slice(0, 10).replace(/-/g, '');
+//             const ext = path.extname(file.originalname);
+//             const carNo = req.body.carNo;
+//             const fileName = `${carNo}`
+//             const shortUUID = uuidv4().split('-')[0]
+//             cb(null,  `${shortUUID}-${carNo}-${ext}`)
+//         }
+// })
+// });
 
 // .env에서 ERP서버 주소, 암호화 키 가져오고 정의
 const testServerUrl = process.env.testServerUrl
@@ -157,13 +172,15 @@ router.get('/com-test/dev/CompQC/:STATUSREQ', async (req, res, next) => {
 /**********************************************************************************************************************************************************************************************/
 
 /// filesize가 출력되거나 전달되지 않고있음. 
-router.post('/com-test/dev/CompQC/:ASSETNO', async (req, res, next) => { // multerS3를 통한 이미지 업로드는 INQC에서 참조하여 구성할 것.
+router.post('/com-test/dev/CompQC/:ASSETNO', upload.array('images, 100'), async (req, res, next) => { // multerS3를 통한 이미지 업로드는 INQC에서 참조하여 구성할 것.
     try {
 
             const { ASSETNO }= req.params;
             const { year, month, day, hour, minute, second } = getCurrentDateTime();
 
-        // const { MILEAGE, ENTRYLOCATION, DETAILLOCATION, KEYQUANT, KEYTOTAL, KEYLOCATION, BIGO } = req.body; // 프론트가 구현되면 바디에서 받아올 것.
+            const { MILEAGE, ENTRYLOCATION, DETAILLOCATION, KEYQUANT, KEYTOTAL, KEYLOCATION } = req.body;
+
+            //ENTRYLOCATION은 한번 수정이 필요함.
 
         const uploadedFilesInfo = await uploadImages();
 
@@ -178,12 +195,12 @@ router.post('/com-test/dev/CompQC/:ASSETNO', async (req, res, next) => { // mult
             },
             "data" : {
                 "ASSETNO" : ASSETNO,
-                "MILEAGE" : "100",
-                "ENTRYLOCATION" : "HR580001", // 로그인 할 때 받아 온 코드값을 통해, 프론트에서 text로 전달받은 입고위치를 코드로 치환해서 전달 (프론트에서는 드랍다운 메뉴에서 선택하는 형식)
-                "DETAILLOCATION" : "차량상세위치value",
-                "KEYQUANT" : "2", // 이 값도 전달받은 값으로 전달. (일관되게 string datatype으로 전달)
-                "KEYTOTAL" : "3", // 프론트와 백에서 (보유수량 =< 총수량) 조건에 맞는 값인지 validate
-                "KEYLOCATION" : "차키보관위치value",
+                "MILEAGE" : MILEAGE,
+                "ENTRYLOCATION" : "HR580001", // 로그인 시 json형태로 오는 값을, 바탕으로 프론트에서 stringdata를 받으면, 해당 value에 상응하는 키값으로 치환하여 데이터 보낼 것.
+                "DETAILLOCATION" : DETAILLOCATION,
+                "KEYQUANT" : KEYQUANT, // 이 값도 전달받은 값으로 전달. (일관되게 string datatype으로 전달)
+                "KEYTOTAL" : KEYTOTAL, // 프론트와 백에서 (보유수량 =< 총수량) 조건에 맞는 값인지 validate
+                "KEYLOCATION" : KEYLOCATION,
                 "IMGLIST" : uploadedFilesInfo
             }
         })
@@ -215,10 +232,7 @@ router.post('/com-test/dev/CompQC/:ASSETNO', async (req, res, next) => { // mult
             res.status(201).send({
                 data: JSON.parse(decryptedresponse),
             })
-        }
-
-        /* 프론트에 데이터를 보내는 부분. stringify 되었던 데이터를 parse 해서 json형식으로 보내줌 */
-        
+        }        
 
     } catch (error) {
         await rollbackUploadedFiles() // 이부분이 잘 작동할지 테스트를 아직 못함. 응답서버가 꺼져있다던지 하는경우에 테스트 필요.
@@ -252,37 +266,37 @@ router.post('/com-test/dev/CompQC/:ASSETNO', async (req, res, next) => { // mult
 
 
 
-///////////////////////////
+// ///////////////////////////
 
 
-/* 렌더링으로 화면 표시 */
-router.get('/CompQC', async (req, res, next) => {
-    try {
-        const CompQC = await prisma.CompQC.findMany({
-            where : { UpdatedAt : null },
-            orderBy : { CompQCId : "desc" }
-        })
+// /* 렌더링으로 화면 표시 */
+// router.get('/CompQC', async (req, res, next) => {
+//     try {
+//         const CompQC = await prisma.CompQC.findMany({
+//             where : { UpdatedAt : null },
+//             orderBy : { CompQCId : "desc" }
+//         })
 
-        if (!CompQC.length) {
-            return res.status(404).json({ message : " 존재하는 상품화완료QC 데이터가 없습니다 "})
-        }
+//         if (!CompQC.length) {
+//             return res.status(404).json({ message : " 존재하는 상품화완료QC 데이터가 없습니다 "})
+//         }
 
-        if (req.query.carNo) {                                  //차량번호로 검색이 req.query로 들어올 경우, 차량번호로 조회.
-            const { carNo } = req.query
-            const result = await prisma.CompQC.findMany({
-                where : { carNo: { contains: carNo 
-                }}
-            })
-            return res.status(200).render('CompQC', { data: result })
-        }
+//         if (req.query.carNo) {                                  //차량번호로 검색이 req.query로 들어올 경우, 차량번호로 조회.
+//             const { carNo } = req.query
+//             const result = await prisma.CompQC.findMany({
+//                 where : { carNo: { contains: carNo 
+//                 }}
+//             })
+//             return res.status(200).render('CompQC', { data: result })
+//         }
 
-        return res.status(200).render('CompQC', { data: CompQC })
+//         return res.status(200).render('CompQC', { data: CompQC })
 
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({ message : error })
-    }
-})
+//     } catch (error) {
+//         console.error(error);
+//         res.status(500).json({ message : error })
+//     }
+// })
 
 /* GET 요청을 ERP에 전문데이터를 담아 던지는 예시코드
 
@@ -332,34 +346,34 @@ router.get('/CompQC', async (req, res, next) => {
 */
 
 /* 실행번호를 클릭했을 때, 해당 데이터를 검색하고 리다이렉팅 */
-router.get('/editCompQC/:carNo', async (req, res, next) => {
-    try {
-        const  carNo  = req.params.carNo
+// router.get('/editCompQC/:carNo', async (req, res, next) => {
+//     try {
+//         const  carNo  = req.params.carNo
 
-        const data = await prisma.CompQC.findFirst({
-            where : { 
-                carNo : carNo,
-                UpdatedAt : null
-             }
-        })
+//         const data = await prisma.CompQC.findFirst({
+//             where : { 
+//                 carNo : carNo,
+//                 UpdatedAt : null
+//              }
+//         })
 
-        if (!data) {
-            return res.status(400).json({ message : "실행번호로 검색된 데이터가 없습니다"})
-        }
+//         if (!data) {
+//             return res.status(400).json({ message : "실행번호로 검색된 데이터가 없습니다"})
+//         }
 
-        return res.status(200).json({GUBUN:data.GUBUN, carNo:data.carNo, modelName:data.modelName, mainTstatus:data.mainTstatus})
-    } catch(error) {
-        console.error(error);
-        return res.status(500).json({ message: error })
-    }
-})
+//         return res.status(200).json({GUBUN:data.GUBUN, carNo:data.carNo, modelName:data.modelName, mainTstatus:data.mainTstatus})
+//     } catch(error) {
+//         console.error(error);
+//         return res.status(500).json({ message: error })
+//     }
+// })
 
 /* 실행번호 기반 리다이렉팅 된 페이지로 넘어가는 라우터 */
-router.get('/editCompQC', (req, res) => {
-    const { GUBUN, carNo, modelName, mainTstatus } = req.query;
+// router.get('/editCompQC', (req, res) => {
+//     const { GUBUN, carNo, modelName, mainTstatus } = req.query;
 
-    res.render('editCompQC', { GUBUN, carNo, modelName, mainTstatus })
-})
+//     res.render('editCompQC', { GUBUN, carNo, modelName, mainTstatus })
+// })
 
 /* 전송버튼을 눌렀을 때, 데이터와 이미지 전송 */
 router.post('/submitCompQC', upload.array('images', 50), async(req, res, next) => {

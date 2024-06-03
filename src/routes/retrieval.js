@@ -18,13 +18,6 @@ const testServerUrl = process.env.testServerUrl
 const secret_key = Buffer.from(process.env.CRYPTO_SECRET_KEY, 'utf8')
 const IV         = Buffer.from(process.env.IV, 'utf8')
 
-/* 모바일접속, 웹접속 값을 매기는 부분 */
-// window.onload = () => {
-//     getDeviceType();
-
-//     const device = window.DOCPORTAL.deviceType;
-// }
-
 
 /* 암호화 함수 */
 function encrypt(text, key, iv) {

@@ -9,19 +9,21 @@ const bodyParser = require('body-parser');
 const axios = require('axios');
 const fs = require('fs')
 const getCurrentDateTime = require('./utils/Time/DateTime.js');
+const cors = require('cors')
 
 const crypto= require('crypto');
 const iconv = require('iconv-lite');
 
-const listRouter = require('./routes/list.js')
-const landingRouter = require('./routes/landing.js')
 const retrievalRouter = require('./routes/retrieval.js')
 const INCQRouter = require('./routes/INQC.js')
 const compQCRouter = require('./routes/compQC.js')
 const reservationRouter = require('./routes/reservation.js')
-const dismissedRouter = require('./routes/dismissed.js')
 const loginRouter = require('./routes/login.js')
 
+const app = express();
+const PORT = 3000;
+
+/* cors */
 app.use(cors({
     origin: '*'
 }));
@@ -36,9 +38,6 @@ const { prisma } = require('./utils/prisma/index.js');
 const { resolvePtr } = require('dns');
 // router = express.Router()
 
-const app = express();
-const PORT = 3000;
-
 const { S3ENDPOINT, S3ACCESS, S3SECRET, S3BUCKETNAME, S3DIRECTORY, testServerUrl } = process.env;
 
 app.use(morgan('combined'));
@@ -46,10 +45,10 @@ app.use(morgan('combined'));
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(bodyParser.urlencoded({ extended: true}));
 app.use(bodyParser.json());
-app.set('view engine', 'ejs');          // ejs 템플릿 엔진 세팅부분.
-app.set('views', path.join(__dirname, '../views')) // views 디렉토리에 파일이 있다고 가정. 디렉토리 위치수정 필요
+// app.set('view engine', 'ejs');          // ejs 템플릿 엔진 세팅부분.
+// app.set('views', path.join(__dirname, '../views')) // views 디렉토리에 파일이 있다고 가정. 디렉토리 위치수정 필요
 
-app.use('/', listRouter, landingRouter, retrievalRouter, INCQRouter, compQCRouter, reservationRouter, dismissedRouter, loginRouter)
+app.use('/', retrievalRouter, INCQRouter, compQCRouter, reservationRouter, loginRouter)
 
 app.get('/', (req,res) => {
     res.sendFile('index.html', { root: __dirname });
@@ -60,7 +59,6 @@ const swaggerDocument = YAML.load('./src/swagger/swagger.yaml');
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 /* ERP 통신이 되는지 확인 (개발)*/
-
 app.get('/com-test/dev', async (req, res, next) => {
     try {
         const { year, month, day, hour, minute, second } = getCurrentDateTime();
@@ -97,10 +95,7 @@ app.get('/com-test/dev', async (req, res, next) => {
 
         // 전체 암호화를 위해 requestBody를 stringify
         const serializedRequestBody = JSON.stringify(requestBody);
-
         console.log(serializedRequestBody)
-
-        
 
         function encrypt(text, key, iv) {
             const encodedText = iconv.encode(text, 'euc-kr'); // encode into 'euc-kr first before encrypting'
@@ -117,9 +112,6 @@ app.get('/com-test/dev', async (req, res, next) => {
             return iconv.decode(decrypted, 'euc-kr');
         }
 
-
-
-
         // function decrypt(encrypted, key, iv) {
         //     const decipher = crypto.createDecipheriv('aes-128-cbc', key, iv);
         //     let decrypted = decipher.update(encrypted, 'base64', 'utf8');
@@ -127,13 +119,10 @@ app.get('/com-test/dev', async (req, res, next) => {
         //     return decrypted;
         // }
 
-
-
         const encryptedData = encrypt(sendingdata, secret_key, IV);
         const decryptedData = decrypt(encryptedData, secret_key, IV);
 
         console.log("암호화 값 : ", encryptedData);
-
         console.log("복호화 값 : ", decryptedData)
 
         const response = await axios.post(testServerUrl, encryptedData, {

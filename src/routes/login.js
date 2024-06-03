@@ -23,6 +23,8 @@ const testServerUrl = process.env.testServerUrl;
 const secret_key = Buffer.from(process.env.CRYPTO_SECRET_KEY, 'utf8')
 const IV         = Buffer.from(process.env.IV, 'utf8')
 
+
+
 /* 로그인 요청값을 보내는 endpoint. POST요청 */
 router.post('/login', async (req, res, next) => {
     try {
@@ -45,8 +47,6 @@ router.post('/login', async (req, res, next) => {
         })
         // const encodeddata = btoa(sendingdata)
 
-        console.log("Encoded secret key : ", secret_key) // Base64 encoded key
-        console.log("Encoded Initial Vector : ", IV) // Base64 encoded IV
 
         if (!secret_key) {
             console.log("No Secret Key.");
@@ -60,20 +60,20 @@ router.post('/login', async (req, res, next) => {
             encrypted += cipher.final('base64'); 
             return encrypted;
         }
-    
+        
         function decrypt(encrypted, key, iv) {
             const decipher = crypto.createDecipheriv('aes-128-cbc', key, iv);
             let decrypted = decipher.update(Buffer.from(encrypted, 'base64'));
             decrypted = Buffer.concat([decrypted, decipher.final()]);
             return iconv.decode(decrypted, 'euc-kr');
+            
         }
-
+        
         const encryptedData = encrypt(sendingdata, secret_key, IV);
         const decryptedData = decrypt(encryptedData, secret_key, IV);
 
         console.log("암호화 값 : ", encryptedData);
-
-        console.log("복호화 값 : ", decryptedData)
+        console.log("복호화 값 : ", decryptedData);
 
         /* ERP에 암호화된 데이터를 보내는 부분 */
 
