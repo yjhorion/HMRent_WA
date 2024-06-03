@@ -125,6 +125,13 @@ router.post('/login', async (req, res, next) => {
             console.log("Response received:", additionalResponse.data);
             console.log("복호화 된 코드값 :", additionalDecryptedresponse);
 
+            /* 프론트로 전달할 출고지 코드값을 리팩토링 */
+            const modifiedData = (additionalDecryptedresponse.data).map(item => {
+                const key = Object.keys(item)[0];
+                const values = Object.values(item[key]);
+                return { [key]: values};
+            })
+
             // 코드값에 대해 전달받은 데이터를 세션에 저장. 다른페이지에서 req.session.reqCode를 호출하여 필요한 값 사용.
             req.session.reqCode = additionalDecryptedresponse.data;
             console.log("세션에 저장될 코드값", req.session.reqCode)
@@ -133,7 +140,7 @@ router.post('/login', async (req, res, next) => {
 
                 res.status(200).send({
                     message : decryptedresponse.result.MSGE,
-                    data: decryptedresponse.data,
+                    data: decryptedresponse.data, modifiedData     // 유저정보와, 출고지 코드값 (코드를제거한 목록값)을 프론트로 전송
             })
             
     } else { // 로그인 실패시
