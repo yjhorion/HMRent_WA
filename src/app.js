@@ -22,6 +22,10 @@ const reservationRouter = require('./routes/reservation.js')
 const dismissedRouter = require('./routes/dismissed.js')
 const loginRouter = require('./routes/login.js')
 
+app.use(cors({
+    origin: '*'
+}));
+
 /* swagger module */
 const swaggerUi = require('swagger-ui-express');
 const YAML = require('yamljs')
