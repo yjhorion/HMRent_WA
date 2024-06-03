@@ -100,11 +100,10 @@ function decrypt(encrypted, key, iv) {
 
 /* COMP-QC GET (3000) */
 /* /CompQC의 렌더링 부분이 프론트로 전달되는 방식으로 구현 된 이후에 endpoint 변경할 것. */
-router.get('/com-test/dev/CompQC/:STATUSREQ', async (req, res, next) => {
+router.get('/CompQC/:STATUSREQ', async (req, res, next) => {
     try {
         const { STATUSREQ } = req.params
-        // const user = req.session.user;  
-        // const USERID = user.USERID
+        const { USERID, USERPW } = req.session.user;  
 
         const { year, month, day, hour, minute, second } = getCurrentDateTime();
 
@@ -114,8 +113,8 @@ router.get('/com-test/dev/CompQC/:STATUSREQ', async (req, res, next) => {
                 "DOCPORTAL" : "M",
                 "DOCSNDDAT" : `${year}${month}${day}`,
                 "DOCSNDTIM" : `${hour}${minute}${second}`,
-                "RGTFLDUSR" : eq.session.user.USERID,
-                "RGTFLDPWR" : req.session.user.USERPW
+                "RGTFLDUSR" : USERID,
+                "RGTFLDPWR" : USERPW
             },
             "data" : {
                 "REQSTATUS" : STATUSREQ // 상품화를 의미하는 STATUS값 - 문서(3000) 참조
@@ -171,39 +170,54 @@ router.get('/com-test/dev/CompQC/:STATUSREQ', async (req, res, next) => {
 /***********************************************************   multerS3를 이용해 실제로 데이터를 넣으면서 확인해볼 것 **************************************************************************/
 /**********************************************************************************************************************************************************************************************/
 
-/// filesize가 출력되거나 전달되지 않고있음. 
-router.post('/com-test/dev/CompQC/:ASSETNO', upload.array('images, 100'), async (req, res, next) => { // multerS3를 통한 이미지 업로드는 INQC에서 참조하여 구성할 것.
+/* 차고지 데이터를 코드로 치환해주는 함수(req.session.reqCode, ENTRYLOCATION)을 인자로 받음 */
+function findKeyByValue(sessionCode, value) {
+    for (const codeGroup of sessionCode) {
+        for (const group in codeGroup) {
+            for (const key in codeGroup[group]) {
+                if (codeGroup[group][key] === value) {
+                    return key;
+                }
+            }
+        }
+    }
+    return null; // 값이 없을 경우 null 반환
+}
+
+router.post('/CompQC/:ASSETNO', upload.array('images, 50'), async (req, res, next) => { // multerS3를 통한 이미지 업로드는 INQC에서 참조하여 구성할 것.
     try {
 
-            const { ASSETNO }= req.params;
+            const { ASSETNO } = req.params;
             const { year, month, day, hour, minute, second } = getCurrentDateTime();
 
             const { MILEAGE, ENTRYLOCATION, DETAILLOCATION, KEYQUANT, KEYTOTAL, KEYLOCATION } = req.body;
+            const { reqCode, USERID, USERPW } = req.session;
 
-            //ENTRYLOCATION은 한번 수정이 필요함.
+            /* 프론트에서 받은 차고지 데이터를 코드로 치환 */
+            const EntryCode = findKeyByValue(reqCode, ENTRYLOCATION);
 
-        const uploadedFilesInfo = await uploadImages();
+            const uploadedFilesInfo = await uploadImages();
 
-        const sendingdata = JSON.stringify({
-            "request" : {
-                "DOCTRDCDE" : "3001",
-                "DOCPORTAL" : "M",
-                "DOCSNDDAT" :  `${year}${month}${day}`,
-                "DOCSNDTIM" : `${hour}${minute}${second}`,
-                "RGTFLDUSR" : `H202404010`, // req.session.user.USERID로 담아 보낼 것. 테스트 단계에서만 하드코딩 된 데이터 전송
-                "RGTFLDPWR" : '!Ekdzhd123', // req.session.user.USERPW
-            },
-            "data" : {
-                "ASSETNO" : ASSETNO,
-                "MILEAGE" : MILEAGE,
-                "ENTRYLOCATION" : "HR580001", // 로그인 시 json형태로 오는 값을, 바탕으로 프론트에서 stringdata를 받으면, 해당 value에 상응하는 키값으로 치환하여 데이터 보낼 것.
-                "DETAILLOCATION" : DETAILLOCATION,
-                "KEYQUANT" : KEYQUANT, // 이 값도 전달받은 값으로 전달. (일관되게 string datatype으로 전달)
-                "KEYTOTAL" : KEYTOTAL, // 프론트와 백에서 (보유수량 =< 총수량) 조건에 맞는 값인지 validate
-                "KEYLOCATION" : KEYLOCATION,
-                "IMGLIST" : uploadedFilesInfo
-            }
-        })
+            const sendingdata = JSON.stringify({
+                "request" : {
+                    "DOCTRDCDE" : "3001",
+                    "DOCPORTAL" : "M",
+                    "DOCSNDDAT" :  `${year}${month}${day}`,
+                    "DOCSNDTIM" : `${hour}${minute}${second}`,
+                    "RGTFLDUSR" : USERID,
+                    "RGTFLDPWR" : USERPW
+                },
+                "data" : {
+                    "ASSETNO" : ASSETNO,
+                    "MILEAGE" : MILEAGE,
+                    "ENTRYLOCATION" : EntryCode, // 로그인 시 json형태로 오는 값을, 바탕으로 프론트에서 stringdata를 받으면, 해당 value에 상응하는 키값으로 치환하여 데이터 보낼 것.
+                    "DETAILLOCATION" : DETAILLOCATION,
+                    "KEYQUANT" : KEYQUANT, // 이 값도 전달받은 값으로 전달. (일관되게 string datatype으로 전달)
+                    "KEYTOTAL" : KEYTOTAL, // 프론트와 백에서 (보유수량 =< 총수량) 조건에 맞는 값인지 validate
+                    "KEYLOCATION" : KEYLOCATION,
+                    "IMGLIST" : uploadedFilesInfo
+                }
+            })
 
 
         const encryptedData = encrypt(sendingdata, secret_key, IV);

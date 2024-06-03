@@ -40,6 +40,7 @@ function decrypt(encrypted, key, iv) {
 router.get('/reservation', async (req, res, next) => {
     try {
         const { year, month, day, hour, minute, second } = getCurrentDateTime()
+        const { USERID, USERPW } = req.session.user
 
         const sendingdata = JSON.stringify({
             "request" : {
@@ -47,8 +48,8 @@ router.get('/reservation', async (req, res, next) => {
                 "DOCPORTAL" : "M",
                 "DOCSNDDAT" : `${year}${month}${day}`,
                 "DOCSNDTIM" : `${hour}${minute}${second}`,
-                "RGTFLDUSR" : req.session.user.USERID,
-                "RGTFLDPWR" : req.session.user.USERPW
+                "RGTFLDUSR" : USERID,
+                "RGTFLDPWR" : USERPW
             },
             "data" : {
 
@@ -99,9 +100,10 @@ router.get('/reservation', async (req, res, next) => {
 /* (5001) 예약해제 집행 */
 router.post('/reservation/:ASSETNO', async (req, res, next) => {
     try {
-        const { year, month, day, hour, minute, second } = getCurrentDateTime()
+        const { year, month, day, hour, minute, second } = getCurrentDateTime();
+        const { USERID, USERPW } = req.session.user;
 
-        const { ASSETNO } = req.params
+        const { ASSETNO } = req.params;
 
         const sendingdata = JSON.stringify({
             "request" : {
@@ -109,8 +111,8 @@ router.post('/reservation/:ASSETNO', async (req, res, next) => {
                 "DOCPORTAL" : "M",
                 "DOCSNDDAT" : `${year}${month}${day}`,
                 "DOCSNDTIM" : `${hour}${minute}${second}`,
-                "RGTFLDUSR" : `H202404010`, // req.session.user.USERID로 담아 보낼 것. 테스트 단계에서만 하드코딩 된 데이터 전송
-                "RGTFLDPWR" : '!Ekdzhd123', // req.session.user.USERPW
+                "RGTFLDUSR" : USERID,
+                "RGTFLDPWR" : USERPW, 
             },
             "data" : {
                 "ASSETNO" : ASSETNO
