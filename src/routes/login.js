@@ -14,8 +14,10 @@ router.use(session({
     resave: false,
     saveUninitialized: true,
     cookie: {
-        maxAge: 60 * 60 * 1000 * 10 // 세션 수명을 10시간으로 설정
-    }
+        maxAge: 60 * 60 * 1000 * 10, // 세션 수명을 10시간으로 설정
+        sameSite: 'Lax'
+    },
+    name: 'session_id'
 }));
 
 // .env에서 ERP서버 주소, 암호화 키 가져오고 정의
@@ -175,6 +177,108 @@ router.post('/login', async (req, res, next) => {
 * 그 외의 경우 세션을 파괴하고, 로그아웃을 진행하고, 로그인 페이지로 강제이동. '로그인이 필요한 기능입니다' 메세지 출력.
 * 궁금한건, 이렇게하고 '뒤로가기' 등을 사용하였을 때에도 로그인 페이지로 강제이동이 되는지.
 */ 
+
+
+/* session값을 변화시키지 않고 유저 데이터의 유효성을 확인하는 라우터 */
+router.get('/auth', async (req, res, next) => {
+    try {
+        const {USERID, USERPW} = req.session.user;
+        const { year, month, day, hour, minute, second } = getCurrentDateTime();
+
+        const sendingdata = JSON.stringify({
+            "request" : {
+                "DOCTRDCDE" : "1000",
+                "DOCPORTAL" : "M",
+                "DOCSNDDAT" : `${year}${month}${day}`,
+                "DOCSNDTIM" : `${hour}${minute}${second}`,
+                "RGTFLDUSR" : "",
+                "RGTFLDPWR" : "",
+            },
+            "data" : {
+        "USERID" : USERID,
+        "USERPW" : USERPW
+            }
+        })
+        // const encodeddata = btoa(sendingdata)
+
+
+        if (!secret_key) {
+            console.log("No Secret Key.");
+            return res.status(500).send('No Secret Key.');
+        }        
+
+        function encrypt(text, key, iv) {
+            const encodedText = iconv.encode(text, 'euc-kr'); // encode into 'euc-kr first before encrypting'
+            const cipher = crypto.createCipheriv('aes-128-cbc', key, iv);
+            let encrypted = cipher.update(encodedText, 'euc-kr', 'base64');
+            encrypted += cipher.final('base64'); 
+            return encrypted;
+        }
+        
+        function decrypt(encrypted, key, iv) {
+            const decipher = crypto.createDecipheriv('aes-128-cbc', key, iv);
+            let decrypted = decipher.update(Buffer.from(encrypted, 'base64'));
+            decrypted = Buffer.concat([decrypted, decipher.final()]);
+            return iconv.decode(decrypted, 'euc-kr');
+            
+        }
+        
+        const encryptedData = encrypt(sendingdata, secret_key, IV);
+        const decryptedData = decrypt(encryptedData, secret_key, IV);
+
+        console.log("암호화 값 : ", encryptedData);
+        console.log("복호화 값 : ", decryptedData);
+
+        /* ERP에 암호화된 데이터를 보내는 부분 */
+
+        let decryptedresponse
+
+        const response = await axios.post(testServerUrl, encryptedData, {
+            headers: {
+                'Content-Type': 'text/plain'
+            }
+        });
+
+        decryptedresponse = JSON.parse(decrypt(response.data, secret_key, IV));
+        console.log("Response received:", response.data);
+        console.log("복호화 된 응답값 :", decryptedresponse);
+
+
+        // 로그인 성공, 실패여부에 상관없이 입력받고 전달한 값을 세션에 저장. 전달한 정보에 대한 검수와 응답처리는 ERP에서 처리 될 예정이기 때문에 올바른 값만 저장할 필요가 없음. 검수를 받을 값을 세션에 저장해놓고 전송.
+        if (decryptedresponse.result.CODE === '0000') // 로그인 성공시
+        {
+            res.status(200).send({
+                message : 'SUCCESS'   // 유저정보와, 출고지 코드값 (코드를제거한 목록값)을 프론트로 전송
+            });
+            
+    } else { // 로그인 실패시
+            res.status(400).send({
+                message : 'FAIL'
+            })
+    }
+
+    } catch (error) {
+        console.error('통신 에러: ', error.message);
+        res.status(500).send('통신 에러');
+    }
+});
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 module.exports = router;
 

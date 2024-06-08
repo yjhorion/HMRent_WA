@@ -102,6 +102,7 @@ function decrypt(encrypted, key, iv) {
 /* /CompQC의 렌더링 부분이 프론트로 전달되는 방식으로 구현 된 이후에 endpoint 변경할 것. */
 router.get('/CompQC/:STATUSREQ', async (req, res, next) => {
     try {
+
         const { STATUSREQ } = req.params
         const { USERID, USERPW } = req.session.user;  
 
@@ -113,8 +114,8 @@ router.get('/CompQC/:STATUSREQ', async (req, res, next) => {
                 "DOCPORTAL" : "M",
                 "DOCSNDDAT" : `${year}${month}${day}`,
                 "DOCSNDTIM" : `${hour}${minute}${second}`,
-                "RGTFLDUSR" : USERID,
-                "RGTFLDPWR" : USERPW
+                "RGTFLDUSR" : req.session.USERID,
+                "RGTFLDPWR" : req.session.USERPW
             },
             "data" : {
                 "REQSTATUS" : STATUSREQ // 상품화를 의미하는 STATUS값 - 문서(3000) 참조
