@@ -33,6 +33,10 @@ router.post('/login', async (req, res, next) => {
         const {USERID, USERPW} = req.body
         const { year, month, day, hour, minute, second } = getCurrentDateTime();
 
+        console.log('login으로 요청')
+        console.log(USERID)
+        console.log(USERPW)
+
         const sendingdata = JSON.stringify({
             "request" : {
                 "DOCTRDCDE" : "1000",
@@ -184,6 +188,10 @@ router.get('/auth', async (req, res, next) => {
     try {
         const {USERID, USERPW} = req.session.user;
         const { year, month, day, hour, minute, second } = getCurrentDateTime();
+
+        console.log('auth로 요청')
+        console.log(USERID)
+        console.log(USERPW)
 
         const sendingdata = JSON.stringify({
             "request" : {
