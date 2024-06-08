@@ -25,7 +25,8 @@ const PORT = 3000;
 
 /* cors */
 app.use(cors({
-    origin: '*'
+    origin: '*',
+    credentials : true
 }));
 
 /* swagger module */
