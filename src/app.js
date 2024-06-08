@@ -23,6 +23,13 @@ const loginRouter = require('./routes/login.js')
 const app = express();
 const PORT = 3000;
 
+const generateSecret = () => {
+    return crypto.randomBytes(32).toString('hex');
+};
+
+const secret = generateSecret();
+console.log('Generated secret:', secret)
+
 /* cors */
 app.use(cors({
     origin: '*',
@@ -50,6 +57,18 @@ app.use(bodyParser.json());
 // app.set('views', path.join(__dirname, '../views')) // views 디렉토리에 파일이 있다고 가정. 디렉토리 위치수정 필요
 
 app.use('/', retrievalRouter, INCQRouter, compQCRouter, reservationRouter, loginRouter)
+
+/* 세션 설정 */
+app.use(session({
+    secret: secret,
+    resave: false,
+    saveUninitialized: true,
+    cookie: {
+        maxAge: 60 * 60 * 1000 * 10,
+        sameSite: 'Lax'
+    },
+    name: 'session_id'
+}))
 
 app.get('/', (req,res) => {
     res.sendFile('index.html', { root: __dirname });
