@@ -59,22 +59,23 @@ app.use(bodyParser.json());
 
 app.use('/', retrievalRouter, INCQRouter, compQCRouter, reservationRouter, loginRouter)
 
-/* 세션 설정 */
-app.use(session({
-    secret: secret,
-    resave: false,
-    saveUninitialized: true,
-    cookie: {
-        maxAge: 60 * 60 * 1000 * 10,
-        sameSite: 'Lax'
-    },
-    name: 'session_id'
-}))
 
 app.get('/', (req,res) => {
     res.sendFile('index.html', { root: __dirname });
-});
-
+    });
+    
+    /* 세션 설정 */
+    app.use('./routes/login.js', session({
+        secret: secret,
+        resave: false,
+        saveUninitialized: true,
+        cookie: {
+            maxAge: 60 * 60 * 1000 * 10,
+            sameSite: 'Lax'
+        },
+        name: 'session_id'
+    }))
+    
 /* swagger 세팅 */
 const swaggerDocument = YAML.load('./src/swagger/swagger.yaml');
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
