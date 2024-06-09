@@ -219,7 +219,7 @@ function findKeyByValue(sessionCode, value) {
     return null; // 값이 없을 경우 null 반환
 }
 
-router.post('/CompQC/:ASSETNO', upload.array('images, 50'), async (req, res, next) => { // multerS3를 통한 이미지 업로드는 INQC에서 참조하여 구성할 것.
+router.post('/CompQC/:ASSETNO', upload.array('IMGLIST, 50'), async (req, res, next) => { // multerS3를 통한 이미지 업로드는 INQC에서 참조하여 구성할 것.
     try {
 
             if (!req.files || !req.files.length) {
