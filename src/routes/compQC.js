@@ -258,7 +258,11 @@ router.post('/CompQC/:ASSETNO', upload.array('images, 50'), async (req, res, nex
             /* 프론트에서 받은 차고지 데이터를 코드로 치환 */
             const EntryCode = findKeyByValue(reqCode, ENTRYLOCATION);
 
-            const uploadedFilesInfo = await uploadImages();
+            let uploadedFilesInfo = [];
+            if (req.files && req.files.length > 0) {
+                
+                const uploadedFilesInfo = await uploadImages(req.files);
+            }
 
             const sendingdata = JSON.stringify({
                 "request" : {
