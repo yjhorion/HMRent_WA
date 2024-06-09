@@ -33,7 +33,7 @@ console.log('Generated secret:', secret)
 
 /* cors */
 app.use(cors({
-    origin: '*',
+    origin: 'https://admin.yjhorion.co.kr',
     credentials : true
 }));
 
