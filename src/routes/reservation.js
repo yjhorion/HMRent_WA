@@ -40,7 +40,7 @@ function decrypt(encrypted, key, iv) {
 router.get('/reservation', async (req, res, next) => {
     try {
         const { year, month, day, hour, minute, second } = getCurrentDateTime()
-        const { USERID, USERPW } = req.session.user
+        // const { USERID, USERPW } = req.session.user
 
         const sendingdata = JSON.stringify({
             "request" : {
@@ -101,7 +101,7 @@ router.get('/reservation', async (req, res, next) => {
 router.post('/reservation/:ASSETNO', async (req, res, next) => {
     try {
         const { year, month, day, hour, minute, second } = getCurrentDateTime();
-        const { USERID, USERPW } = req.session.user;
+        // const { USERID, USERPW } = req.session.user;
 
         const { ASSETNO } = req.params;
 
