@@ -222,9 +222,8 @@ function findKeyByValue(sessionCode, value) {
 router.post('/CompQC/:ASSETNO', upload.array('images, 50'), async (req, res, next) => { // multerS3를 통한 이미지 업로드는 INQC에서 참조하여 구성할 것.
     try {
 
-
             if (!req.files || !req.files.length) {
-                res.status(400).send({
+                return res.status(400).send({
                     message : "이미지없음"
                 })
             }
@@ -312,11 +311,11 @@ router.post('/CompQC/:ASSETNO', upload.array('images, 50'), async (req, res, nex
         /* 응답값이 0000 (처리완료)가 아니라면, 업로드한 이미지를 롤백(삭제)하는 부분 */
         if (JSON.parse(decryptedresponse).result.CODE !== "0000"){
             await rollbackUploadedFiles()
-            res.status(410).send({
+            return res.status(410).send({
                 data: JSON.parse(decryptedresponse),
             })
         } else {
-            res.status(201).send({
+            return res.status(201).send({
                 data: JSON.parse(decryptedresponse),
             })
         }        
@@ -324,7 +323,7 @@ router.post('/CompQC/:ASSETNO', upload.array('images, 50'), async (req, res, nex
     } catch (error) {
         await rollbackUploadedFiles() // 이부분이 잘 작동할지 테스트를 아직 못함. 응답서버가 꺼져있다던지 하는경우에 테스트 필요.
         console.error('통신에러: ', error.message);
-        res.status(500).send('통신 에러');
+        return res.status(500).send('통신 에러');
     }
 })
 
