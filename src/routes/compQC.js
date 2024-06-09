@@ -131,8 +131,6 @@ router.get('/CompQC/:STATUSREQ', async (req, res, next) => {
             return res.status(500).send('No Secret Key.');
         }
 
-
-
         const encryptedData = encrypt(sendingdata, secret_key, IV);
         const decryptedData = decrypt(encryptedData, secret_key, IV);
 
@@ -150,8 +148,34 @@ router.get('/CompQC/:STATUSREQ', async (req, res, next) => {
             }
         });
 
+                    /* session 세팅 이전까지 사용할 하드코딩된 코드값 */
+                    const reqCode = [
+                        {
+                          HR58: {
+                            HR580003: '아산 차고지',
+                            HR580004: '상품화센터',
+                            HR580006: '본사',
+                            HR580099: '기타',
+                            HR580001: '하모니파크',
+                            HR580002: '송도 차고지'
+                          }
+                        },
+                        {
+                          HR65: {
+                            HR650001: '기본출고지',
+                            HR650002: '아산출고지',
+                            HR650005: '화성출고지',
+                            HR650006: '광주출고지',
+                            HR650003: '울산출고지',
+                            HR650004: '칠곡출고지',
+                            HR650007: '소하리출고지',
+                            HR650008: '서산출고지'
+                          }
+                        }
+                      ]
+
         decryptedresponse = decrypt(response.data, secret_key, IV);
-        console.log("Response received:", response.data);
+        console.log("Response received:", response.data, reqCode);
         console.log("복호화 된 응답값 :", decryptedresponse);
 
         /* 프론트에 데이터를 보내는 부분. stringify 되었던 데이터를 parse 해서 json형식으로 보내줌 */
