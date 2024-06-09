@@ -149,7 +149,7 @@ router.get('/CompQC/:STATUSREQ', async (req, res, next) => {
         });
 
                     /* session 세팅 이전까지 사용할 하드코딩된 코드값 */
-                    const reqCode = [
+                    const Code = [
                         {
                           HR58: {
                             HR580003: '아산 차고지',
@@ -173,6 +173,13 @@ router.get('/CompQC/:STATUSREQ', async (req, res, next) => {
                           }
                         }
                       ]
+
+                      const reqCode = Code.map(item => {
+                        const key = Object.keys(item)[0];
+                        const values = Object.values(item[key]);
+
+                        return { [key]: values };
+                      })
 
 
 
