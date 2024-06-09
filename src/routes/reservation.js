@@ -48,8 +48,8 @@ router.get('/reservation', async (req, res, next) => {
                 "DOCPORTAL" : "M",
                 "DOCSNDDAT" : `${year}${month}${day}`,
                 "DOCSNDTIM" : `${hour}${minute}${second}`,
-                "RGTFLDUSR" : USERID,
-                "RGTFLDPWR" : USERPW
+                "RGTFLDUSR" : "H202404010",//USERID,
+                "RGTFLDPWR" : "!Ekdzhd123" //USERPW
             },
             "data" : {
 
@@ -111,8 +111,8 @@ router.post('/reservation/:ASSETNO', async (req, res, next) => {
                 "DOCPORTAL" : "M",
                 "DOCSNDDAT" : `${year}${month}${day}`,
                 "DOCSNDTIM" : `${hour}${minute}${second}`,
-                "RGTFLDUSR" : USERID,
-                "RGTFLDPWR" : USERPW, 
+                "RGTFLDUSR" : "H202404010",// USERID,
+                "RGTFLDPWR" : "!Ekdzhd123" // USERPW, 
             },
             "data" : {
                 "ASSETNO" : ASSETNO
