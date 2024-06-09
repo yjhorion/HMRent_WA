@@ -32,10 +32,14 @@ const secret = generateSecret();
 console.log('Generated secret:', secret)
 
 /* cors */
-app.use(cors({
+const corsOptions = {
     origin: 'https://admin.yjhorion.co.kr',
-    credentials : true
-}));
+    credentials : true,
+    methods: ["GET", "POST", "PUT", "DELETE"],
+    allowedHeaders: ["Content-Type", "Authorization"]
+};
+
+app.use(cors(corsOptions));
 
 /* swagger module */
 const swaggerUi = require('swagger-ui-express');
