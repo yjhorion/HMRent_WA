@@ -23,24 +23,24 @@ const { v4: uuidv4 } = require('uuid');
 const { S3ENDPOINT, S3ACCESS, S3SECRET, S3BUCKETNAME } = process.env;
 
 /* multer config/settings */
-AWS.config.update({
-    correctClockSkew: true,
-    region: 'us-east-1',
-    signatureVersion: 'V4',
-    httpOptions: {
-        timeout: 240000,
-        connectTimeout: 120000,
-    },
-    encoding: 'utf8'
-})
+// AWS.config.update({
+//     correctClockSkew: true,
+//     region: 'us-east-1',
+//     signatureVersion: 'V4',
+//     httpOptions: {
+//         timeout: 240000,
+//         connectTimeout: 120000,
+//     },
+//     encoding: 'utf8'
+// })
 
-const s3 = new AWS.S3({
-    endpoint: S3ENDPOINT,
-    accessKeyId: S3ACCESS,
-    secretAccessKey: S3SECRET,
-    s3ForcePathStyle: true,
-    region: 'us-east-1'         // 전역 설정을 무시하고 s3객체 생성시에 명시된 설정을 우선시해서, 서비스를 특정할 때 사용할 수 있음. (명시적 구분을 위해 다시 설정)
-});
+// const s3 = new AWS.S3({
+//     endpoint: S3ENDPOINT,
+//     accessKeyId: S3ACCESS,
+//     secretAccessKey: S3SECRET,
+//     s3ForcePathStyle: true,
+//     region: 'us-east-1'         // 전역 설정을 무시하고 s3객체 생성시에 명시된 설정을 우선시해서, 서비스를 특정할 때 사용할 수 있음. (명시적 구분을 위해 다시 설정)
+// });
 
 const storage = multer.memoryStorage();
 
@@ -219,7 +219,7 @@ function findKeyByValue(sessionCode, value) {
     return null; // 값이 없을 경우 null 반환
 }
 
-router.post('/CompQC/:ASSETNO', upload.array('IMGLIST', 50), async (req, res, next) => { // multerS3를 통한 이미지 업로드는 INQC에서 참조하여 구성할 것.
+router.post('/CompQC/:ASSETNO', upload.array('IMGLIST'), async (req, res, next) => { // multerS3를 통한 이미지 업로드는 INQC에서 참조하여 구성할 것.
     try {
 
             if (!req.files || !req.files.length) {
