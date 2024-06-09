@@ -186,12 +186,12 @@ router.post('/login', async (req, res, next) => {
 /* session값을 변화시키지 않고 유저 데이터의 유효성을 확인하는 라우터 */
 router.get('/auth', async (req, res, next) => {
     try {
-        const {USERID, USERPW} = req.session.user;
+        // const {USERID, USERPW} = req.session.user;
         const { year, month, day, hour, minute, second } = getCurrentDateTime();
 
-        console.log('auth로 요청')
-        console.log(USERID)
-        console.log(USERPW)
+        // console.log('auth로 요청')
+        // console.log(USERID)
+        // console.log(USERPW)
 
         const sendingdata = JSON.stringify({
             "request" : {
@@ -203,8 +203,8 @@ router.get('/auth', async (req, res, next) => {
                 "RGTFLDPWR" : "",
             },
             "data" : {
-        "USERID" : USERID,
-        "USERPW" : USERPW
+        "USERID" : "H202404010",//USERID,
+        "USERPW" : "!Ekdzhd123"//USERPW
             }
         })
         // const encodeddata = btoa(sendingdata)
@@ -270,22 +270,6 @@ router.get('/auth', async (req, res, next) => {
         res.status(500).send('통신 에러');
     }
 });
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 module.exports = router;

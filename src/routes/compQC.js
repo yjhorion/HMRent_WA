@@ -102,9 +102,10 @@ function decrypt(encrypted, key, iv) {
 /* /CompQC의 렌더링 부분이 프론트로 전달되는 방식으로 구현 된 이후에 endpoint 변경할 것. */
 router.get('/CompQC/:STATUSREQ', async (req, res, next) => {
     try {
+        
 
         const { STATUSREQ } = req.params
-        const { USERID, USERPW } = req.session.user;  
+        // const { USERID, USERPW } = req.session.user;  
 
         const { year, month, day, hour, minute, second } = getCurrentDateTime();
 
@@ -114,8 +115,8 @@ router.get('/CompQC/:STATUSREQ', async (req, res, next) => {
                 "DOCPORTAL" : "M",
                 "DOCSNDDAT" : `${year}${month}${day}`,
                 "DOCSNDTIM" : `${hour}${minute}${second}`,
-                "RGTFLDUSR" : req.session.USERID,
-                "RGTFLDPWR" : req.session.USERPW
+                "RGTFLDUSR" : "H202404010",//req.session.USERID,
+                "RGTFLDPWR" : "!Ekdzhd123"//req.session.USERPW
             },
             "data" : {
                 "REQSTATUS" : STATUSREQ // 상품화를 의미하는 STATUS값 - 문서(3000) 참조
@@ -192,7 +193,34 @@ router.post('/CompQC/:ASSETNO', upload.array('images, 50'), async (req, res, nex
             const { year, month, day, hour, minute, second } = getCurrentDateTime();
 
             const { MILEAGE, ENTRYLOCATION, DETAILLOCATION, KEYQUANT, KEYTOTAL, KEYLOCATION } = req.body;
-            const { reqCode, USERID, USERPW } = req.session;
+            // const { reqCode, USERID, USERPW } = req.session;
+
+            /* session 세팅 이전까지 사용할 하드코딩된 코드값 */
+            const reqCode = [
+                {
+                  HR58: {
+                    HR580003: '아산 차고지',
+                    HR580004: '상품화센터',
+                    HR580006: '본사',
+                    HR580099: '기타',
+                    HR580001: '하모니파크',
+                    HR580002: '송도 차고지'
+                  }
+                },
+                {
+                  HR65: {
+                    HR650001: '기본출고지',
+                    HR650002: '아산출고지',
+                    HR650005: '화성출고지',
+                    HR650006: '광주출고지',
+                    HR650003: '울산출고지',
+                    HR650004: '칠곡출고지',
+                    HR650007: '소하리출고지',
+                    HR650008: '서산출고지'
+                  }
+                }
+              ]
+              
 
             /* 프론트에서 받은 차고지 데이터를 코드로 치환 */
             const EntryCode = findKeyByValue(reqCode, ENTRYLOCATION);
@@ -205,8 +233,8 @@ router.post('/CompQC/:ASSETNO', upload.array('images, 50'), async (req, res, nex
                     "DOCPORTAL" : "M",
                     "DOCSNDDAT" :  `${year}${month}${day}`,
                     "DOCSNDTIM" : `${hour}${minute}${second}`,
-                    "RGTFLDUSR" : USERID,
-                    "RGTFLDPWR" : USERPW
+                    "RGTFLDUSR" : "H202404010",//USERID,
+                    "RGTFLDPWR" : "!Ekdzhd123"//USERPW
                 },
                 "data" : {
                     "ASSETNO" : ASSETNO,
