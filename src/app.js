@@ -55,7 +55,7 @@ const { S3ENDPOINT, S3ACCESS, S3SECRET, S3BUCKETNAME, S3DIRECTORY, testServerUrl
 
 app.use(morgan('combined'));
 
-app.use(express.static(path.join(__dirname, 'public')));
+// app.use(express.static(path.join(__dirname, 'public')));
 app.use(bodyParser.urlencoded({ extended: true}));
 app.use(bodyParser.json());
 // app.set('view engine', 'ejs');          // ejs 템플릿 엔진 세팅부분.
@@ -184,7 +184,7 @@ app.get('/com-test/dev', async (req, res, next) => {
     }
 });
 
-app.use(express.static('public'));
+// app.use(express.static('public'));
 
 app.listen(PORT, () => {
     console.log(`서버가 http://localhost:${PORT} 에서 실행 중입니다.`);
