@@ -174,7 +174,7 @@ router.get('/CompQC/:STATUSREQ', async (req, res, next) => {
                         }
                       ]
 
-                      decryptedresponse.CODE = reqCode
+                decryptedresponse.code = reqCode
 
         decryptedresponse = decrypt(response.data, secret_key, IV);
         console.log("Response received:", response.data);
