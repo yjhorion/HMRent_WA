@@ -222,6 +222,13 @@ function findKeyByValue(sessionCode, value) {
 router.post('/CompQC/:ASSETNO', upload.array('images, 50'), async (req, res, next) => { // multerS3를 통한 이미지 업로드는 INQC에서 참조하여 구성할 것.
     try {
 
+
+            if (!req.files || !req.files.length) {
+                res.status(400).send({
+                    message : "이미지없음"
+                })
+            }
+
             const { ASSETNO } = req.params;
             const { year, month, day, hour, minute, second } = getCurrentDateTime();
 
