@@ -174,13 +174,15 @@ router.get('/CompQC/:STATUSREQ', async (req, res, next) => {
                         }
                       ]
 
+                      decryptedresponse.CODE = reqCode
+
         decryptedresponse = decrypt(response.data, secret_key, IV);
         console.log("Response received:", response.data);
         console.log("복호화 된 응답값 :", decryptedresponse);
 
         /* 프론트에 데이터를 보내는 부분. stringify 되었던 데이터를 parse 해서 json형식으로 보내줌 */
         res.send({
-            data: JSON.parse(decryptedresponse, reqCode),
+            data: JSON.parse(decryptedresponse),
         })
 
     } catch (error) {
