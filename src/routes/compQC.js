@@ -229,9 +229,12 @@ router.post('/CompQC/:ASSETNO', upload.array('IMGLIST'), async (req, res, next) 
             }
 
             const { ASSETNO } = req.params;
+            console.log('ASSETNO : ', ASSETNO);
             const { year, month, day, hour, minute, second } = getCurrentDateTime();
+            console.log('Current DateTime : ', `${year}-${month}-${day} ${hour}:${minute}:${second}`)
 
             const { MILEAGE, ENTRYLOCATION, DETAILLOCATION, KEYQUANT, KEYTOTAL, KEYLOCATION } = req.body;
+            console.log('Recieved body : ', req.body);
             // const { reqCode, USERID, USERPW } = req.session;
 
             /* session 세팅 이전까지 사용할 하드코딩된 코드값 */
@@ -263,11 +266,13 @@ router.post('/CompQC/:ASSETNO', upload.array('IMGLIST'), async (req, res, next) 
 
             /* 프론트에서 받은 차고지 데이터를 코드로 치환 */
             const EntryCode = findKeyByValue(reqCode, ENTRYLOCATION);
+            console.log('EntryCode', EntryCode);
 
             // let uploadedFilesInfo = [];
             // if (req.files && req.files.length > 0) {
                 
                 const uploadedFilesInfo = await uploadImages(req.files);
+                console.log('Uploaded Files Info: ', uploadedFilesInfo);
             // }
 
             const sendingdata = JSON.stringify({
