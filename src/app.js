@@ -16,7 +16,7 @@ const crypto= require('crypto');
 const iconv = require('iconv-lite');
 
 const retrievalRouter = require('./routes/retrieval.js')
-const INCQRouter = require('./routes/INQC.js')
+const INQCRouter = require('./routes/INQC.js')
 const compQCRouter = require('./routes/compQC.js')
 const reservationRouter = require('./routes/reservation.js')
 const loginRouter = require('./routes/login.js')
@@ -53,20 +53,19 @@ const { resolvePtr } = require('dns');
 
 const { S3ENDPOINT, S3ACCESS, S3SECRET, S3BUCKETNAME, S3DIRECTORY, testServerUrl } = process.env;
 
-app.use(morgan('combined'));
 
 // app.use(express.static(path.join(__dirname, 'public')));
+app.use(morgan('combined'));
 app.use(bodyParser.urlencoded({ extended: true}));
 app.use(bodyParser.json());
 // app.set('view engine', 'ejs');          // ejs 템플릿 엔진 세팅부분.
 // app.set('views', path.join(__dirname, '../views')) // views 디렉토리에 파일이 있다고 가정. 디렉토리 위치수정 필요
 
-app.use('/', retrievalRouter, INCQRouter, compQCRouter, reservationRouter, loginRouter)
 
 
-app.get('/', (req,res) => {
-    res.sendFile('index.html', { root: __dirname });
-    });
+// app.get('/', (req,res) => {
+    //     res.sendFile('index.html', { root: __dirname });
+    //     });
     
     /* 세션 설정 */
     app.use('./routes/login.js', session({
@@ -76,119 +75,124 @@ app.get('/', (req,res) => {
         cookie: {
             maxAge: 60 * 60 * 1000 * 10,
             sameSite: 'Lax'
-        },
-        name: 'session_id'
-    }))
-    
+            },
+            name: 'session_id'
+            }))
+            
+
+    /* 라우터 설정 */
+    app.use('/', retrievalRouter, INQCRouter, compQCRouter, reservationRouter, loginRouter)
 /* swagger 세팅 */
 const swaggerDocument = YAML.load('./src/swagger/swagger.yaml');
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
-/* ERP 통신이 되는지 확인 (개발)*/
-app.get('/com-test/dev', async (req, res, next) => {
-    try {
-        const { year, month, day, hour, minute, second } = getCurrentDateTime();
 
-        // .env에서 암호화 키 가져오고 정의
-        const secret_key = Buffer.from(process.env.CRYPTO_SECRET_KEY, 'utf8')
-        const IV         = Buffer.from(process.env.IV, 'utf8')
-
-        const sendingdata = "Eng한글123!@#길이를길게늘리면가끔에러가발생하던데깨지는지확인이필요함"
-        // const encodeddata = btoa(sendingdata)
-
-        console.log("Encoded secret key : ", secret_key) // Base64 encoded key
-        console.log("Encoded Initial Vector : ", IV) // Base64 encoded IV
-
-        if (!secret_key) {
-            console.log("No Secret Key.");
-            return res.status(500).send('No Secret Key.');
-        }
-
-        // body에 포함할 데이터
-        const requestBody = {
-            "request" : {
-                "DOCREQNBR" : "전문번호",
-                "DOCTRDCDE" : "거래구분코드",
-                "DOCPORTAL" : "M",
-                "DOCSNDDAT" : `${year}${month}${day}`,
-                "DOCSNDTIM" : `${hour}24${minute}${second}`,
-                //'msgkey' : encrypt('msgvalue', secret_key)
-            },
-            "data": {
-                "testkey1": "testvalue1"
-            }
-        };
-
-        // 전체 암호화를 위해 requestBody를 stringify
-        const serializedRequestBody = JSON.stringify(requestBody);
-        console.log(serializedRequestBody)
-
-        function encrypt(text, key, iv) {
-            const encodedText = iconv.encode(text, 'euc-kr'); // encode into 'euc-kr first before encrypting'
-            const cipher = crypto.createCipheriv('aes-128-cbc', key, iv);
-            let encrypted = cipher.update(encodedText, 'euc-kr', 'base64');
-            encrypted += cipher.final('base64'); 
-            return encrypted;
-        }
-    
-        function decrypt(encrypted, key, iv) {
-            const decipher = crypto.createDecipheriv('aes-128-cbc', key, iv);
-            let decrypted = decipher.update(Buffer.from(encrypted, 'base64'));
-            decrypted = Buffer.concat([decrypted, decipher.final()]);
-            return iconv.decode(decrypted, 'euc-kr');
-        }
-
-        // function decrypt(encrypted, key, iv) {
-        //     const decipher = crypto.createDecipheriv('aes-128-cbc', key, iv);
-        //     let decrypted = decipher.update(encrypted, 'base64', 'utf8');
-        //     decrypted += decipher.final('utf8');
-        //     return decrypted;
-        // }
-
-        const encryptedData = encrypt(sendingdata, secret_key, IV);
-        const decryptedData = decrypt(encryptedData, secret_key, IV);
-
-        console.log("암호화 값 : ", encryptedData);
-        console.log("복호화 값 : ", decryptedData)
-
-        const response = await axios.post(testServerUrl, encryptedData, {
-            headers: {
-                'Content-Type': 'text/plain'
-            }
-        }).then(response => {
-            // const decryptedresponse = decrypt(response.data, secret_key, IV)
-            console.log("Response received:", response.data);
-            // console.log("복호화 된 응답값 :", decryptedresponse)
-        })
-
-        // 응답값 복호화. **응답값이 정해지지않아 일단 주석처리**
-        // const decryptedResponseData = {
-        //     someMessage: decrypt(response.data.someMessgae, secret_key),
-        //     sendData : {
-        //         testKey1: decrypt(response.data.sendData.testkey1, secret_key),
-        //         testkey2: decrypt(response.data.sendData.testkey2, secret_key)
-        //     }
-        // };
-
-        // console.log("Received response data:", decryptedResponseData);
-
-        res.send({
-            message: "Request sent successfully",
-            sentData: requestBody,
-            // responseData: decryptedResponseData
-        });
-
-    } catch (error) {
-        console.error('통신 에러: ', error.message);
-        res.status(500).send('통신 에러');
-    }
-});
-
-// app.use(express.static('public'));
 
 app.listen(PORT, () => {
     console.log(`서버가 http://localhost:${PORT} 에서 실행 중입니다.`);
   });
+/* ERP 통신이 되는지 확인 (개발)*/
+// app.get('/com-test/dev', async (req, res, next) => {
+//     try {
+//         const { year, month, day, hour, minute, second } = getCurrentDateTime();
+
+//         // .env에서 암호화 키 가져오고 정의
+//         const secret_key = Buffer.from(process.env.CRYPTO_SECRET_KEY, 'utf8')
+//         const IV         = Buffer.from(process.env.IV, 'utf8')
+
+//         const sendingdata = "Eng한글123!@#길이를길게늘리면가끔에러가발생하던데깨지는지확인이필요함"
+//         // const encodeddata = btoa(sendingdata)
+
+//         console.log("Encoded secret key : ", secret_key) // Base64 encoded key
+//         console.log("Encoded Initial Vector : ", IV) // Base64 encoded IV
+
+//         if (!secret_key) {
+//             console.log("No Secret Key.");
+//             return res.status(500).send('No Secret Key.');
+//         }
+
+//         // body에 포함할 데이터
+//         const requestBody = {
+//             "request" : {
+//                 "DOCREQNBR" : "전문번호",
+//                 "DOCTRDCDE" : "거래구분코드",
+//                 "DOCPORTAL" : "M",
+//                 "DOCSNDDAT" : `${year}${month}${day}`,
+//                 "DOCSNDTIM" : `${hour}24${minute}${second}`,
+//                 //'msgkey' : encrypt('msgvalue', secret_key)
+//             },
+//             "data": {
+//                 "testkey1": "testvalue1"
+//             }
+//         };
+
+//         // 전체 암호화를 위해 requestBody를 stringify
+//         const serializedRequestBody = JSON.stringify(requestBody);
+//         console.log(serializedRequestBody)
+
+//         function encrypt(text, key, iv) {
+//             const encodedText = iconv.encode(text, 'euc-kr'); // encode into 'euc-kr first before encrypting'
+//             const cipher = crypto.createCipheriv('aes-128-cbc', key, iv);
+//             let encrypted = cipher.update(encodedText, 'euc-kr', 'base64');
+//             encrypted += cipher.final('base64'); 
+//             return encrypted;
+//         }
+    
+//         function decrypt(encrypted, key, iv) {
+//             const decipher = crypto.createDecipheriv('aes-128-cbc', key, iv);
+//             let decrypted = decipher.update(Buffer.from(encrypted, 'base64'));
+//             decrypted = Buffer.concat([decrypted, decipher.final()]);
+//             return iconv.decode(decrypted, 'euc-kr');
+//         }
+
+//         // function decrypt(encrypted, key, iv) {
+//         //     const decipher = crypto.createDecipheriv('aes-128-cbc', key, iv);
+//         //     let decrypted = decipher.update(encrypted, 'base64', 'utf8');
+//         //     decrypted += decipher.final('utf8');
+//         //     return decrypted;
+//         // }
+
+//         const encryptedData = encrypt(sendingdata, secret_key, IV);
+//         const decryptedData = decrypt(encryptedData, secret_key, IV);
+
+//         console.log("암호화 값 : ", encryptedData);
+//         console.log("복호화 값 : ", decryptedData)
+
+//         const response = await axios.post(testServerUrl, encryptedData, {
+//             headers: {
+//                 'Content-Type': 'text/plain'
+//             }
+//         }).then(response => {
+//             // const decryptedresponse = decrypt(response.data, secret_key, IV)
+//             console.log("Response received:", response.data);
+//             // console.log("복호화 된 응답값 :", decryptedresponse)
+//         })
+
+//         // 응답값 복호화. **응답값이 정해지지않아 일단 주석처리**
+//         // const decryptedResponseData = {
+//         //     someMessage: decrypt(response.data.someMessgae, secret_key),
+//         //     sendData : {
+//         //         testKey1: decrypt(response.data.sendData.testkey1, secret_key),
+//         //         testkey2: decrypt(response.data.sendData.testkey2, secret_key)
+//         //     }
+//         // };
+
+//         // console.log("Received response data:", decryptedResponseData);
+
+//         res.send({
+//             message: "Request sent successfully",
+//             sentData: requestBody,
+//             // responseData: decryptedResponseData
+//         });
+
+//     } catch (error) {
+//         console.error('통신 에러: ', error.message);
+//         res.status(500).send('통신 에러');
+//     }
+// });
+
+// app.use(express.static('public'));
+
 
 
 
