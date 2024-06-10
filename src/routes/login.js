@@ -98,8 +98,8 @@ router.post('/login', async (req, res, next) => {
         const sessioninfo = {"USERID" : USERID, "USERPW" : USERPW}
         
         /* 세션에 유저 정보 저장 */
-        req.session.user = sessioninfo;
-        console.log("세션에 담을 유저 정보 : ", req.session.user);
+        // req.session.user = sessioninfo;
+        // console.log("세션에 담을 유저 정보 : ", req.session.user);
 
         // 로그인 성공, 실패여부에 상관없이 입력받고 전달한 값을 세션에 저장. 전달한 정보에 대한 검수와 응답처리는 ERP에서 처리 될 예정이기 때문에 올바른 값만 저장할 필요가 없음. 검수를 받을 값을 세션에 저장해놓고 전송.
         if (decryptedresponse.result.CODE === '0000') // 로그인 성공시
