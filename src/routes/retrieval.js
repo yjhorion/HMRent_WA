@@ -48,7 +48,7 @@ router.get('/retrieval', async (req, res, next) => {
 
         /* (QRDATBEG =< QRDATEND) 조건으로 validation 필요 */
 
-        const QRDATBEG = req.params.QRDATBEG || `${year}${month}${day}`;
+        const QRDATBEG = req.params.QRDATBEG || `${year}${month}${day}`; // 적절한 기간이 정해지면, 날자값에서 -value를 해준 값으로 조회 시작일을 지정해줄 것. 현재는 '11111111'값으로 최대조회중
         const QRDATEND = req.params.QRDATND || `${year}${month}${day}`;
 
         console.log('시작일',QRDATBEG)

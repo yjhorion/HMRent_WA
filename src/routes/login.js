@@ -2,23 +2,23 @@ const express = require('express')
 const axios = require('axios');
 const crypto= require('crypto');
 const iconv = require('iconv-lite');
-const session = require('express-session')
+// const session = require('express-session')
 
 require('dotenv').config();
 
 const router = express.Router()
 const getCurrentDateTime = require('../utils/Time/DateTime.js');
 
-router.use(session({
-    secret: crypto.randomBytes(32).toString('hex'), //crypto 함수를 이용하여, 랜덤한 세션 secret값 부여
-    resave: false,
-    saveUninitialized: true,
-    cookie: {
-        maxAge: 60 * 60 * 1000 * 10, // 세션 수명을 10시간으로 설정
-        sameSite: 'Lax'
-    },
-    name: 'session_id'
-}));
+// router.use(session({
+//     secret: crypto.randomBytes(32).toString('hex'), //crypto 함수를 이용하여, 랜덤한 세션 secret값 부여
+//     resave: false,
+//     saveUninitialized: true,
+//     cookie: {
+//         maxAge: 60 * 60 * 1000 * 10, // 세션 수명을 10시간으로 설정
+//         sameSite: 'Lax'
+//     },
+//     name: 'session_id'
+// }));
 
 // .env에서 ERP서버 주소, 암호화 키 가져오고 정의
 const testServerUrl = process.env.testServerUrl;
@@ -111,8 +111,8 @@ router.post('/login', async (req, res, next) => {
                     "DOCPORTAL" : "M",
                     "DOCSNDDAT" : `${year}${month}${day}`,
                     "DOCSNDTIM" : `${hour}24${minute}${second}`,
-                    "RGTFLDUSR" : req.session.user.USERID, 
-                    "RGTFLDPWR" : req.session.user.USERPW, 
+                    "RGTFLDUSR" : 'H202404010',//req.session.user.USERID, 
+                    "RGTFLDPWR" : '!Ekdzhd123'//req.session.user.USERPW, 
                 },
                 "data" : 
             ["HR58", "HR65"]    // "HR58 : 차량입고위치, HR65: 1차탁송출고지"
@@ -139,8 +139,8 @@ router.post('/login', async (req, res, next) => {
             })
 
             // 코드값에 대해 전달받은 데이터를 세션에 저장. 다른페이지에서 req.session.reqCode를 호출하여 필요한 값 사용.
-            req.session.reqCode = additionalDecryptedresponse.data;
-            console.log("세션에 저장될 코드값", req.session.reqCode)
+            // req.session.reqCode = additionalDecryptedresponse.data;
+            // console.log("세션에 저장될 코드값", req.session.reqCode)
 
             /* 프론트에 데이터를 보내는 부분. stringify 되었던 데이터를 parse 해서 json형식으로 보내줌 */
 
@@ -149,30 +149,29 @@ router.post('/login', async (req, res, next) => {
                     data: decryptedresponse.data, modifiedData     // 유저정보와, 출고지 코드값 (코드를제거한 목록값)을 프론트로 전송
             })
             
-    } else { // 로그인 실패시
-        req.session.regenerate((err) => {
-            if (err) {
-                console.error('세션 재생성 오류:', err);
-                res.status(500).send('세션 재생성 오류');
-            } else {
-
-                /* 실패시에도 마찬가지로 세션에 유저 정보 저장 */
-                req.session.user = sessioninfo;
-                console.log("세션에 담을 정보 : ", req.session.user);
-
-                res.status(400).send({
-                    message : decryptedresponse.result.MSGE,
-                    data: null, // 실패시 데이터는 보내주지 않지만, 혹시나 다시 로그인 시도를 할 때, 입력했던 사번으로 다시 로그인 할 수 있도록, 아이디 정보를 채운채로 보여주고싶다면 받은 데이터를 전달해줄 것 (받은 데이터에 접속을 시도한 USERID값이 입력되어있음.)
-                })
-            }
-        })
-    }
-
-    } catch (error) {
-        console.error('통신 에러: ', error.message);
-        res.status(500).send('통신 에러');
-    }
-});
+        } else { // 로그인 실패시
+            // 세션 재생성
+            // req.session.regenerate((err) => {
+            //     if (err) {
+            //         console.error('세션 재생성 오류:', err);
+            //         res.status(500).send('세션 재생성 오류');
+            //     } else {
+                    /* 실패시에도 마찬가지로 세션에 유저 정보 저장 */
+                    // req.session.user = sessioninfo;
+                    // console.log("세션에 담을 정보 : ", req.session.user);
+                    res.status(400).send({
+                        message : decryptedresponse.result.MSGE,
+                        data: null, // 실패시 데이터는 보내주지 않지만, 혹시나 다시 로그인 시도를 할 때, 입력했던 사번으로 다시 로그인 할 수 있도록, 아이디 정보를 채운채로 보여주고싶다면 받은 데이터를 전달해줄 것 (받은 데이터에 접속을 시도한 USERID값이 입력되어있음.)
+                    })
+            //     }
+            // })
+        }
+        
+        } catch (error) {
+            console.error('통신 에러: ', error.message);
+            res.status(500).send('통신 에러');
+        }
+        });
 
 /*보안을 위한 수정 예정 사항
 * HTTPS로 배포
