@@ -39,7 +39,7 @@ console.log('Generated secret:', secret)
 //     allowedHeaders: ["Content-Type", "Authorization"]
 // };
 
-app.use(cors(corsOptions));
+// app.use(cors(corsOptions));
 
 /* swagger module */
 const swaggerUi = require('swagger-ui-express');
