@@ -63,9 +63,9 @@ app.use(bodyParser.json());
 
 
 
-// app.get('/', (req,res) => {
-    //     res.sendFile('index.html', { root: __dirname });
-    //     });
+app.get('/', (req,res) => {
+        res.send('Hello World!') // '/' 경로에서 잘 받아오는지 확인
+        });
     
     /* 세션 설정 */
     app.use('./routes/login.js', session({
