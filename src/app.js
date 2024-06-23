@@ -68,7 +68,7 @@ app.get('/', (req,res) => {
         });
     
     /* 세션 설정 */
-    app.use('./routes/login.js', session({
+    app.use(session({
         secret: secret,
         resave: false,
         saveUninitialized: true,
