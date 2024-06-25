@@ -146,6 +146,7 @@ router.get('/CompQC/:STATUSREQ', async (req, res, next) => {
             }
         });
 
+        // const Code = req.session.reqCode; 프론트가 적용된 웹페이지 환경에서 해야함.
                     /* session 세팅 이전까지 사용할 하드코딩된 코드값 */
                     const Code = [
                         {

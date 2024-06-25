@@ -11,6 +11,7 @@ const fs = require('fs')
 const getCurrentDateTime = require('./utils/Time/DateTime.js');
 const cors = require('cors')
 const session = require('express-session')
+const Memorystore = require('memorystore')(session)
 
 const crypto= require('crypto');
 const iconv = require('iconv-lite');
@@ -68,29 +69,40 @@ app.get('/', (req,res) => {
         });
     
     /* 세션 설정 */
-    app.use(session({
+    const maxAge = 60 * 60 * 1000 * 15 // 세션 유효기간 15시간 (1일)
+
+    const sessionObj = {
         secret: secret,
         resave: false,
         saveUninitialized: true,
+        store: new Memorystore({ checkPeriod : maxAge}),
         cookie: {
-            maxAge: 60 * 60 * 1000 * 10,
-            sameSite: 'Lax'
-            },
-            name: 'session_id'
-            }))
+            maxAge: maxAge
+            }
+            };
+
+    /* 세션 생성 미들웨어 */
+    app.use(session(sessionObj));
+
             
 
     /* 라우터 설정 */
     app.use('/', retrievalRouter, INQCRouter, compQCRouter, reservationRouter, loginRouter)
-/* swagger 세팅 */
-const swaggerDocument = YAML.load('./src/swagger/swagger.yaml');
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+
+    /* swagger 세팅 */
+
+    const swaggerDocument = YAML.load('./src/swagger/swagger.yaml');
+
+    app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 
 
 app.listen(PORT, () => {
     console.log(`서버가 http://localhost:${PORT} 에서 실행 중입니다.`);
   });
+
+
+  
 /* ERP 통신이 되는지 확인 (개발)*/
 // app.get('/com-test/dev', async (req, res, next) => {
 //     try {

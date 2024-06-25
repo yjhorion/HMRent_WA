@@ -139,8 +139,8 @@ router.post('/login', async (req, res, next) => {
             })
 
             // 코드값에 대해 전달받은 데이터를 세션에 저장. 다른페이지에서 req.session.reqCode를 호출하여 필요한 값 사용.
-            // req.session.reqCode = additionalDecryptedresponse.data;
-            // console.log("세션에 저장될 코드값", req.session.reqCode)
+            req.session.reqCode = additionalDecryptedresponse.data;
+            console.log("세션에 저장될 코드값", req.session.reqCode)
 
             /* 프론트에 데이터를 보내는 부분. stringify 되었던 데이터를 parse 해서 json형식으로 보내줌 */
 

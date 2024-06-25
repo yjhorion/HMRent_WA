@@ -107,7 +107,7 @@ router.post('/reservation/:ASSETNO', async (req, res, next) => {
 
         const sendingdata = JSON.stringify({
             "request" : {
-                "DOCTRDCDE" : "5000",
+                "DOCTRDCDE" : "5001",
                 "DOCPORTAL" : "M",
                 "DOCSNDDAT" : `${year}${month}${day}`,
                 "DOCSNDTIM" : `${hour}${minute}${second}`,
