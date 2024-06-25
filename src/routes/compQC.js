@@ -1,24 +1,23 @@
 /* 상품화완료QC 라우터 */
-const express = require('express')
+const express = require('express');
 const path = require('path');
-const { prisma } = require('../utils/prisma/index.js')
 const axios = require('axios');
 const crypto= require('crypto');
 const iconv = require('iconv-lite');
-const getCurrentDateTime = require('../utils/Time/DateTime.js')
+const getCurrentDateTime = require('../utils/Time/DateTime.js');
 
 require('dotenv').config();
 
 const router = express.Router()
 
-const {uploadImages, rollbackUploadedFiles} = require('../utils/IMAGEUPLOAD/imageupload.js')
+const {uploadImages, rollbackUploadedFiles} = require('../utils/IMAGEUPLOAD/imageupload.js');
 
 /* multerS3 */
 const multer = require('multer');
 const multerS3 = require('multer-s3');
 const AWS = require('aws-sdk');
 
-const { v4: uuidv4 } = require('uuid');
+// const { v4: uuidv4 } = require('uuid');
 
 const { S3ENDPOINT, S3ACCESS, S3SECRET, S3BUCKETNAME } = process.env;
 
@@ -135,8 +134,7 @@ router.get('/CompQC/:STATUSREQ', async (req, res, next) => {
         const decryptedData = decrypt(encryptedData, secret_key, IV);
 
         console.log("암호화 값 : ", encryptedData);
-
-        console.log("복호화 값 : ", decryptedData)
+        console.log("복호화 값 : ", decryptedData);
 
         /* ERP에 암호화된 데이터를 보내는 부분 */
 
@@ -161,7 +159,7 @@ router.get('/CompQC/:STATUSREQ', async (req, res, next) => {
                           }
                         },
                         {
-                          HR65: {
+                          HR65: {            
                             HR650001: '기본출고지',
                             HR650002: '아산출고지',
                             HR650005: '화성출고지',
@@ -250,7 +248,7 @@ router.post('/CompQC/:ASSETNO', upload.array('IMGLIST'), async (req, res, next) 
                   }
                 },
                 {
-                  HR65: {
+                  HR65: {            
                     HR650001: '기본출고지',
                     HR650002: '아산출고지',
                     HR650005: '화성출고지',
