@@ -25,7 +25,6 @@ async function uploadImages(files) {
     uploadedFilesInfo = [];
 
     for (const file of files) {
-        const file = files[i];
         const fileName = getRandomFileName();
         const fileSizeInKB = Math.floor(file.size / 1024);
 
