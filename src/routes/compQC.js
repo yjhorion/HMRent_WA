@@ -272,13 +272,15 @@ router.post('/CompQC/:ASSETNO', upload.array('IMGLIST'), async (req, res, next) 
             // if (req.files && req.files.length > 0) {
                 
 
-                console.log('Uploaded Files Info: ', req.files);
+                console.log('---------------------req.files---------------------: ', req.files);
     
                 const uploadedFilesInfo = await uploadImages(req.files);
                 if (!uploadedFilesInfo.length) {
                     return res.status(400).json({ message : '이미지 0개'})
                 }
             // }
+
+                console.log('---------------------uploaded files info--------------------- : ', uploadedFilesInfo);
 
             const sendingdata = JSON.stringify({
                 "request" : {
