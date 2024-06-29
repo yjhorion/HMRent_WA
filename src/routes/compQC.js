@@ -1,23 +1,24 @@
 /* 상품화완료QC 라우터 */
-const express = require('express');
+const express = require('express')
 const path = require('path');
+const { prisma } = require('../utils/prisma/index.js')
 const axios = require('axios');
 const crypto= require('crypto');
 const iconv = require('iconv-lite');
-const getCurrentDateTime = require('../utils/Time/DateTime.js');
+const getCurrentDateTime = require('../utils/Time/DateTime.js')
 
 require('dotenv').config();
 
 const router = express.Router()
 
-const {uploadImages, rollbackUploadedFiles} = require('../utils/IMAGEUPLOAD/imageupload.js');
+const {uploadImages, rollbackUploadedFiles} = require('../utils/IMAGEUPLOAD/imageupload.js')
 
 /* multerS3 */
 const multer = require('multer');
 const multerS3 = require('multer-s3');
 const AWS = require('aws-sdk');
 
-// const { v4: uuidv4 } = require('uuid');
+const { v4: uuidv4 } = require('uuid');
 
 const { S3ENDPOINT, S3ACCESS, S3SECRET, S3BUCKETNAME } = process.env;
 
@@ -134,7 +135,8 @@ router.get('/CompQC/:STATUSREQ', async (req, res, next) => {
         const decryptedData = decrypt(encryptedData, secret_key, IV);
 
         console.log("암호화 값 : ", encryptedData);
-        console.log("복호화 값 : ", decryptedData);
+
+        console.log("복호화 값 : ", decryptedData)
 
         /* ERP에 암호화된 데이터를 보내는 부분 */
 
@@ -146,7 +148,6 @@ router.get('/CompQC/:STATUSREQ', async (req, res, next) => {
             }
         });
 
-        // const Code = req.session.reqCode; 프론트가 적용된 웹페이지 환경에서 해야함.
                     /* session 세팅 이전까지 사용할 하드코딩된 코드값 */
                     const Code = [
                         {
@@ -160,7 +161,7 @@ router.get('/CompQC/:STATUSREQ', async (req, res, next) => {
                           }
                         },
                         {
-                          HR65: {            
+                          HR65: {
                             HR650001: '기본출고지',
                             HR650002: '아산출고지',
                             HR650005: '화성출고지',
@@ -249,7 +250,7 @@ router.post('/CompQC/:ASSETNO', upload.array('IMGLIST'), async (req, res, next) 
                   }
                 },
                 {
-                  HR65: {            
+                  HR65: {
                     HR650001: '기본출고지',
                     HR650002: '아산출고지',
                     HR650005: '화성출고지',
@@ -294,6 +295,8 @@ router.post('/CompQC/:ASSETNO', upload.array('IMGLIST'), async (req, res, next) 
                     "IMGLIST" : uploadedFilesInfo
                 }
             })
+
+            console.log(uploadedFilesInfo);
 
 
         const encryptedData = encrypt(sendingdata, secret_key, IV);
@@ -466,47 +469,47 @@ router.get('/CompQC', async (req, res, next) => {
 // })
 
 /* 전송버튼을 눌렀을 때, 데이터와 이미지 전송 */
-router.post('/submitCompQC', upload.array('images', 50), async(req, res, next) => {
-    try {
-        const { mileage, entryLocation, detailLocation, remark, KeyAmountPres, KeyAmountTot, KeyLocation, carNo } = req.body;
-        const imageURLs = req.files.map(file => {
-        const decodedFilename = decodeURIComponent(file.originalname);
+// router.post('/submitCompQC', upload.array('images', 50), async(req, res, next) => {
+//     try {
+//         const { mileage, entryLocation, detailLocation, remark, KeyAmountPres, KeyAmountTot, KeyLocation, carNo } = req.body;
+//         const imageURLs = req.files.map(file => {
+//         const decodedFilename = decodeURIComponent(file.originalname);
 
-        return { filename: decodedFilename, location: file.location}
-    })
+//         return { filename: decodedFilename, location: file.location}
+//     })
 
-    const CompQCdata = await prisma.CompQC.findFirst({
-        where: { carNo },
-    })
+//     const CompQCdata = await prisma.CompQC.findFirst({
+//         where: { carNo },
+//     })
 
-    const CompQCId = CompQCdata.CompQCId    
+//     const CompQCId = CompQCdata.CompQCId    
     
-    const updateData = await prisma.CompQC.updateMany({  // updatefirst 로 진행했지만, 사실은 findfirst등을 한 이후에 해당 정보를 바꾸고 commit 하거나 rawquery를 사용하는게 더 바람직할 것.
-        where : { carNo },
-        data : {
-            Mileage : +mileage,
-            EntryLocation : entryLocation,
-            DetailLocation : detailLocation,
-            KeyAmountPres : +KeyAmountPres,
-            KeyAmountTot : +KeyAmountTot,
-            KeyLocation : KeyLocation,
-            Remark : remark
-        }
-    })
+//     const updateData = await prisma.CompQC.updateMany({  // updatefirst 로 진행했지만, 사실은 findfirst등을 한 이후에 해당 정보를 바꾸고 commit 하거나 rawquery를 사용하는게 더 바람직할 것.
+//         where : { carNo },
+//         data : {
+//             Mileage : +mileage,
+//             EntryLocation : entryLocation,
+//             DetailLocation : detailLocation,
+//             KeyAmountPres : +KeyAmountPres,
+//             KeyAmountTot : +KeyAmountTot,
+//             KeyLocation : KeyLocation,
+//             Remark : remark
+//         }
+//     })
     
-    /* 이용자가 이미지를 추가했을 때에만 동작하도록 (아닐경우 에러가 발생함으로) */
-    if (req.files || req.files.length !==0) {
+//     /* 이용자가 이미지를 추가했을 때에만 동작하도록 (아닐경우 에러가 발생함으로) */
+//     if (req.files || req.files.length !==0) {
         
-        const saveImageURLs = await Promise.all(imageURLs.map(async imageURL => 
-            await prisma.CompQCIMG.create({
-                data : { 
-                    ImgURL : imageURL.location,
-                    carNo : carNo,
-                    CompQCId : CompQCId
-                }
-            })
-        ))
-    }
+//         const saveImageURLs = await Promise.all(imageURLs.map(async imageURL => 
+//             await prisma.CompQCIMG.create({
+//                 data : { 
+//                     ImgURL : imageURL.location,
+//                     carNo : carNo,
+//                     CompQCId : CompQCId
+//                 }
+//             })
+//         ))
+//     }
     
     /* req.body 데이터 중 필수데이터가 있다면 이곳에서 if(!mileague)... 등으로 예외처리하고 메세지로 리턴해줄 것. 
     
@@ -518,16 +521,16 @@ router.post('/submitCompQC', upload.array('images', 50), async(req, res, next) =
 
 
 
-    if (!updateData) {
-        return res.status(400).json({ message : "데이터가 존재하지 않습니다. 실행번호를 확인해주세요"})
-    }
+//     if (!updateData) {
+//         return res.status(400).json({ message : "데이터가 존재하지 않습니다. 실행번호를 확인해주세요"})
+//     }
 
-    return res.status(201).json({ data : updateData, message: "업로드 성공" })
-} catch (error) {
-    console.error(error)
-    return res.status(500).json({ message: error})
-}
-})
+//     return res.status(201).json({ data : updateData, message: "업로드 성공" })
+// } catch (error) {
+//     console.error(error)
+//     return res.status(500).json({ message: error})
+// }
+// })
 
 
 
