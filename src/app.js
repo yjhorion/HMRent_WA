@@ -35,14 +35,14 @@ const secret = generateSecret();
 console.log('Generated secret:', secret)
 
 /* cors */
-// const corsOptions = {
-//     origin: 'https://admin.yjhorion.co.kr',
-//     credentials : true,
-//     methods: ["GET", "POST", "PUT", "DELETE"],
-//     allowedHeaders: ["Content-Type", "Authorization"]
-// };
+const corsOptions = {
+    origin: 'https://hmr-sooty.vercel.app/',
+    credentials : true,
+    methods: ["GET", "POST", "PUT", "DELETE"],
+    allowedHeaders: ["Content-Type", "Authorization"]
+};
 
-// app.use(cors(corsOptions));
+app.use(cors(corsOptions));
 
 /* swagger module */
 const swaggerUi = require('swagger-ui-express');
@@ -90,7 +90,7 @@ app.get('/', (req,res) => {
         saveUninitialized: false,
         cookie: {
             maxAge: maxAge, // 15 hours
-            httpOnly: true, // 클라이언트에서 쿠키에 접근하지 못하도록 설정
+            httpOnly: false, // 클라이언트에서 쿠키에 접근하지 못하도록 설정
             secure: false, // HTTPS를 사용하는 경우 true로 설정
             sameSite: 'lax' // CSRF 방지를 위해 설정 (strict 또는 none도 사용 가능)
         }
