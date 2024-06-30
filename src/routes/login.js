@@ -111,8 +111,8 @@ router.post('/login', async (req, res, next) => {
                     "DOCPORTAL" : "M",
                     "DOCSNDDAT" : `${year}${month}${day}`,
                     "DOCSNDTIM" : `${hour}24${minute}${second}`,
-                    "RGTFLDUSR" : 'H202404010',//req.session.user.USERID, 
-                    "RGTFLDPWR" : '!Ekdzhd123'//req.session.user.USERPW, 
+                    "RGTFLDUSR" : req.session.user.USERID, 
+                    "RGTFLDPWR" : req.session.user.USERPW, 
                 },
                 "data" : 
             ["HR58", "HR65"]    // "HR58 : 차량입고위치, HR65: 1차탁송출고지"
