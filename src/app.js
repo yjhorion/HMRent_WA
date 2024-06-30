@@ -40,7 +40,7 @@ console.log('Generated secret:', secret)
 
 /* cors 설정 */
 const corsOptions = {
-    origin: 'https://hmr-sooty.vercel.app/',
+    origin: 'https://hmr-sooty.vercel.app',
     methods: ['GET', 'POST', 'OPTIONS'],
     allowedHeaders: ['Origin', 'Authorization', 'Accept', 'Content-Type'],
     credentials: true
