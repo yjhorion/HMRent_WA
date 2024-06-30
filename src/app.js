@@ -48,6 +48,13 @@ console.log('Generated secret:', secret)
 
 // app.use(cors(corsOptions));
 
+// cors 미들웨어 설정
+app.use(cors({
+    origin: 'https://hmr-sooty.vercel.app', // 프론트엔드 도메인
+    credentials: true // 인증 정보(cookie) 전송 허용
+}));
+
+
 /* swagger module */
 const swaggerUi = require('swagger-ui-express');
 const YAML = require('yamljs')
