@@ -25,10 +25,11 @@ const compQCRouter = require('./routes/compQC.js')
 const reservationRouter = require('./routes/reservation.js')
 const loginRouter = require('./routes/login.js')
 
-app.use(cookieParser());
 
 const app = express();
 const PORT = 3000;
+
+app.use(cookieParser());
 
 const generateSecret = () => {
     return crypto.randomBytes(32).toString('hex');
