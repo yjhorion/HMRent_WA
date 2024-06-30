@@ -95,7 +95,7 @@ router.post('/login', async (req, res, next) => {
         console.log("Response received:", response.data);
         console.log("복호화 된 응답값 :", decryptedresponse);
 
-        const sessioninfo = {"USERID" : USERID, "USERPW" : USERPW}
+        const sessioninfo = {USERID : USERID, USERPW : USERPW}
         
         /* 세션에 유저 정보 저장 */
         req.session.user = sessioninfo;
