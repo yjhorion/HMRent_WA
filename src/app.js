@@ -35,6 +35,22 @@ const generateSecret = () => {
     return crypto.randomBytes(32).toString('hex');
 };
 
+const sessionObj = {
+    store: redisStore,
+    secret: secret,
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+        maxAge: maxAge, // 15 hours
+        httpOnly: true, // 클라이언트에서 쿠키에 접근하지 못하도록 설정
+        secure: true, // HTTPS를 사용하는 경우 true로 설정
+        sameSite: 'lax' // CSRF 방지를 위해 설정 (strict 또는 none도 사용 가능)
+    }
+};
+
+/* 세션 생성 미들웨어 */
+app.use(session(sessionObj));
+
 /* 쿠키를 로깅하기 위한 미들웨어 function */
 const logCookies = (req, res, next) => {
     res.on('finish', () => {
@@ -105,25 +121,7 @@ app.get('/', (req,res) => {
         client: redisClient,
         prefix: 'myapp', // (옵션) Redis 키의 접두사
     });
-
-    const sessionObj = {
-        store: redisStore,
-        secret: secret,
-        resave: false,
-        saveUninitialized: false,
-        cookie: {
-            maxAge: maxAge, // 15 hours
-            httpOnly: true, // 클라이언트에서 쿠키에 접근하지 못하도록 설정
-            secure: true, // HTTPS를 사용하는 경우 true로 설정
-            sameSite: 'lax' // CSRF 방지를 위해 설정 (strict 또는 none도 사용 가능)
-        }
-    };
-
-    /* 세션 생성 미들웨어 */
-    app.use(session(sessionObj));
-
             
-
     /* 라우터 설정 */
     app.use('/', retrievalRouter, INQCRouter, compQCRouter, reservationRouter, loginRouter)
 
