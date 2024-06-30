@@ -47,6 +47,9 @@ app.use(cookieParser());
         prefix: 'myapp', // (옵션) Redis 키의 접두사
     });
 
+    /* 세션 설정 */
+    const maxAge = 60 * 60 * 1000 * 15 // 세션 유효기간 15시간 (1일)
+
 const sessionObj = {
     store: redisStore,
     secret: secret,
@@ -119,9 +122,7 @@ app.use(bodyParser.json());
 app.get('/', (req,res) => {
         res.send('Hello World!') // '/' 경로에서 잘 받아오는지 확인
         });
-    
-    /* 세션 설정 */
-    const maxAge = 60 * 60 * 1000 * 15 // 세션 유효기간 15시간 (1일)
+
             
     /* 라우터 설정 */
     app.use('/', retrievalRouter, INQCRouter, compQCRouter, reservationRouter, loginRouter)
