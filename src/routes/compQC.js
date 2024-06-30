@@ -107,9 +107,6 @@ router.get('/CompQC/:STATUSREQ', async (req, res, next) => {
         const { STATUSREQ } = req.params
         // const { USERID, USERPW } = req.session.user;  
 
-        // console.log(USERID);
-        // console.log(USERPW);
-
         const { year, month, day, hour, minute, second } = getCurrentDateTime();
 
         const sendingdata = JSON.stringify({
@@ -118,8 +115,8 @@ router.get('/CompQC/:STATUSREQ', async (req, res, next) => {
                 "DOCPORTAL" : "M",
                 "DOCSNDDAT" : `${year}${month}${day}`,
                 "DOCSNDTIM" : `${hour}${minute}${second}`,
-                "RGTFLDUSR" : 'H202404010',//USERID,
-                "RGTFLDPWR" : '!Ekdzhd123'//USERPW
+                "RGTFLDUSR" : "H202404010",//req.session.USERID,
+                "RGTFLDPWR" : "!Ekdzhd123"//req.session.USERPW
             },
             "data" : {
                 "REQSTATUS" : STATUSREQ // 상품화를 의미하는 STATUS값 - 문서(3000) 참조
