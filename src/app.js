@@ -31,6 +31,9 @@ const PORT = 3000;
 
 app.use(cookieParser());
 
+    const secret = generateSecret();
+    console.log('Generated secret:', secret)
+
     // redis 클라이언트 설정
     const redisClient = createClient();
     redisClient.connect().catch(console.error)
@@ -79,8 +82,7 @@ const logCookies = (req, res, next) => {
     next();
 };
 
-const secret = generateSecret();
-console.log('Generated secret:', secret)
+
 
 /* cors 설정 */
 // const corsOptions = {
