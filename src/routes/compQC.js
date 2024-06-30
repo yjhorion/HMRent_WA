@@ -105,10 +105,10 @@ router.get('/CompQC/:STATUSREQ', async (req, res, next) => {
         
 
         const { STATUSREQ } = req.params
-        const { USERID, USERPW } = req.session.user;  
+        // const { USERID, USERPW } = req.session.user;  
 
-        console.log(USERID);
-        console.log(USERPW);
+        // console.log(USERID);
+        // console.log(USERPW);
 
         const { year, month, day, hour, minute, second } = getCurrentDateTime();
 
