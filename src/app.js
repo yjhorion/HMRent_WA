@@ -31,6 +31,16 @@ const PORT = 3000;
 
 app.use(cookieParser());
 
+    // redis 클라이언트 설정
+    const redisClient = createClient();
+    redisClient.connect().catch(console.error)
+
+    // RedisStore 설정
+    const redisStore = new RedisStore({
+        client: redisClient,
+        prefix: 'myapp', // (옵션) Redis 키의 접두사
+    });
+
 const generateSecret = () => {
     return crypto.randomBytes(32).toString('hex');
 };
@@ -111,16 +121,6 @@ app.get('/', (req,res) => {
     
     /* 세션 설정 */
     const maxAge = 60 * 60 * 1000 * 15 // 세션 유효기간 15시간 (1일)
-
-    // redis 클라이언트 설정
-    const redisClient = createClient();
-    redisClient.connect().catch(console.error)
-
-    // RedisStore 설정
-    const redisStore = new RedisStore({
-        client: redisClient,
-        prefix: 'myapp', // (옵션) Redis 키의 접두사
-    });
             
     /* 라우터 설정 */
     app.use('/', retrievalRouter, INQCRouter, compQCRouter, reservationRouter, loginRouter)
