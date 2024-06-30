@@ -31,6 +31,9 @@ const PORT = 3000;
 
 app.use(cookieParser());
 
+    const generateSecret = () => {
+        return crypto.randomBytes(32).toString('hex');
+    };
     const secret = generateSecret();
     console.log('Generated secret:', secret)
 
@@ -43,10 +46,6 @@ app.use(cookieParser());
         client: redisClient,
         prefix: 'myapp', // (옵션) Redis 키의 접두사
     });
-
-const generateSecret = () => {
-    return crypto.randomBytes(32).toString('hex');
-};
 
 const sessionObj = {
     store: redisStore,
