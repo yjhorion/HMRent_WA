@@ -51,7 +51,9 @@ console.log('Generated secret:', secret)
 // cors 미들웨어 설정
 app.use(cors({
     origin: 'https://hmr-sooty.vercel.app', // 프론트엔드 도메인
-    credentials: true // 인증 정보(cookie) 전송 허용
+    credentials: true, // 인증 정보(cookie) 전송 허용
+    methods: ['GET', 'POST', 'PUT', 'DELETE'], // 허용할 HTTP 메서드
+    allowedHeaders: ['Content-Type', 'Authorization'] // 허용할 요청 헤더
 }));
 
 
