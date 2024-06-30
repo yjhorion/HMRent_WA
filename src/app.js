@@ -111,7 +111,7 @@ const { S3ENDPOINT, S3ACCESS, S3SECRET, S3BUCKETNAME, S3DIRECTORY, testServerUrl
 
 
 // app.use(express.static(path.join(__dirname, 'public')));
-app.use(morgan('combined'));
+app.use(morgan('dev'));
 app.use(bodyParser.urlencoded({ extended: true}));
 app.use(bodyParser.json());
 // app.set('view engine', 'ejs');          // ejs 템플릿 엔진 세팅부분.
