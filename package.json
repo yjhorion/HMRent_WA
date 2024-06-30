@@ -15,6 +15,7 @@
     "aws-sdk": "^2.1605.0",
     "axios": "^1.6.8",
     "connect-redis": "^7.1.1",
+    "cookie-parser": "^1.4.6",
     "cookieparser": "^0.1.0",
     "cors": "^2.8.5",
     "dirname": "^0.1.0",
