@@ -12,6 +12,9 @@ const getCurrentDateTime = require('./utils/Time/DateTime.js');
 const cors = require('cors')
 const session = require('express-session')
 const Memorystore = require('memorystore')(session)
+const RedisStore = require('connect-redis').default;
+const { createClient } = require('redis');
+
 
 const crypto= require('crypto');
 const iconv = require('iconv-lite');
@@ -71,10 +74,21 @@ app.get('/', (req,res) => {
     /* 세션 설정 */
     const maxAge = 60 * 60 * 1000 * 15 // 세션 유효기간 15시간 (1일)
 
+    // redis 클라이언트 설정
+    const redisClient = createClient();
+    redisClient.connect().catch(console.error)
+
+    // RedisStore 설정
+    const redisStore = new RedisStore({
+        client: redisClient,
+        prefix: 'myapp', // (옵션) Redis 키의 접두사
+    });
+
     const sessionObj = {
+        store: redisStore,
         secret: secret,
         resave: false,
-        saveUninitialized: true,
+        saveUninitialized: false,
         store: new Memorystore({ checkPeriod : maxAge}),
         cookie: {
             maxAge: maxAge
