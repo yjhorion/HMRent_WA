@@ -35,6 +35,17 @@ const generateSecret = () => {
     return crypto.randomBytes(32).toString('hex');
 };
 
+/* 쿠키를 로깅하기 위한 미들웨어 function */
+const logCookies = (req, res, next) => {
+    res.on('finish', () => {
+        const cookies = res.getHeaders()['set-cookie']
+        if (cookies) {
+            console.log('Cookies sent: ', cookies);
+        }
+    });
+    next();
+};
+
 const secret = generateSecret();
 console.log('Generated secret:', secret)
 
@@ -115,7 +126,7 @@ app.get('/', (req,res) => {
 
     app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
-
+    app.use(logCookies);
 
 app.listen(PORT, () => {
     console.log(`서버가 http://localhost:${PORT} 에서 실행 중입니다.`);
