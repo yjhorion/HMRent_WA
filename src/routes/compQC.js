@@ -109,7 +109,7 @@ router.get('/CompQC/:STATUSREQ', async (req, res, next) => {
 
         console.log(USERID);
         console.log(USERPW);
-        
+
         const { year, month, day, hour, minute, second } = getCurrentDateTime();
 
         const sendingdata = JSON.stringify({

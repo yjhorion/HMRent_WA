@@ -95,9 +95,9 @@ app.get('/', (req,res) => {
         saveUninitialized: false,
         cookie: {
             maxAge: maxAge, // 15 hours
-            httpOnly: false, // 클라이언트에서 쿠키에 접근하지 못하도록 설정
+            httpOnly: true, // 클라이언트에서 쿠키에 접근하지 못하도록 설정
             secure: true, // HTTPS를 사용하는 경우 true로 설정
-            sameSite: 'none' // CSRF 방지를 위해 설정 (strict 또는 none도 사용 가능)
+            sameSite: 'lax' // CSRF 방지를 위해 설정 (strict 또는 none도 사용 가능)
         }
     };
 
