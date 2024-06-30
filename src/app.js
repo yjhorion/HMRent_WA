@@ -39,14 +39,14 @@ const secret = generateSecret();
 console.log('Generated secret:', secret)
 
 /* cors 설정 */
-const corsOptions = {
-    origin: 'https://hmr-sooty.vercel.app',
-    methods: ['GET', 'POST', 'OPTIONS'],
-    allowedHeaders: ['Origin', 'Authorization', 'Accept', 'Content-Type'],
-    credentials: true // 클라이언트에서 쿠키를 전송할 수 있도록 허용
-};
+// const corsOptions = {
+//     origin: 'https://hmr-sooty.vercel.app',
+//     methods: ['GET', 'POST', 'OPTIONS'],
+//     allowedHeaders: ['Origin', 'Authorization', 'Accept', 'Content-Type'],
+//     credentials: true // 클라이언트에서 쿠키를 전송할 수 있도록 허용
+// };
 
-app.use(cors(corsOptions));
+// app.use(cors(corsOptions));
 
 
 /* swagger module */
