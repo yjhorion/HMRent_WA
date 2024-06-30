@@ -41,6 +41,13 @@ const logCookies = (req, res, next) => {
         const cookies = res.getHeaders()['set-cookie']
         if (cookies) {
             console.log('Cookies sent: ', cookies);
+        } else {
+            console.error(`NO COOKIES!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                NO COOKIES!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                NO COOKIES!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                NO COOKIES!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                NO COOKIES!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                NO COOKIES!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!`)
         }
     });
     next();
