@@ -31,60 +31,14 @@ const PORT = 3000;
 
 app.use(cookieParser());
 
-    const generateSecret = () => {
-        return crypto.randomBytes(32).toString('hex');
-    };
-    const secret = generateSecret();
-    console.log('Generated secret:', secret)
-
-    // redis 클라이언트 설정
-    const redisClient = createClient();
-    redisClient.connect().catch(console.error)
-
-    // RedisStore 설정
-    const redisStore = new RedisStore({
-        client: redisClient,
-        prefix: 'myapp', // (옵션) Redis 키의 접두사
-    });
-
-    /* 세션 설정 */
-    const maxAge = 60 * 60 * 1000 * 15 // 세션 유효기간 15시간 (1일)
-
-const sessionObj = {
-    store: redisStore,
-    secret: secret,
-    resave: false,
-    saveUninitialized: false,
-    cookie: {
-        maxAge: maxAge, // 15 hours
-        httpOnly: true, // 클라이언트에서 쿠키에 접근하지 못하도록 설정
-        secure: true, // HTTPS를 사용하는 경우 true로 설정
-        sameSite: 'lax' // CSRF 방지를 위해 설정 (strict 또는 none도 사용 가능)
-    }
+const generateSecret = () => {
+    return crypto.randomBytes(32).toString('hex');
 };
-
-/* 세션 생성 미들웨어 */
-app.use(session(sessionObj));
 
 /* 쿠키를 로깅하기 위한 미들웨어 function */
-const logCookies = (req, res, next) => {
-    res.on('finish', () => {
-        const cookies = res.getHeaders()['set-cookie']
-        if (cookies) {
-            console.log('Cookies sent: ', cookies);
-        } else {
-            console.error(`NO COOKIES!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-                NO COOKIES!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-                NO COOKIES!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-                NO COOKIES!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-                NO COOKIES!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-                NO COOKIES!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!`)
-        }
-    });
-    next();
-};
 
-
+const secret = generateSecret();
+console.log('Generated secret:', secret)
 
 /* cors 설정 */
 // const corsOptions = {
@@ -111,7 +65,7 @@ const { S3ENDPOINT, S3ACCESS, S3SECRET, S3BUCKETNAME, S3DIRECTORY, testServerUrl
 
 
 // app.use(express.static(path.join(__dirname, 'public')));
-app.use(morgan('dev'));
+app.use(morgan('combined'));
 app.use(bodyParser.urlencoded({ extended: true}));
 app.use(bodyParser.json());
 // app.set('view engine', 'ejs');          // ejs 템플릿 엔진 세팅부분.
@@ -122,8 +76,38 @@ app.use(bodyParser.json());
 app.get('/', (req,res) => {
         res.send('Hello World!') // '/' 경로에서 잘 받아오는지 확인
         });
+    
+    /* 세션 설정 */
+    const maxAge = 60 * 60 * 1000 * 15 // 세션 유효기간 15시간 (1일)
+
+    // redis 클라이언트 설정
+    const redisClient = createClient();
+    redisClient.connect().catch(console.error)
+
+    // RedisStore 설정
+    const redisStore = new RedisStore({
+        client: redisClient,
+        prefix: 'myapp', // (옵션) Redis 키의 접두사
+    });
+
+    const sessionObj = {
+        store: redisStore,
+        secret: secret,
+        resave: false,
+        saveUninitialized: false,
+        cookie: {
+            maxAge: maxAge, // 15 hours
+            httpOnly: true, // 클라이언트에서 쿠키에 접근하지 못하도록 설정
+            secure: true, // HTTPS를 사용하는 경우 true로 설정
+            sameSite: 'lax' // CSRF 방지를 위해 설정 (strict 또는 none도 사용 가능)
+        }
+    };
+
+    /* 세션 생성 미들웨어 */
+    app.use(session(sessionObj));
 
             
+
     /* 라우터 설정 */
     app.use('/', retrievalRouter, INQCRouter, compQCRouter, reservationRouter, loginRouter)
 
@@ -133,7 +117,7 @@ app.get('/', (req,res) => {
 
     app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
-    app.use(logCookies);
+
 
 app.listen(PORT, () => {
     console.log(`서버가 http://localhost:${PORT} 에서 실행 중입니다.`);
