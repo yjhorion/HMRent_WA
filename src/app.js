@@ -38,15 +38,15 @@ const generateSecret = () => {
 const secret = generateSecret();
 console.log('Generated secret:', secret)
 
-/* cors */
-// const corsOptions = {
-//     origin: ['https://hmr-sooty.vercel.app/', 'https://yjhorion.co.kr', 'http://yjhorion.co.kr'],
-//     credentials : true,
-//     methods: ["GET", "POST", "PUT", "DELETE"],
-//     allowedHeaders: ["Content-Type", "Authorization"]
-// };
+/* cors 설정 */
+const corsOptions = {
+    origin: 'https://hmr-sooty.vercel.app/',
+    methods: ['GET', 'POST', 'OPTIONS'],
+    allowedHeaders: ['Origin', 'Authorization', 'Accept', 'Content-Type'],
+    credentials: true
+};
 
-// app.use(cors(corsOptions));
+app.use(cors(corsOptions));
 
 
 /* swagger module */
