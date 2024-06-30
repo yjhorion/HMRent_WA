@@ -14,6 +14,7 @@ const session = require('express-session')
 const Memorystore = require('memorystore')(session)
 const RedisStore = require('connect-redis').default;
 const { createClient } = require('redis');
+const cookieParser = require('cookie-parser');
 
 const crypto= require('crypto');
 const iconv = require('iconv-lite');
@@ -23,6 +24,8 @@ const INQCRouter = require('./routes/INQC.js')
 const compQCRouter = require('./routes/compQC.js')
 const reservationRouter = require('./routes/reservation.js')
 const loginRouter = require('./routes/login.js')
+
+app.use(cookieParser());
 
 const app = express();
 const PORT = 3000;
