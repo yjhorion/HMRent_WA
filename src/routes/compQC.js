@@ -115,8 +115,8 @@ router.get('/CompQC/:STATUSREQ', async (req, res, next) => {
                 "DOCPORTAL" : "M",
                 "DOCSNDDAT" : `${year}${month}${day}`,
                 "DOCSNDTIM" : `${hour}${minute}${second}`,
-                "RGTFLDUSR" : "H202404010",//req.session.USERID,
-                "RGTFLDPWR" : "!Ekdzhd123"//req.session.USERPW
+                "RGTFLDUSR" : req.session.user.USERID,
+                "RGTFLDPWR" : req.session.user.USERPW
             },
             "data" : {
                 "REQSTATUS" : STATUSREQ // 상품화를 의미하는 STATUS값 - 문서(3000) 참조
