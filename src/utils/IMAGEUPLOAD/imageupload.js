@@ -33,7 +33,8 @@ async function uploadImages(files) {
             Bucket : bucketName,
             Key: folderPath + fileName,
             Body: file.buffer,
-            ContentType: file.mimetype // 파일의 마임타잎 설정
+            ContentType: file.mimetype, // 파일의 마임타잎 설정
+            ACL: 'public-read'
         };
 
         try {
