@@ -2,6 +2,7 @@ const AWS = require('aws-sdk');
 const fs = require('fs');
 const path = require('path');
 const getRandomFileName = require('../FILENAME/filename.js'); // 랜덤파일명을 만들어주는 모듈함수
+const { AUTO_CONTENT_TYPE } = require('multer-s3');
 
 const { S3ENDPOINT, S3ACCESS, S3SECRET, S3BUCKETNAME } = process.env;
 
@@ -31,7 +32,8 @@ async function uploadImages(files) {
         const params = {
             Bucket : bucketName,
             Key: folderPath + fileName,
-            Body: file.buffer
+            Body: file.buffer,
+            ContentType: file.mimetype // 파일의 마임타잎 설정
         };
 
         try {
