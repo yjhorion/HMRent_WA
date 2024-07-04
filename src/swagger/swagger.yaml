@@ -11,59 +11,331 @@ paths:
       summary: LOGIN 요청
       responses:
         "200":
-        description: 정상 처리 시 응답
+          description: 정상 처리 시 응답
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    description: 처리 메세지
+                  data:
+                    type: object
+                    description: 로그인한 이용자의 상세 정보값
+                    properties:
+                      BRANCH:
+                        type: string
+                        description: 지점
+                      USERID:
+                        type: string
+                        description: 사용자 ID
+                      USERNAME:
+                        type: string
+                        description: 사용자 이름
+                      DEPARTMENT:
+                        type: string
+                        description: 소속 부서
+        "400":
+          description: 로그인 정보 오류
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    description: 실패 메세지
+                  data:
+                    type: null
+                    description: 응답 데이터 없음
+        "400":
+          description: 잘못된 요청 (body에 값이 없을 경우 등)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    description: 실패 메세지
+                  data:
+                    type: null
+                    description: 응답 데이터 없음
+
+  /INQCOLD:
+    get:
+      summary: "입고QC 조회 (재랜트)"
+      description: "재랜트 INQC 조회"
+      responses:
+        "200":
+          description: 요청성공
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      result:
+                        type: object
+                        properties:
+                          MSGE:
+                            type: string
+                            example: "정상처리"
+                            description: 정상처리 시 res msg
+                          CODE:
+                            type: string
+                            example: "0000"
+                            description: 정상처리 시 res code
+                      data:
+                        type: object
+                        properties:
+                          REPT:
+                            type: array
+                            items:
+                              type: object
+                              properties:
+                                SEQNO:
+                                  type: integer
+                                  example: 6
+                                EXENO:
+                                  type: string
+                                  example: ""
+                                INRSON:
+                                  type: string
+                                  example: "중도회수"
+                                ASSETNO:
+                                  type: string
+                                  example: "AST2021120176"
+                                CNAME:
+                                  type: string
+                                  example: ""
+                                CARNO:
+                                  type: string
+                                  example: "165하1877"
+                                MODEL:
+                                  type: string
+                                  example: "쏘나타"
+        "500":
+          description: 요청실패
+          content:
+            application/json:
+              schema:
+                type: string
+                example: "통신 에러"
+
+    post:
+      summary: "입고QC 입력 (재랜트)"
+      description: "재랜트 INQC POST"
+      requestBody:
+        required: true
         content:
           application/json:
             schema:
               type: object
               properties:
-                message:
+                ASSETNO:
+                  type: integer
+                MILEAGE:
+                  type: integer
+                ENTRYLOCATION:
                   type: string
-                  description: 처리 메세지
-                data:
-                  type: object
-                  description: 로그인한 이용자의 상세 정보값
-                  properties:
-                    BRANCH:
-                      type: string
-                      description: 지점
-                    USERID:
-                      type: string
-                      description: 사용자 ID
-                    USERNAME:
-                      type: string
-                      description: 사용자 이름
-                    DEPARTMENT:
-                      type: string
-                      description: 소속 부서
+                DETAILLOCATION:
+                  type: string
+                IMGLIST:
+                  type: array
+                  items:
+                    type: string
       responses:
+        "201":
+          description: 요청(변경) 성공
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      result:
+                        type: object
+                        properties:
+                          MSGE:
+                            type: string
+                            description: 처리 메세지
+                          CODE:
+                            type: string
+                            description: 처리 코드
         "400":
-        description: 로그인 정보 오류
+          description: 자산정보 혹은 자산입고 정보가 존재하지 않음
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      result:
+                        type: object
+                        properties:
+                          MSGE:
+                            type: string
+                            description: 에러 메시지
+                          CODE:
+                            type: string
+                            description: 에러 코드
+        "500":
+          description: 서버 내부 오류
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: string
+                    example: "통신 에러"
+
+  /INQCNEW:
+    get:
+      summary: "입고QC 조회 (신차)"
+      description: "신차 INQC 조회"
+      responses:
+        "200":
+          description: 요청성공
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      result:
+                        type: object
+                        properties:
+                          MSGE:
+                            type: string
+                            example: "정상처리"
+                            description: 정상처리 시 res msg
+                          CODE:
+                            type: string
+                            example: "0000"
+                            description: 정상처리 시 res code
+                      data:
+                        type: object
+                        properties:
+                          REPT:
+                            type: array
+                            items:
+                              type: object
+                              properties:
+                                SEQNO:
+                                  type: integer
+                                  example: 6
+                                EXENO:
+                                  type: string
+                                  example: ""
+                                INRSON:
+                                  type: string
+                                  example: "중도회수"
+                                ASSETNO:
+                                  type: string
+                                  example: "AST2021120176"
+                                CNAME:
+                                  type: string
+                                  example: ""
+                                CARNO:
+                                  type: string
+                                  example: "165하1877"
+                                MODEL:
+                                  type: string
+                                  example: "쏘나타"
+        "500":
+          description: 요청실패
+          content:
+            application/json:
+              schema:
+                type: string
+                example: "통신 에러"
+
+    post:
+      summary: "입고QC 입력 (신차)"
+      description: "신차 INQC POST"
+      requestBody:
+        required: true
         content:
           application/json:
             schema:
               type: object
-              properies:
-                message:
+              properties:
+                ASSETNO:
+                  type: integer
+                MILEAGE:
+                  type: integer
+                DEPARTLOCATION:
                   type: string
-                  description: 실패 메세지
-                data:
-                  type: null
-                  description: 응답 데이터 없음
+                ENTRYLOCATION:
+                  type: string
+                DETAILLOCATION:
+                  type: string
+                IMGLIST:
+                  type: array
+                  items:
+                    type: string
       responses:
+        "201":
+          description: 요청(변경) 성공
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      result:
+                        type: object
+                        properties:
+                          MSGE:
+                            type: string
+                            description: 처리 메세지
+                          CODE:
+                            type: string
+                            description: 처리 코드
         "400":
-        description: 잘못된 요청 (body에 값이 없을경우 등)
-        content:
-          application/json:
-            schema:
-              type: object
-              properies:
-                message:
-                  type: string
-                  description: 실패 메세지
-                data:
-                  type: null
-                  description: 응답 데이터 없음
+          description: 자산정보 혹은 자산입고 정보가 존재하지 않음
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      result:
+                        type: object
+                        properties:
+                          MSGE:
+                            type: string
+                            description: 에러 메시지
+                          CODE:
+                            type: string
+                            description: 에러 코드
+        "500":
+          description: 서버 내부 오류
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: string
+                    example: "통신 에러"
+
+
 
   CompQC/{STARTUSREQ}:
     get:
