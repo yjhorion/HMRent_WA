@@ -3,6 +3,7 @@ const fs = require('fs');
 const path = require('path');
 const getRandomFileName = require('../FILENAME/filename.js'); // 랜덤파일명을 만들어주는 모듈함수
 const { AUTO_CONTENT_TYPE } = require('multer-s3');
+const { format } = require('date-fns');
 
 const { S3ENDPOINT, S3ACCESS, S3SECRET, S3BUCKETNAME } = process.env;
 
@@ -14,8 +15,10 @@ const s3 = new AWS.S3({
     signatureVersion: 'v4'
 });
 
+const date = format(new Date(), 'yyyyMM');
+
 const bucketName = S3BUCKETNAME;
-const folderPath = './HR380009/202401/';
+const folderPath = `./HR380009/${date}/`;
 
 // 파일명과 파일 사이즈를 저장할 배열
 let uploadedFilesInfo = [];

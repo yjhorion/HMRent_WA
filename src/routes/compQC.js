@@ -272,7 +272,7 @@ router.post('/CompQC/:ASSETNO', upload.array('IMGLIST'), async (req, res, next) 
             // if (req.files && req.files.length > 0) {
                 
 
-                console.log('---------------------req.files---------------------: ', req.files);
+                //console.log('---------------------req.files---------------------: ', req.files);
     
                 const uploadedFilesInfo = await uploadImages(req.files);
                 if (!uploadedFilesInfo.length) {
