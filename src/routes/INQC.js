@@ -57,12 +57,27 @@ function decrypt(encrypted, key, iv) {
 
 
 
-/* 차고지 데이터를 코드로 치환해주는 함수(req.session.reqCode, ENTRYLOCATION)을 인자로 받음 */
+/*차고지 데이터를 코드로 치환해주는 함수(req.session.reqCode, ENTRYLOCATION)을 인자로 받음 */
+
+//   function findKeyByValue(sessionCode, value) {
+//     for (const codeGroup of sessionCode) {
+//         for (const group in codeGroup) {
+//             for (const key in codeGroup[group]) {
+//                 if (codeGroup[group][key] === value) {
+//                     return key;
+//                 }
+//             }
+//         }
+//     }
+//     return null; // 값이 없을 경우 null 반환
+// }
+
 function findKeyByValue(sessionCode, value) {
     for (const codeGroup of sessionCode) {
-        for (const group in codeGroup) {
-            for (const key in codeGroup[group]) {
-                if (codeGroup[group][key] === value) {
+        for (const groupKey of Object.keys(codeGroup)) {
+            const group = codeGroup[groupKey];
+            for (const key of Object.keys(group)) {
+                if (group[key] === value) {
                     return key;
                 }
             }
@@ -71,9 +86,6 @@ function findKeyByValue(sessionCode, value) {
     return null; // 값이 없을 경우 null 반환
 }
 
-
-
-/* 여기부터 실행부 (router) */
 
 
 
