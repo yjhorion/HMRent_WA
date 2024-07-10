@@ -331,6 +331,8 @@ router.post('/INQCNEW', async(req, res, next) =>  { //upload.array('IMGLIST'),
         //     return { [key]: values };
         // })
 
+
+        console.log('받아오는 데이터 그 자체 : ',  DEPARTLOCATION)
         
         /* 프론트에서 받은 출고지 데이터를 코드로 치환 */
         const DepartCode = findKeyByValue(reqCode, DEPARTLOCATION);
