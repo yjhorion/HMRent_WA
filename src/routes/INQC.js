@@ -433,7 +433,7 @@ router.post('/INQCNEW', upload.array('IMGLIST'), async(req, res, next) =>  {
 
 
 /* INQC POST(2101) */
-router.post('/INQCOLD',  async(req, res, next) =>  {  //upload.array('IMGLIST'),
+router.post('/INQCOLD',  upload.array('IMGLIST'), async(req, res, next) =>  {
     try {
 
     const { ASSETNO, SEQNO, MILEAGE, ENTRYLOCATION, DETAILLOCATION } = req.body;
@@ -468,6 +468,11 @@ router.post('/INQCOLD',  async(req, res, next) =>  {  //upload.array('IMGLIST'),
         // const uploadedFilesInfo = await uploadImages(req.files);
         // console.log('Uploaded Files Info: ', uploadedFilesInfo);
 
+        const uploadedFilesInfo = await uploadImages(req.files);
+        if (!uploadedFilesInfo.length) {
+            return res.status(400).json({ message : '이미지 0개'})
+        }
+
         const reqCode = Code.map(item => {
             const key = Object.keys(item)[0];
             const values = Object.values(item[key]);
@@ -495,7 +500,7 @@ router.post('/INQCOLD',  async(req, res, next) =>  {  //upload.array('IMGLIST'),
                 "MILEAGE" : MILEAGE,
                 "ENTRYLOCATION" : EntryCode,
                 "DETAILLOCATION" : DETAILLOCATION,
-                "IMGLIST" : [{IMGNAME : "filename1.png", IMGSIZE : "4000"}, {IMGNAME : "filename2.png", IMGSIZE : "5000"}] //uploadedFilesInfo
+                "IMGLIST" : uploadedFilesInfo
             }
         })
 
@@ -538,10 +543,6 @@ router.post('/INQCOLD',  async(req, res, next) =>  {  //upload.array('IMGLIST'),
                     })
                 }        
         
-
-
-
-
     } catch (error) {
         console.error('통신 에러: ', error.message);
         res.status(500).send('통신 에러');
