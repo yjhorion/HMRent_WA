@@ -289,7 +289,7 @@ router.get('/INQCOLD', async(req, res, next) =>  {
 
 
 /* INQC POST(2001) */
-router.post('/INQCNEW', async(req, res, next) =>  { //upload.array('IMGLIST'), 
+router.post('/INQCNEW', upload.array('IMGLIST'), async(req, res, next) =>  {
     try {
 
     const { ASSETNO, MILEAGE, DEPARTLOCATION, ENTRYLOCATION, DETAILLOCATION } = req.body;
@@ -350,6 +350,12 @@ router.post('/INQCNEW', async(req, res, next) =>  { //upload.array('IMGLIST'),
         }
         console.log('EntryCode', EntryCode);
 
+        const uploadedFilesInfo = await uploadImages(req.files);
+        if (!uploadedFilesInfo.length) {
+            return res.status(400).json({ message : '이미지 0개'})
+        }
+
+        console.log(uploadedFilesInfo);
                 
         const sendingdata = JSON.stringify({
             "request" : {
@@ -366,7 +372,7 @@ router.post('/INQCNEW', async(req, res, next) =>  { //upload.array('IMGLIST'),
                 "DEPARTLOCATION" : DepartCode,
                 "ENTRYLOCATION" : EntryCode,
                 "DETAILLOCATION" : DETAILLOCATION,
-                "IMGLIST" : [{IMGNAME : "filename1.png", IMGSIZE : "4000"}, {IMGNAME : "filename2.png", IMGSIZE : "5000"}] //uploadedFilesInfo
+                "IMGLIST" : uploadedFilesInfo
             }
         })
 
