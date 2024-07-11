@@ -473,6 +473,8 @@ router.post('/INQCOLD',  upload.array('IMGLIST'), async(req, res, next) =>  {
             return res.status(400).json({ message : '이미지 0개'})
         }
 
+        console.log(uploadedFilesInfo);
+
         const reqCode = Code.map(item => {
             const key = Object.keys(item)[0];
             const values = Object.values(item[key]);
