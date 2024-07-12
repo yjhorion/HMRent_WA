@@ -16,11 +16,12 @@ const multer = require('multer');
 const multerS3 = require('multer-s3');
 const AWS = require('aws-sdk');
 
-// const { v4: uuidv4 } = require('uuid');
+const { v4: uuidv4 } = require('uuid');
 
-// const { S3ACCESS, S3SECRET, S3BUCKETNAME } = process.env;
+const { S3ACCESS, S3SECRET, S3BUCKETNAME } = process.env;
 
 /* multer config/settings */
+
 const storage = multer.memoryStorage();
 
 const upload = multer({
@@ -55,23 +56,6 @@ function decrypt(encrypted, key, iv) {
     return iconv.decode(decrypted, 'euc-kr');
 }
 
-
-
-/*차고지 데이터를 코드로 치환해주는 함수(req.session.reqCode, ENTRYLOCATION)을 인자로 받음 */
-
-//   function findKeyByValue(sessionCode, value) {
-//     for (const codeGroup of sessionCode) {
-//         for (const group in codeGroup) {
-//             for (const key in codeGroup[group]) {
-//                 if (codeGroup[group][key] === value) {
-//                     return key;
-//                 }
-//             }
-//         }
-//     }
-//     return null; // 값이 없을 경우 null 반환
-// }
-
 function findKeyByValue(sessionCode, value) {
     for (const codeGroup of sessionCode) {
         for (const groupKey of Object.keys(codeGroup)) {
@@ -85,12 +69,6 @@ function findKeyByValue(sessionCode, value) {
     }
     return null; // 값이 없을 경우 null 반환
 }
-
-
-
-
-
-
 
 
 
@@ -142,8 +120,7 @@ router.get('/INQCNEW', async(req, res, next) =>  {
                 "RGTFLDUSR" : "H202404010",//req.session.USERID,
                 "RGTFLDPWR" : "!Ekdzhd123"//req.session.USERPW
             },
-            "data" : {
-            }
+            "data" : {}
         })
 
         if (!secret_key) {
@@ -151,6 +128,8 @@ router.get('/INQCNEW', async(req, res, next) =>  {
             return res.status(500).send('No Secret Key.');
         }
 
+        console.error(IV)
+        console.error(secret_key)
         const encryptedData = encrypt(sendingdata, secret_key, IV);
         const decryptedData = decrypt(encryptedData, secret_key, IV);
 
@@ -181,12 +160,6 @@ router.get('/INQCNEW', async(req, res, next) =>  {
         res.status(500).send('통신 에러');
     }
 });
-
-
-
-
-
-
 
 
 

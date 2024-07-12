@@ -7,9 +7,8 @@ const crypto= require('crypto');
 const iconv = require('iconv-lite');
 const getCurrentDateTime = require('../utils/Time/DateTime.js')
 
-require('dotenv').config();
-
 const router = express.Router()
+require('dotenv').config();
 
 const {uploadImages, rollbackUploadedFiles} = require('../utils/IMAGEUPLOAD/imageupload.js')
 
@@ -21,26 +20,6 @@ const AWS = require('aws-sdk');
 const { v4: uuidv4 } = require('uuid');
 
 const { S3ENDPOINT, S3ACCESS, S3SECRET, S3BUCKETNAME } = process.env;
-
-/* multer config/settings */
-// AWS.config.update({
-//     correctClockSkew: true,
-//     region: 'us-east-1',
-//     signatureVersion: 'V4',
-//     httpOptions: {
-//         timeout: 240000,
-//         connectTimeout: 120000,
-//     },
-//     encoding: 'utf8'
-// })
-
-// const s3 = new AWS.S3({
-//     endpoint: S3ENDPOINT,
-//     accessKeyId: S3ACCESS,
-//     secretAccessKey: S3SECRET,
-//     s3ForcePathStyle: true,
-//     region: 'us-east-1'         // 전역 설정을 무시하고 s3객체 생성시에 명시된 설정을 우선시해서, 서비스를 특정할 때 사용할 수 있음. (명시적 구분을 위해 다시 설정)
-// });
 
 const storage = multer.memoryStorage();
 
@@ -54,26 +33,6 @@ const upload = multer({
         cb(null, true)
     }
 });
-
-
-
-// const upload = multer({      
-//     storage: multerS3({
-//         s3: s3,
-//         bucket: S3BUCKETNAME,
-//         acl: 'public-read',
-//         limits: { fileSize: 5 * 1024 * 1024},
-//         contentType: multerS3.AUTO_CONTENT_TYPE,
-//         key: function(req, file, cb) {
-//             const currentDate = new Date().toISOString().slice(0, 10).replace(/-/g, '');
-//             const ext = path.extname(file.originalname);
-//             const carNo = req.body.carNo;
-//             const fileName = `${carNo}`
-//             const shortUUID = uuidv4().split('-')[0]
-//             cb(null,  `${shortUUID}-${carNo}-${ext}`)
-//         }
-// })
-// });
 
 // .env에서 ERP서버 주소, 암호화 키 가져오고 정의
 const testServerUrl = process.env.testServerUrl
@@ -99,15 +58,48 @@ function decrypt(encrypted, key, iv) {
 }
 
 /* COMP-QC GET (3000) */
-/* /CompQC의 렌더링 부분이 프론트로 전달되는 방식으로 구현 된 이후에 endpoint 변경할 것. */
 router.get('/CompQC/:STATUSREQ', async (req, res, next) => {
     try {
         
+    const { year, month, day, hour, minute, second } = getCurrentDateTime();
+
+    /* session 세팅 이전까지 사용할 하드코딩된 코드값 */
+    const Code = [
+        {
+            HR58: {
+            HR580003: '아산 차고지',
+            HR580004: '상품화센터',
+            HR580006: '본사',
+            HR580099: '기타',
+            HR580001: '하모니파크',
+            HR580002: '송도 차고지'
+          }
+        },
+        {
+          HR65: {
+            HR650001: '기본출고지',
+            HR650002: '아산출고지',
+            HR650005: '화성출고지',
+            HR650006: '광주출고지',
+            HR650003: '울산출고지',
+            HR650004: '칠곡출고지',
+            HR650007: '소하리출고지',
+            HR650008: '서산출고지'
+          }
+        }
+    ]
+
+    const reqCode = Code.map(item => {
+        const key = Object.keys(item)[0];
+        const values = Object.values(item[key]);
+
+        return { [key]: values };
+    })
 
         const { STATUSREQ } = req.params
         // const { USERID, USERPW } = req.session.user;  
 
-        const { year, month, day, hour, minute, second } = getCurrentDateTime();
+
 
         const sendingdata = JSON.stringify({
             "request" : {
@@ -135,7 +127,6 @@ router.get('/CompQC/:STATUSREQ', async (req, res, next) => {
         const decryptedData = decrypt(encryptedData, secret_key, IV);
 
         console.log("암호화 값 : ", encryptedData);
-
         console.log("복호화 값 : ", decryptedData)
 
         /* ERP에 암호화된 데이터를 보내는 부분 */
@@ -147,41 +138,6 @@ router.get('/CompQC/:STATUSREQ', async (req, res, next) => {
                 'Content-Type': 'text/plain'
             }
         });
-
-                    /* session 세팅 이전까지 사용할 하드코딩된 코드값 */
-                    const Code = [
-                        {
-                          HR58: {
-                            HR580003: '아산 차고지',
-                            HR580004: '상품화센터',
-                            HR580006: '본사',
-                            HR580099: '기타',
-                            HR580001: '하모니파크',
-                            HR580002: '송도 차고지'
-                          }
-                        },
-                        {
-                          HR65: {
-                            HR650001: '기본출고지',
-                            HR650002: '아산출고지',
-                            HR650005: '화성출고지',
-                            HR650006: '광주출고지',
-                            HR650003: '울산출고지',
-                            HR650004: '칠곡출고지',
-                            HR650007: '소하리출고지',
-                            HR650008: '서산출고지'
-                          }
-                        }
-                      ]
-
-                      const reqCode = Code.map(item => {
-                        const key = Object.keys(item)[0];
-                        const values = Object.values(item[key]);
-
-                        return { [key]: values };
-                      })
-
-
 
         decryptedresponse = decrypt(response.data, secret_key, IV);
         console.log("Response received:", response.data);
