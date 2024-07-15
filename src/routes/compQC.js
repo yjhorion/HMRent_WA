@@ -19,7 +19,7 @@ const AWS = require('aws-sdk');
 
 const { v4: uuidv4 } = require('uuid');
 
-const { S3ENDPOINT, S3ACCESS, S3SECRET, S3BUCKETNAME } = process.env;
+// const { S3ENDPOINT, S3ACCESS, S3SECRET, S3BUCKETNAME } = process.env;
 
 const storage = multer.memoryStorage();
 

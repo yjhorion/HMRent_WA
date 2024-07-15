@@ -56,28 +56,12 @@ function decrypt(encrypted, key, iv) {
 }
 
 
-
-/*차고지 데이터를 코드로 치환해주는 함수(req.session.reqCode, ENTRYLOCATION)을 인자로 받음 */
-
-//   function findKeyByValue(sessionCode, value) {
-//     for (const codeGroup of sessionCode) {
-//         for (const group in codeGroup) {
-//             for (const key in codeGroup[group]) {
-//                 if (codeGroup[group][key] === value) {
-//                     return key;
-//                 }
-//             }
-//         }
-//     }
-//     return null; // 값이 없을 경우 null 반환
-// }
-
+/* 차고지 데이터를 코드로 치환해주는 함수(req.session.reqCode, ENTRYLOCATION)을 인자로 받음 */
 function findKeyByValue(sessionCode, value) {
     for (const codeGroup of sessionCode) {
-        for (const groupKey of Object.keys(codeGroup)) {
-            const group = codeGroup[groupKey];
-            for (const key of Object.keys(group)) {
-                if (group[key] === value) {
+        for (const group in codeGroup) {
+            for (const key in codeGroup[group]) {
+                if (codeGroup[group][key] === value) {
                     return key;
                 }
             }
@@ -87,51 +71,45 @@ function findKeyByValue(sessionCode, value) {
 }
 
 
-
-
-
-
-
-
-
 /* INQC GET(2000) */
 router.get('/INQCNEW', async(req, res, next) =>  {
     try {
 
     const { year, month, day, hour, minute, second } = getCurrentDateTime();
 
+
     /* session 세팅 이전까지 사용할 하드코딩된 코드값 */
     const Code = [
         {
             HR58: {
-                HR580003: '아산 차고지',
-                HR580004: '상품화센터',
-                HR580006: '본사',
-                HR580099: '기타',
-                HR580001: '하모니파크',
-                HR580002: '송도 차고지'
-                }
-                },
-                {
-                HR65: {
-                    HR650001: '기본출고지',
-                    HR650002: '아산출고지',
-                    HR650005: '화성출고지',
-                    HR650006: '광주출고지',
-                    HR650003: '울산출고지',
-                    HR650004: '칠곡출고지',
-                    HR650007: '소하리출고지',
-                    HR650008: '서산출고지'
-                    }
-                }
-            ]
-        
-            const reqCode = Code.map(item => {
-                const key = Object.keys(item)[0];
-                const values = Object.values(item[key]);
-        
-                return { [key]: values };
-            })
+            HR580003: '아산 차고지',
+            HR580004: '상품화센터',
+            HR580006: '본사',
+            HR580099: '기타',
+            HR580001: '하모니파크',
+            HR580002: '송도 차고지'
+          }
+        },
+        {
+          HR65: {
+            HR650001: '기본출고지',
+            HR650002: '아산출고지',
+            HR650005: '화성출고지',
+            HR650006: '광주출고지',
+            HR650003: '울산출고지',
+            HR650004: '칠곡출고지',
+            HR650007: '소하리출고지',
+            HR650008: '서산출고지'
+          }
+        }
+    ]
+
+    const reqCode = Code.map(item => {
+        const key = Object.keys(item)[0];
+        const values = Object.values(item[key]);
+
+        return { [key]: values };
+    })
 
         const sendingdata = JSON.stringify({
             "request" : {
@@ -142,20 +120,24 @@ router.get('/INQCNEW', async(req, res, next) =>  {
                 "RGTFLDUSR" : "H202404010",//req.session.USERID,
                 "RGTFLDPWR" : "!Ekdzhd123"//req.session.USERPW
             },
-            "data" : {
-            }
+            "data" : {}
         })
+
+        console.log("Secret Key (Base64):", secret_key.toString('base64'));
+        console.log("IV (Base64):", IV.toString('base64'));
 
         if (!secret_key) {
             console.log("No Secret Key.");
             return res.status(500).send('No Secret Key.');
         }
 
-        const encryptedData = encrypt(sendingdata, secret_key, IV);
-        const decryptedData = decrypt(encryptedData, secret_key, IV);
 
-        console.log("암호화 값 : ", encryptedData);
-        console.log("복호화 값 : ", decryptedData);
+        const encryptedData = encrypt(sendingdata, secret_key, IV);
+        console.log("Encrypted Data:", encryptedData);
+        const decryptedData = decrypt(encryptedData, secret_key, IV);
+        console.log("Decrypted Data:", decryptedData);
+
+
 
         /* ERP에 암호화된 데이터를 보내는 부분 */
 
@@ -167,7 +149,13 @@ router.get('/INQCNEW', async(req, res, next) =>  {
             }
         });
 
-        decryptedresponse = decrypt(response.data, secret_key, IV);
+        if (!response.data || response.data == '' || response.data == [])
+            {
+                decryptedresponse = null
+            } else {
+                decryptedresponse = decrypt(response.data, secret_key, IV);
+            }
+
         console.log("Response received:", response.data);
         console.log("복호화 된 응답값 :", decryptedresponse);
 
@@ -263,7 +251,13 @@ router.get('/INQCOLD', async(req, res, next) =>  {
             }
         });
 
-        decryptedresponse = decrypt(response.data, secret_key, IV);
+        if (!response.data || response.data == '' || response.data == [])
+            {
+                decryptedresponse = null
+            } else {
+                decryptedresponse = decrypt(response.data, secret_key, IV);
+            }
+
         console.log("Response received:", response.data);
         console.log("복호화 된 응답값 :", decryptedresponse);
 
