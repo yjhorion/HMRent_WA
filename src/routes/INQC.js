@@ -151,7 +151,7 @@ router.get('/INQCNEW', async(req, res, next) =>  {
 
         if (!response.data || response.data == '' || response.data == [])
             {
-                decryptedresponse = {}
+                decryptedresponse = null
             } else {
                 decryptedresponse = decrypt(response.data, secret_key, IV);
             }
@@ -253,7 +253,7 @@ router.get('/INQCOLD', async(req, res, next) =>  {
 
         if (!response.data || response.data == '' || response.data == [])
             {
-                decryptedresponse = {}
+                decryptedresponse = null
             } else {
                 decryptedresponse = decrypt(response.data, secret_key, IV);
             }
