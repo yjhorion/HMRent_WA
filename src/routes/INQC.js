@@ -9,7 +9,7 @@ const getCurrentDateTime = require('../utils/Time/DateTime.js')
 router = express.Router()
 require('dotenv').config();
 
-const {uploadImages, rollbackUploadedFiles} = require('../utils/IMAGEUPLOAD/imageupload.js');
+const {uploadImages, rollbackUploadedFiles} = require('../utils/IMAGEUPLOAD/INQCimageupload.js');
 
 /* multerS3 */
 const multer = require('multer');

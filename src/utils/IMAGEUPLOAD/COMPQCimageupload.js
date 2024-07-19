@@ -51,7 +51,7 @@ async function uploadImages(files) {
         }
 
         const params = {
-            Bucket: bucketName,
+            Bucket: bucketName, 
             Key: folderPath + fileName,
             Body: buffer,
             ContentType: contentType,
