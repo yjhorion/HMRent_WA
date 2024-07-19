@@ -1,7 +1,7 @@
 /* 상품화완료QC 라우터 */
-const express = require('express')
+const express = require('express');
 const path = require('path');
-const { prisma } = require('../utils/prisma/index.js')
+const { prisma } = require('../utils/prisma/index.js');
 const axios = require('axios');
 const crypto= require('crypto');
 const iconv = require('iconv-lite');
