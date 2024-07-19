@@ -1,9 +1,7 @@
 const AWS = require('aws-sdk');
-const fs = require('fs');
-const path = require('path');
-const getRandomFileName = require('../FILENAME/filename.js'); // 랜덤파일명을 만들어주는 모듈함수
-const { AUTO_CONTENT_TYPE } = require('multer-s3');
+const sharp = require('sharp');
 const { format } = require('date-fns');
+const getRandomFileName = require('../FILENAME/filename.js'); // 랜덤파일명을 만들어주는 모듈함수
 
 const { S3ENDPOINT, S3ACCESS, S3SECRET, S3BUCKETNAME } = process.env;
 
@@ -25,32 +23,43 @@ let uploadedFilesInfo = [];
 
 // 업로드할 이미지 파일 목록
 async function uploadImages(files) {
-    //초기화
+    // 초기화
     uploadedFilesInfo = [];
 
     for (const file of files) {
         const fileName = getRandomFileName();
         const fileSizeInKB = Math.floor(file.size / 1024);
 
+        // HEIF 파일을 JPEG로 변환
+        let buffer = file.buffer;
+        if (file.mimetype === 'image/heif' || file.mimetype === 'image/heic') {
+            try {
+                buffer = await sharp(file.buffer).toFormat('jpeg').toBuffer();
+            } catch (error) {
+                console.error(`HEIF 파일 변환 중 에러 발생: ${error.message}`);
+                continue; // 변환 실패 시 현재 파일을 건너뜁니다.
+            }
+        }
+
         const params = {
-            Bucket : bucketName,
+            Bucket: bucketName,
             Key: folderPath + fileName,
-            Body: file.buffer,
-            ContentType: file.mimetype, // 파일의 마임타잎 설정
+            Body: buffer,
+            ContentType: file.mimetype === 'image/heif' || file.mimetype === 'image/heic' ? 'image/jpeg' : file.mimetype,
             ACL: 'public-read'
         };
 
         try {
             const data = await s3.upload(params).promise();
             uploadedFilesInfo.push({ "IMGNAME": fileName, "IMGSIZE": fileSizeInKB });
-            console.log(`${fileName} 업로드 완료, FILESIZE : ${fileSizeInKB} KB`)
+            console.log(`${fileName} 업로드 완료, FILESIZE : ${fileSizeInKB} KB`);
         } catch (error) {
             await rollbackUploadedFiles();
-            console.error(`파일 업로드 중 에러 발생: ${error.message}`)
+            console.error(`파일 업로드 중 에러 발생: ${error.message}`);
             return;
         }
     }
-    return uploadedFilesInfo
+    return uploadedFilesInfo;
 }
 
 // 각 이미지 파일의 용량을 저장할 배열

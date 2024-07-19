@@ -398,12 +398,10 @@ router.post('/INQCNEW', upload.array('IMGLIST'), async(req, res, next) =>  {
         /* 응답값이 0000 (처리완료)가 아니라면, 업로드한 이미지를 롤백(삭제)하는 부분 */
         if (JSON.parse(decryptedresponse).result.CODE !== "0000"){
             await rollbackUploadedFiles()
-        /* 프론트에 데이터를 보내는 부분. stringify 되었던 데이터를 parse 해서 json형식으로 보내줌 */
             return res.status(410).send({
                 data: JSON.parse(decryptedresponse), reqCode
             })
         } else {
-        /* 프론트에 데이터를 보내는 부분. stringify 되었던 데이터를 parse 해서 json형식으로 보내줌 */
             return res.status(201).send({
                 data: JSON.parse(decryptedresponse), reqCode
             })
