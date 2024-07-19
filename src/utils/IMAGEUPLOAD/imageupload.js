@@ -14,7 +14,7 @@ const s3 = new AWS.S3({
 });
 
 const date = format(new Date(), 'yyyyMM');
-
+  
 const bucketName = S3BUCKETNAME;
 const folderPath = `../hmrdevbucket/HR380009/${date}/`;
 
