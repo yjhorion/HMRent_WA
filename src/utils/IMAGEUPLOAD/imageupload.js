@@ -14,7 +14,7 @@ const s3 = new AWS.S3({
 });
 
 const date = format(new Date(), 'yyyyMM');
-  
+
 const bucketName = S3BUCKETNAME;
 const folderPath = `../hmrdevbucket/HR380009/${date}/`;
 
@@ -30,11 +30,16 @@ async function uploadImages(files) {
         const fileName = getRandomFileName();
         const fileSizeInKB = Math.floor(file.size / 1024);
 
-        // HEIF 파일을 JPEG로 변환
+        // 파일 MIME 타입과 확장자 확인
         let buffer = file.buffer;
+        let contentType = file.mimetype;
+        let fileExtension = path.extname(file.originalname);
+
         if (file.mimetype === 'image/heif' || file.mimetype === 'image/heic') {
             try {
                 buffer = await sharp(file.buffer).toFormat('jpeg').toBuffer();
+                contentType = 'image/jpeg'; // 변환된 형식에 맞는 MIME 타입
+                fileExtension = '.jpg'; // JPEG 확장자
             } catch (error) {
                 console.error(`HEIF 파일 변환 중 에러 발생: ${error.message}`);
                 continue; // 변환 실패 시 현재 파일을 건너뜁니다.
@@ -43,16 +48,16 @@ async function uploadImages(files) {
 
         const params = {
             Bucket: bucketName,
-            Key: folderPath + fileName,
+            Key: folderPath + fileName + fileExtension, // 확장자 포함
             Body: buffer,
-            ContentType: file.mimetype === 'image/heif' || file.mimetype === 'image/heic' ? 'image/jpeg' : file.mimetype,
+            ContentType: contentType,
             ACL: 'public-read'
         };
 
         try {
             const data = await s3.upload(params).promise();
-            uploadedFilesInfo.push({ "IMGNAME": fileName, "IMGSIZE": fileSizeInKB });
-            console.log(`${fileName} 업로드 완료, FILESIZE : ${fileSizeInKB} KB`);
+            uploadedFilesInfo.push({ "IMGNAME": fileName + fileExtension, "IMGSIZE": fileSizeInKB });
+            console.log(`${fileName + fileExtension} 업로드 완료, FILESIZE : ${fileSizeInKB} KB`);
         } catch (error) {
             await rollbackUploadedFiles();
             console.error(`파일 업로드 중 에러 발생: ${error.message}`);
