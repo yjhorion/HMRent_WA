@@ -13,7 +13,7 @@ function getRandomIntInclusive() {
 function getRandomFileName () {
     const random = getRandomIntInclusive()
     
-    const filename = `${year}${month}${day}${hour}${minute}${second}_${random}.png`
+    const filename = `${year}${month}${day}${hour}${minute}${second}_${random}`
     return filename
 }
 
