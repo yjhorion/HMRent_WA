@@ -1,6 +1,6 @@
 const AWS = require('aws-sdk');
 const sharp = require('sharp');
-const path = require('path'); // path 모듈 추가
+const path = require('path');
 const { format } = require('date-fns');
 const getRandomFileName = require('../FILENAME/filename.js'); // 랜덤파일명을 만들어주는 모듈함수
 
@@ -15,7 +15,7 @@ const s3 = new AWS.S3({
 });
 
 const date = format(new Date(), 'yyyyMM');
-  
+
 const bucketName = S3BUCKETNAME;
 const folderPath = `../hmrdevbucket/HR380009/${date}/`;
 
