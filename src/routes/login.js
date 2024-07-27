@@ -113,8 +113,8 @@ router.get('/auth', authenticateToken, async (req, res, next) => {
                 "RGTFLDPWR": "",
             },
             "data": {
-                "USERID": req.user.USERID,
-                "USERPW": req.body.USERPW
+                "USERID": "H202404010", //req.user.USERID,
+                "USERPW": "!Ekdzhd123"  //req.body.USERPW
             }
         });
 
