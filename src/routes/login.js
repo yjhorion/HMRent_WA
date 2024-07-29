@@ -79,7 +79,7 @@ router.post('/login', async (req, res, next) => {
         const decryptedresponse = JSON.parse(decrypt(response.data, secret_key, IV));
 
         if (decryptedresponse.result.CODE === '0000') {
-            const user = { USERID, USERPW };
+            const user = { USERID: USERID };
             const accessToken = generateAccessToken(user);
 
             res.status(200).send({
@@ -103,8 +103,6 @@ router.post('/login', async (req, res, next) => {
 router.get('/auth', authenticateToken, async (req, res, next) => {
     try {
         const { year, month, day, hour, minute, second } = getCurrentDateTime();
-        console.log(req.user.USERID)
-        console.log(req.user.USERPW)
         const sendingdata = JSON.stringify({
             "request": {
                 "DOCTRDCDE": "1000",
