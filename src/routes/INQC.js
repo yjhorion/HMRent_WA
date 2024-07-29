@@ -351,7 +351,7 @@ router.post('/INQCNEW', upload.array('IMGLIST'), async(req, res, next) =>  {
             },
             "data" : {
                 "ASSETNO" : ASSETNO,
-                "MILEAGE" : "0",
+                "MILEAGE" : "1",
                 "DEPARTLOCATION" : DepartCode,
                 "ENTRYLOCATION" : EntryCode,
                 "DETAILLOCATION" : DETAILLOCATION,
