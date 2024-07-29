@@ -285,7 +285,8 @@ router.get('/INQCOLD', async(req, res, next) =>  {
 /* INQC POST(2001) */
 router.post('/INQCNEW', upload.array('IMGLIST'), async(req, res, next) =>  {
     try {
-
+        console.log(`USERID : ${req.user.USERID}`);
+        console.log(`USERPW : ${req.user.USERPW}`);
     const { ASSETNO, MILEAGE, DEPARTLOCATION, ENTRYLOCATION, DETAILLOCATION } = req.body;
     const { year, month, day, hour, minute, second } = getCurrentDateTime();
 
