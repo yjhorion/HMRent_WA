@@ -79,7 +79,7 @@ router.post('/login', async (req, res, next) => {
         const decryptedresponse = JSON.parse(decrypt(response.data, secret_key, IV));
 
         if (decryptedresponse.result.CODE === '0000') {
-            const user = { USERID: USERID };
+            const user = { USERID: USERPW };
             const accessToken = generateAccessToken(user);
 
             res.status(200).send({
