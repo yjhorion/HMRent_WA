@@ -116,7 +116,7 @@ router.get('/auth', authenticateToken, async (req, res, next) => {
             },
             "data": {
                 "USERID": req.user.USERID,
-                "USERPW": req.body.USERPW
+                "USERPW": req.user.USERPW
             }
         });
 
