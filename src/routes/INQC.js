@@ -314,17 +314,6 @@ router.post('/INQCNEW', upload.array('IMGLIST'), async(req, res, next) =>  {
             }
         }
     ];
-        
-        // const uploadedFilesInfo = await uploadImages(req.files);
-        // console.log('Uploaded Files Info: ', uploadedFilesInfo);
-
-        // const reqCode = Code.map(item => {
-        //     const key = Object.keys(item)[0];
-        //     const values = Object.values(item[key]);
-        
-        //     return { [key]: values };
-        // })
-
 
         console.log('받아오는 데이터 그 자체 : ',  DEPARTLOCATION)
         
@@ -362,7 +351,7 @@ router.post('/INQCNEW', upload.array('IMGLIST'), async(req, res, next) =>  {
             },
             "data" : {
                 "ASSETNO" : ASSETNO,
-                "MILEAGE" : MILEAGE,
+                "MILEAGE" : "0",
                 "DEPARTLOCATION" : DepartCode,
                 "ENTRYLOCATION" : EntryCode,
                 "DETAILLOCATION" : DETAILLOCATION,
