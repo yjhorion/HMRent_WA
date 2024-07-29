@@ -102,6 +102,8 @@ router.post('/login', async (req, res, next) => {
 
 router.get('/auth', authenticateToken, async (req, res, next) => {
     try {
+        console.log(`USERID : ${req.user.USERID}`);
+        console.log(`USERPW : ${req.user.USERPW}`);
         const { year, month, day, hour, minute, second } = getCurrentDateTime();
         const sendingdata = JSON.stringify({
             "request": {
