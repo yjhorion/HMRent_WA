@@ -103,6 +103,8 @@ router.post('/login', async (req, res, next) => {
 router.get('/auth', authenticateToken, async (req, res, next) => {
     try {
         const { year, month, day, hour, minute, second } = getCurrentDateTime();
+        console.log(req.user.USERID)
+        console.log(req.user.USERPW)
         const sendingdata = JSON.stringify({
             "request": {
                 "DOCTRDCDE": "1000",
@@ -113,8 +115,8 @@ router.get('/auth', authenticateToken, async (req, res, next) => {
                 "RGTFLDPWR": "",
             },
             "data": {
-                "USERID": req.user.USERID,
-                "USERPW": req.body.USERPW
+                "USERID": "H202404010", //req.user.USERID,
+                "USERPW": "!Ekdzhd123"  //req.body.USERPW
             }
         });
 
