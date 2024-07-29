@@ -74,7 +74,8 @@ function findKeyByValue(sessionCode, value) {
 /* INQC GET(2000) */
 router.get('/INQCNEW', async(req, res, next) =>  {
     try {
-
+        console.log(`USERID : ${req.user.USERID}`);
+        console.log(`USERPW : ${req.user.USERPW}`);
     const { year, month, day, hour, minute, second } = getCurrentDateTime();
 
 
