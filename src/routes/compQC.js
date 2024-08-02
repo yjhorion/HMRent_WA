@@ -95,11 +95,7 @@ router.get('/CompQC/:STATUSREQ', async (req, res, next) => {
 
         return { [key]: values };
     })
-
         const { STATUSREQ } = req.params
-        // const { USERID, USERPW } = req.session.user;  
-
-
 
         const sendingdata = JSON.stringify({
             "request" : {

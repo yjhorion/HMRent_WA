@@ -17,7 +17,7 @@ const s3 = new AWS.S3({
 const date = format(new Date(), 'yyyyMM');
 
 const bucketName = S3BUCKETNAME;
-const folderPath = `../hmrdevbucket/HR380009/${date}/`;
+const folderPath = `../hmrdevbucket/HR380009/${date}/`;   /// 운영계 : `..hmrbucket/HR380009/${date}/`,   개발계 : `../hmrdevbucket/HR380009/${date}`
 
 // 파일명과 파일 사이즈를 저장할 배열
 let uploadedFilesInfo = [];

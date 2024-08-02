@@ -13,6 +13,28 @@ router = express.Router()
 
 require('dotenv').config();
 
+const {uploadImages, rollbackUploadedFiles} = require('../utils/IMAGEUPLOAD/COMPQCimageupload.js')
+
+/* multerS3 */
+const multer = require('multer');
+const multerS3 = require('multer-s3');
+const AWS = require('aws-sdk');
+
+const { v4: uuidv4 } = require('uuid');
+
+const storage = multer.memoryStorage();
+
+const upload = multer({
+    storage : storage,
+    limits: { fileSize: 50 * 1024 * 1024 }, // 파일 크기 제한
+    fileFilter: (req, file, cb) => {
+        if (!file.mimetype.startsWith('image/')) {
+            return cb(new Error('이미지 파일만 업로드 가능합니다.'));
+        }
+        cb(null, true)
+    }
+});
+
 // .env에서 ERP서버 주소, 암호화 키 가져오고 정의
 const testServerUrl = process.env.testServerUrl
 const secret_key = Buffer.from(process.env.CRYPTO_SECRET_KEY, 'utf8')
@@ -39,17 +61,15 @@ function decrypt(encrypted, key, iv) {
 
 
 /* 회수차량 조회 */
-
 router.get('/retrieval', async (req, res, next) => {
     try{
         const { year, month, day, hour, minute, second } = getCurrentDateTime();
-        // const userAgent = req.headers['user-agent']; 
-        // const deviceType = getDeviceType(userAgent);
+
 
         /* (QRDATBEG =< QRDATEND) 조건으로 validation 필요 */
 
         const QRDATBEG = req.params.QRDATBEG || `${year}${month}${day}`; // 적절한 기간이 정해지면, 날자값에서 -value를 해준 값으로 조회 시작일을 지정해줄 것. 현재는 '11111111'값으로 최대조회중
-        const QRDATEND = req.params.QRDATND || `${year}${month}${day}`;
+        const QRDATEND = req.params.QRDATND || `${year+1}${month}${day}`;
 
         console.log('시작일',QRDATBEG)
         console.log('종료일',QRDATEND)
@@ -70,6 +90,77 @@ router.get('/retrieval', async (req, res, next) => {
                 "QRDATEND" : QRDATEND, // 조회일자종료일 - YYYYMMDD 포멧으로 프론트에서 값을 받아서 전달. reqbody에 해당  값이 빈 string 혹은 null 일경우, 현재날자 값
             }
         })
+
+        if (!secret_key) {
+            console.log("No Secret Key.")
+            return res.status(500).send('No Secret Key. 암호화 문제')
+        }
+
+        const encryptedData = encrypt(sendingdata, secret_key, IV);
+        const decryptedData = decrypt(encryptedData, secret_key, IV);
+
+        console.log("암호화 값 : ", encryptedData);
+        console.log("복호화 값 : ", decryptedData);
+
+        /* ERP에 암호화된 데이터를 보내는 부분 */
+
+        const response = await axios.post(testServerUrl, encryptedData, {
+            headers: {
+                'Content-Type' : 'text/plain'
+            }
+        });
+
+        const decryptedresponse = decrypt(response.data, secret_key, IV);
+        console.log("Response received:", response.data);
+        console.log("복호화 된 응답값 :", decryptedresponse);
+
+        /* 프론트에 데이터를 보내는 부분. stringify 되었던 데이터를 parse 해서 json로 치환한 후 보내줌 */
+        res.send({
+            data : JSON.parse(decryptedresponse),
+        });
+
+    } catch (error) {
+        console.log(error);
+        next(error);
+    }
+})
+
+/* 회수대상 이미지 업로드, 비고수정 */
+router.post('/retrieval/:ASSETNO/:SEQNO', upload.array('IMGLIST'), async (req, res, next) => {
+    try{
+        const { year, month, day, hour, minute, second } = getCurrentDateTime();
+        const { ASSETNO, SEQNO } = req.params;
+        const { BIGO } = req.body;
+
+        console.log(`-- 받아온 정보 --
+                    자산번호 : ${ASSETNO}, 순번 : ${SEQNO}, 비고 : ${BIGO}`);
+
+        /* (QRDATBEG =< QRDATEND) 조건으로 validation 필요 */
+
+        const QRDATBEG = req.params.QRDATBEG || `${year}${month}${day}`; // 적절한 기간이 정해지면, 날자값에서 -value를 해준 값으로 조회 시작일을 지정해줄 것. 현재는 '11111111'값으로 최대조회중
+        const QRDATEND = req.params.QRDATND || `${year}${month}${day}`;
+
+        const uploadedFilesInfo = await uploadImages(req.files);
+        console.log(`업로드 이미지 갯수 : ${uploadedFilesInfo.length}`)
+
+        const sendingdata = JSON.stringify({
+            "request" : {
+                "DOCTRDCDE" : "4000",
+                "DOCPORTAL" : "M",
+                "DOCSNDDAT" : `${year}${month}${day}`,
+                "DOCSNDTIM" : `${hour}24${minute}${second}`,
+                "RGTFLDUSR" : "H202404010",//req.session.user.USERID,
+                "RGTFLDPWR" : "!Ekdzhd123" //req.session.user.USERPW
+            },
+            "data" : {
+                "ASSETNO" : ASSETNO,            // 자산번호
+                "SEQNO" : SEQNO,                // 순번
+                "BIGO" : BIGO,                  // 비고
+                "IMGLIST" : uploadedFilesInfo,          // 이미지
+            }
+        })
+
+        console.log(uploadedFilesInfo);
 
         if (!secret_key) {
             console.log("No Secret Key.")
