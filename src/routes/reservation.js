@@ -50,7 +50,7 @@ const authenticateToken = (req, res, next) => {
 
 
 /* (5000) 예약해제대상<차량> 조회  */
-router.get('/reservation', authenticateToken, async (req, res, next) => {
+router.get('/reservation', async (req, res, next) => {
     try {
         const { year, month, day, hour, minute, second } = getCurrentDateTime()
         // const { USERID, USERPW } = req.session.user
@@ -97,9 +97,6 @@ router.get('/reservation', authenticateToken, async (req, res, next) => {
         decryptedresponse = decrypt(response.data, secret_key, IV);
         console.log("Response recieved:", response.data);
         console.log("복호화 된 응답값 :", decryptedresponse);
-
-        console.log('USERID : ' + req.user.USERID);
-        console.log('USERPW : ' + req.user.USERPW);
 
         /* 프론트에 데이터를 보내는 부분. stringify 되었던 데이터를 parse해서 json형식으로 보내줌 */
         res.send({
