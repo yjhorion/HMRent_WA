@@ -35,9 +35,22 @@ function decrypt(encrypted, key, iv) {
     return iconv.decode(decrypted, 'euc-kr');
 }
 
+/* 토큰 */
+const authenticateToken = (req, res, next) => {
+    const authHeader = req.headers['authorization'];
+    const token = authHeader && authHeader.split(' ')[1];
+    if (!token) return res.sendStatus(401);
+
+    jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, user) => {
+        if (err) return res.sendStatus(403);
+        req.user = user;
+        next();
+    });
+};
+
 
 /* (5000) 예약해제대상<차량> 조회  */
-router.get('/reservation', async (req, res, next) => {
+router.get('/reservation', authenticateToken, async (req, res, next) => {
     try {
         const { year, month, day, hour, minute, second } = getCurrentDateTime()
         // const { USERID, USERPW } = req.session.user
