@@ -85,6 +85,9 @@ router.get('/reservation', async (req, res, next) => {
         console.log("Response recieved:", response.data);
         console.log("복호화 된 응답값 :", decryptedresponse);
 
+        console.log('USERID : ' + req.user.USERID);
+        console.log('USERPW : ' + req.user.USERPW);
+
         /* 프론트에 데이터를 보내는 부분. stringify 되었던 데이터를 parse해서 json형식으로 보내줌 */
         res.send({
             data: JSON.parse(decryptedresponse)
