@@ -171,8 +171,8 @@ router.post('/retrieval/:ASSETNO/:SEQNO', upload.array('IMGLIST'), async (req, r
         const encryptedData = encrypt(sendingdata, secret_key, IV);
         const decryptedData = decrypt(encryptedData, secret_key, IV);
 
-        //console.log("암호화 값 : ", encryptedData);
-        //console.log("복호화 값 : ", decryptedData);
+        console.log("암호화 값 : ", encryptedData);
+        console.log("복호화 값 : ", decryptedData);
 
         /* ERP에 암호화된 데이터를 보내는 부분 */
 
