@@ -157,7 +157,7 @@ router.post('/retrieval/:ASSETNO/:SEQNO', upload.array('IMGLIST'), async (req, r
                 "ASSETNO" : ASSETNO,            // 자산번호
                 "SEQNO" : SEQNO,                // 순번
                 "BIGO" : BIGO,                  // 비고
-                "IMGLIST" : uploadedFilesInfo,          // 이미지
+                "IMGLIST" : uploadedFilesInfo  // 이미지
             }
         })
 
@@ -183,8 +183,8 @@ router.post('/retrieval/:ASSETNO/:SEQNO', upload.array('IMGLIST'), async (req, r
         });
 
         const decryptedresponse = decrypt(response.data, secret_key, IV);
-        //console.log("Response received:", response.data);
-        //console.log("복호화 된 응답값 :", decryptedresponse);
+        console.log("Response received:", response.data);
+        console.log("복호화 된 응답값 :", decryptedresponse);
 
         /* 프론트에 데이터를 보내는 부분. 응답값이 0000 (처리완료)가 아니라면 롤백, else, stringify 되었던 데이터를 parse 해서 json로 치환한 후 보내줌 */
         if (JSON.parse(decryptedresponse).result.CODE !== "0000"){

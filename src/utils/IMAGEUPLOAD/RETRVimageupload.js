@@ -76,6 +76,7 @@ async function uploadImages(files) {
         return uploadedFilesInfo;
     } catch (error) {
         // 에러 발생 시 롤백
+        console.log('롤백진행');
         await rollbackUploadedFiles();
         throw error; // 에러를 다시 던져 호출자에게 알림
     }
