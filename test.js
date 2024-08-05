@@ -1,0 +1,1 @@
+console.log('2024-01-01'.toDateString())
