@@ -65,14 +65,15 @@ router.get('/retrieval', async (req, res, next) => {
     try{
         const { year, month, day, hour, minute, second } = getCurrentDateTime();
 
+        console.log('-------------------------회수차량 조회-------------------------')
 
         /* (QRDATBEG =< QRDATEND) 조건으로 validation 필요 */
 
         const QRDATBEG = req.params.QRDATBEG || `${year}${month}${day}`; // 적절한 기간이 정해지면, 날자값에서 -value를 해준 값으로 조회 시작일을 지정해줄 것. 현재는 '11111111'값으로 최대조회중
         const QRDATEND = req.params.QRDATND || `${year+1}${month}${day}`;
 
-        console.log('시작일',QRDATBEG)
-        console.log('종료일',QRDATEND)
+        //console.log('시작일',QRDATBEG)
+        //console.log('종료일',QRDATEND)
 
         const sendingdata = JSON.stringify({
             "request" : {
@@ -99,8 +100,8 @@ router.get('/retrieval', async (req, res, next) => {
         const encryptedData = encrypt(sendingdata, secret_key, IV);
         const decryptedData = decrypt(encryptedData, secret_key, IV);
 
-        console.log("암호화 값 : ", encryptedData);
-        console.log("복호화 값 : ", decryptedData);
+        //console.log("암호화 값 : ", encryptedData);
+        //console.log("복호화 값 : ", decryptedData);
 
         /* ERP에 암호화된 데이터를 보내는 부분 */
 
@@ -111,8 +112,8 @@ router.get('/retrieval', async (req, res, next) => {
         });
 
         const decryptedresponse = decrypt(response.data, secret_key, IV);
-        console.log("Response received:", response.data);
-        console.log("복호화 된 응답값 :", decryptedresponse);
+        //console.log("Response received:", response.data);
+        //console.log("복호화 된 응답값 :", decryptedresponse);
 
         /* 프론트에 데이터를 보내는 부분. stringify 되었던 데이터를 parse 해서 json로 치환한 후 보내줌 */
         res.send({
