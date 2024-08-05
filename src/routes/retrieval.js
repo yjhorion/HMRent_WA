@@ -203,6 +203,9 @@ router.post('/retrieval/:ASSETNO/:SEQNO', upload.array('IMGLIST'), async (req, r
     } catch (error) {
         console.log('통신 에러: ', error.message);
         res.status(500).send('통신 에러');
+        console.log('이미지 롤백 시작');
+        await rollbackUploadedFiles();
+        console.log('이미지 롤백 완료');
     }
 })
 
