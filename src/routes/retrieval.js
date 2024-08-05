@@ -13,7 +13,7 @@ router = express.Router()
 
 require('dotenv').config();
 
-const {uploadImages, rollbackUploadedFiles} = require('../utils/IMAGEUPLOAD/COMPQCimageupload.js')
+const {uploadImages, rollbackUploadedFiles} = require('../utils/IMAGEUPLOAD/RETRVimageupload.js')
 
 /* multerS3 */
 const multer = require('multer');
@@ -100,8 +100,8 @@ router.get('/retrieval', async (req, res, next) => {
         const encryptedData = encrypt(sendingdata, secret_key, IV);
         const decryptedData = decrypt(encryptedData, secret_key, IV);
 
-        console.log("암호화 값 : ", encryptedData);
-        console.log("복호화 값 : ", decryptedData);
+        //console.log("암호화 값 : ", encryptedData);
+        //console.log("복호화 값 : ", decryptedData);
 
         /* ERP에 암호화된 데이터를 보내는 부분 */
 
@@ -146,7 +146,7 @@ router.post('/retrieval/:ASSETNO/:SEQNO', upload.array('IMGLIST'), async (req, r
 
         const sendingdata = JSON.stringify({
             "request" : {
-                "DOCTRDCDE" : "4000",
+                "DOCTRDCDE" : "4001",
                 "DOCPORTAL" : "M",
                 "DOCSNDDAT" : `${year}${month}${day}`,
                 "DOCSNDTIM" : `${hour}24${minute}${second}`,
@@ -186,14 +186,21 @@ router.post('/retrieval/:ASSETNO/:SEQNO', upload.array('IMGLIST'), async (req, r
         console.log("Response received:", response.data);
         console.log("복호화 된 응답값 :", decryptedresponse);
 
-        /* 프론트에 데이터를 보내는 부분. stringify 되었던 데이터를 parse 해서 json로 치환한 후 보내줌 */
-        res.send({
-            data : JSON.parse(decryptedresponse),
-        });
+        /* 프론트에 데이터를 보내는 부분. 응답값이 0000 (처리완료)가 아니라면 롤백, else, stringify 되었던 데이터를 parse 해서 json로 치환한 후 보내줌 */
+        if (JSON.parse(decryptedresponse).result.CODE !== "0000"){
+            await rollbackUploadedFiles()
+            return res.status(410).send({
+                data: JSON.parse(decryptedresponse)
+            })
+        } else {
+            res.send({
+                data : JSON.parse(decryptedresponse)
+            });
+        }
 
     } catch (error) {
-        console.log(error);
-        next(error);
+        console.log('통신 에러: ', error.message);
+        res.status(500).send('통신 에러');
     }
 })
 
