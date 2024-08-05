@@ -400,6 +400,9 @@ router.post('/INQCNEW', upload.array('IMGLIST'), async(req, res, next) =>  {
     } catch (error) {
         console.error('통신 에러: ', error.message);
         res.status(500).send('통신 에러');
+        console.log('이미지 롤백 시작');
+        await rollbackUploadedFiles();
+        console.log('이미지 롤백 완료');
     }
 });
 
@@ -527,6 +530,9 @@ router.post('/INQCOLD',  upload.array('IMGLIST'), async(req, res, next) =>  {
     } catch (error) {
         console.error('통신 에러: ', error.message);
         res.status(500).send('통신 에러');
+        console.log('이미지 롤백 시작');
+        await rollbackUploadedFiles();
+        console.log('이미지 롤백 완료');
     }
 });
 

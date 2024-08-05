@@ -52,8 +52,9 @@ function encrypt(text, key, iv) {
 
 /* 복호화 함수 */
 function decrypt(encrypted, key, iv) {
+    const encryptedBuffer = Buffer.from(encrypted, 'base64');
     const decipher = crypto.createDecipheriv('aes-128-cbc', key, iv);
-    let decrypted = decipher.update(Buffer.from(encrypted, 'base64'));
+    let decrypted = decipher.update(encryptedBuffer);
     decrypted = Buffer.concat([decrypted, decipher.final()]);
     return iconv.decode(decrypted, 'euc-kr');
 }

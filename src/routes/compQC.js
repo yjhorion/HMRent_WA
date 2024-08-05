@@ -289,6 +289,9 @@ router.post('/CompQC/:ASSETNO', upload.array('IMGLIST'), async (req, res, next) 
     } catch (error) {
         await rollbackUploadedFiles() // 이부분이 잘 작동할지 테스트를 아직 못함. 응답서버가 꺼져있다던지 하는경우에 테스트 필요.
         console.error('통신에러: ', error.message);
+        console.log('이미지 롤백 시작');
+        await rollbackUploadedFiles();
+        console.log('이미지 롤백 완료');
         return res.status(500).send('통신 에러');
     }
 })
