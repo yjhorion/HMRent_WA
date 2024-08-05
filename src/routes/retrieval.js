@@ -188,7 +188,9 @@ router.post('/retrieval/:ASSETNO/:SEQNO', upload.array('IMGLIST'), async (req, r
 
         /* 프론트에 데이터를 보내는 부분. 응답값이 0000 (처리완료)가 아니라면 롤백, else, stringify 되었던 데이터를 parse 해서 json로 치환한 후 보내줌 */
         if (JSON.parse(decryptedresponse).result.CODE !== "0000"){
-            await rollbackUploadedFiles()
+            console.log(`-----롤백 진행----- 
+                        진행사유 : ${decryptedresponse}`);
+            await rollbackUploadedFiles();
             return res.status(410).send({
                 data: JSON.parse(decryptedresponse)
             })
