@@ -52,9 +52,8 @@ function encrypt(text, key, iv) {
 
 /* 복호화 함수 */
 function decrypt(encrypted, key, iv) {
-    const encryptedBuffer = Buffer.from(encrypted, 'base64');
     const decipher = crypto.createDecipheriv('aes-128-cbc', key, iv);
-    let decrypted = decipher.update(encryptedBuffer);
+    let decrypted = decipher.update(Buffer.from(encrypted, 'base64'));
     decrypted = Buffer.concat([decrypted, decipher.final()]);
     return iconv.decode(decrypted, 'euc-kr');
 }
@@ -137,13 +136,8 @@ router.post('/retrieval/:ASSETNO/:SEQNO', upload.array('IMGLIST'), async (req, r
         console.log(`-- 받아온 정보 --
                     자산번호 : ${ASSETNO}, 순번 : ${SEQNO}, 비고 : ${BIGO}`);
 
-        /* (QRDATBEG =< QRDATEND) 조건으로 validation 필요 */
-
-        const QRDATBEG = req.params.QRDATBEG || `${year}${month}${day}`; // 적절한 기간이 정해지면, 날자값에서 -value를 해준 값으로 조회 시작일을 지정해줄 것. 현재는 '11111111'값으로 최대조회중
-        const QRDATEND = req.params.QRDATND || `${year}${month}${day}`;
-
         const uploadedFilesInfo = await uploadImages(req.files);
-        console.log(`업로드 이미지 갯수 : ${uploadedFilesInfo.length}`)
+        console.log(`업로드 이미지 갯수 : ${uploadedFilesInfo.length}`);
 
         const sendingdata = JSON.stringify({
             "request" : {
@@ -177,13 +171,15 @@ router.post('/retrieval/:ASSETNO/:SEQNO', upload.array('IMGLIST'), async (req, r
 
         /* ERP에 암호화된 데이터를 보내는 부분 */
 
+        let decryptedresponse
+
         const response = await axios.post(testServerUrl, encryptedData, {
             headers: {
                 'Content-Type' : 'text/plain'
             }
         });
 
-        const decryptedresponse = decrypt(response.data, secret_key, IV);
+        decryptedresponse = decrypt(response.data, secret_key, IV);
         console.log("Response received:", response.data);
         console.log("복호화 된 응답값 :", decryptedresponse);
 
