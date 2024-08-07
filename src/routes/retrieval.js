@@ -69,7 +69,7 @@ router.get('/retrieval', async (req, res, next) => {
 
         /* (QRDATBEG =< QRDATEND) 조건으로 validation 필요 */
 
-        const QRDATBEG = req.params.QRDATBEG || `${year}${month}${day}`; // 적절한 기간이 정해지면, 날자값에서 -value를 해준 값으로 조회 시작일을 지정해줄 것. 현재는 '11111111'값으로 최대조회중
+        const QRDATBEG = req.params.QRDATBEG || `${year-1}${month}${day}`; // 적절한 기간이 정해지면, 날자값에서 -value를 해준 값으로 조회 시작일을 지정해줄 것. 현재는 '11111111'값으로 최대조회중
         const QRDATEND = req.params.QRDATND || `${year+1}${month}${day}`;
 
         //console.log('시작일',QRDATBEG)
@@ -87,7 +87,7 @@ router.get('/retrieval', async (req, res, next) => {
             "data" : {
                 "RETSTS" : "", // 회수완료여부 null - 전체 , "A" - 회수완료 , "B" - 회수요청
                 "QRCRTRA" : "A", // 조회조건 "A" - 요청일자, "B" - 지급일자, "C" - 완료일자 -- 프론트에서 값을 전달받아 전달.
-                "QRDATBEG" : "11111111",//QRDATBEG, // 조회일자시작일 - YYYYMMDD 포멧으로 프론트에서 값을 받아서 전달. reqbody에 해당  값이 빈 string 혹은 null 일경우, 현재날자 값
+                "QRDATBEG" : QRDATBEG, //QRDATBEG, // 조회일자시작일 - YYYYMMDD 포멧으로 프론트에서 값을 받아서 전달. reqbody에 해당  값이 빈 string 혹은 null 일경우, 현재날자 값
                 "QRDATEND" : QRDATEND, // 조회일자종료일 - YYYYMMDD 포멧으로 프론트에서 값을 받아서 전달. reqbody에 해당  값이 빈 string 혹은 null 일경우, 현재날자 값
             }
         })
