@@ -185,7 +185,7 @@ router.post('/CompQC/:ASSETNO', upload.array('IMGLIST'), async (req, res, next) 
             const { year, month, day, hour, minute, second } = getCurrentDateTime();
             console.log('Current DateTime : ', `${year}-${month}-${day} ${hour}:${minute}:${second}`)
 
-            const { MILEAGE, ENTRYLOCATION, DETAILLOCATION, KEYQUANT, KEYTOTAL, KEYLOCATION } = req.body;
+            let { MILEAGE, ENTRYLOCATION, DETAILLOCATION, KEYQUANT, KEYTOTAL, KEYLOCATION } = req.body;
             console.log('Recieved body : ', req.body);
 
             if (!KEYQUANT) {
