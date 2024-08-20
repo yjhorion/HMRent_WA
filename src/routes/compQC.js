@@ -187,6 +187,14 @@ router.post('/CompQC/:ASSETNO', upload.array('IMGLIST'), async (req, res, next) 
 
             const { MILEAGE, ENTRYLOCATION, DETAILLOCATION, KEYQUANT, KEYTOTAL, KEYLOCATION } = req.body;
             console.log('Recieved body : ', req.body);
+
+            if (!KEYQUANT) {
+                KEYQUANT = 1
+            }
+
+            if (!KEYTOTAL) {
+                KEYTOTAL = 1
+            }
             // const { reqCode, USERID, USERPW } = req.session;
 
             /* session 세팅 이전까지 사용할 하드코딩된 코드값 */
