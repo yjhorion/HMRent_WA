@@ -141,12 +141,9 @@ router.get('/CompQC/:STATUSREQ', authenticateToken, async(req, res, next) => {
         const encryptedData = encrypt(sendingdata, secret_key, IV);
         const decryptedData = decrypt(encryptedData, secret_key, IV);
 
-        console.log("암호화 값 : ", encryptedData);
-        console.log("복호화 값 : ", decryptedData)
-
         /* ERP에 암호화된 데이터를 보내는 부분 */
 
-        let decryptedresponse
+        let decryptedresponse;
 
         const response = await axios.post(testServerUrl, encryptedData, {
             headers: {
@@ -155,12 +152,32 @@ router.get('/CompQC/:STATUSREQ', authenticateToken, async(req, res, next) => {
         });
 
         decryptedresponse = decrypt(response.data, secret_key, IV);
-        console.log("Response received:", response.data);
-        console.log("복호화 된 응답값 :", decryptedresponse);
+        const parsedResponse = JSON.parse(decryptedresponse);
+
+        // ENTRYLOCATION 값을 매핑된 값으로 치환하는 로직
+        const mappedResponse = parsedResponse.map(item => {
+            const entryLocation = item.ENTRYLOCATION;
+            let newEntryLocation = entryLocation;
+
+            // Code 배열을 순회하며 ENTRYLOCATION의 값을 찾고 치환
+            Code.forEach(locationSet => {
+                const locationType = Object.keys(locationSet)[0];
+                const locations = locationSet[locationType];
+                if (locations.hasOwnProperty(entryLocation)) {
+                    newEntryLocation = locations[entryLocation];
+                }
+            });
+
+            // 기존 데이터에 치환된 값을 적용
+            return {
+                ...item,
+                ENTRYLOCATION: newEntryLocation
+            };
+        });
 
         /* 프론트에 데이터를 보내는 부분. stringify 되었던 데이터를 parse 해서 json형식으로 보내줌 */
         res.send({
-            data: JSON.parse(decryptedresponse), reqCode
+            data: mappedResponse, reqCode
         })
 
     } catch (error) {
