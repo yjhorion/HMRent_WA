@@ -155,25 +155,30 @@ router.get('/CompQC/:STATUSREQ', authenticateToken, async(req, res, next) => {
         const parsedResponse = JSON.parse(decryptedresponse);
 
         // ENTRYLOCATION 값을 매핑된 값으로 치환하는 로직
-        const mappedResponse = parsedResponse.map(item => {
-            const entryLocation = item.ENTRYLOCATION;
-            let newEntryLocation = entryLocation;
+        if (parsedResponse.data && Array.isArray(parsedResponse.data.REPT)) {
+            parsedResponse.data.REPT = parsedResponse.data.REPT.map(item => {
+                const entryLocation = item.ENTRYLOCATION;
+                let newEntryLocation = entryLocation;
 
-            // Code 배열을 순회하며 ENTRYLOCATION의 값을 찾고 치환
-            Code.forEach(locationSet => {
-                const locationType = Object.keys(locationSet)[0];
-                const locations = locationSet[locationType];
-                if (locations.hasOwnProperty(entryLocation)) {
-                    newEntryLocation = locations[entryLocation];
-                }
+                // Code 배열을 순회하며 ENTRYLOCATION의 값을 찾고 치환
+                Code.forEach(locationSet => {
+                    const locationType = Object.keys(locationSet)[0];
+                    const locations = locationSet[locationType];
+                    if (locations.hasOwnProperty(entryLocation)) {
+                        newEntryLocation = locations[entryLocation];
+                    }
+                });
+
+                // 기존 데이터에 치환된 값을 적용
+                return {
+                    ...item,
+                    ENTRYLOCATION: newEntryLocation
+                };
             });
-
-            // 기존 데이터에 치환된 값을 적용
-            return {
-                ...item,
-                ENTRYLOCATION: newEntryLocation
-            };
-        });
+        } else {
+            console.error('REPT 배열이 없거나 잘못된 형식입니다.');
+            throw new Error('REPT 배열이 없거나 잘못된 형식입니다.');
+        }
 
         /* 프론트에 데이터를 보내는 부분. stringify 되었던 데이터를 parse 해서 json형식으로 보내줌 */
         res.send({
