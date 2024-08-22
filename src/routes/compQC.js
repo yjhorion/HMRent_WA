@@ -328,7 +328,7 @@ router.post('/CompQC/:ASSETNO', upload.array('IMGLIST'), authenticateToken, asyn
 })
 
 /* 위치정보 저장을 위한 라우터 (3100:GET, 3101:POST) */
-router.get('/CompQC/LOCSET', /*authenticateToken,*/ async(req, res, next) => {
+router.get('/LOCSET', /*authenticateToken,*/ async(req, res, next) => {
     try {
         
     const { year, month, day, hour, minute, second } = getCurrentDateTime();
@@ -425,7 +425,7 @@ router.get('/CompQC/LOCSET', /*authenticateToken,*/ async(req, res, next) => {
 });
 
 
-router.post('/CompQC/LOCSET/:ASSETNO', /*authenticateToken,*/ async (req, res, next) => { // multerS3를 통한 이미지 업로드는 INQC에서 참조하여 구성할 것.
+router.post('/LOCSET/:ASSETNO', /*authenticateToken,*/ async (req, res, next) => { // multerS3를 통한 이미지 업로드는 INQC에서 참조하여 구성할 것.
     try {
 
             const { ASSETNO } = req.params;
