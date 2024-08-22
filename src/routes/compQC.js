@@ -526,28 +526,6 @@ router.post('/LOCSET/:ASSETNO', /*authenticateToken,*/ async (req, res, next) =>
 })
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 // ///////////////////////////
 
 
