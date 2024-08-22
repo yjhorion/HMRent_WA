@@ -4,7 +4,8 @@ const path = require('path');
 const axios = require('axios');
 const crypto = require('crypto');
 const iconv = require('iconv-lite');
-const getCurrentDateTime = require('../utils/Time/DateTime.js')
+const getCurrentDateTime = require('../utils/Time/DateTime.js');
+const jwt = require('jsonwebtoken');
 
 router = express.Router()
 require('dotenv').config();
@@ -89,6 +90,9 @@ router.get('/INQCNEW', authenticateToken,async(req, res, next) =>  {
     try {
 
     const { year, month, day, hour, minute, second } = getCurrentDateTime();
+
+    console.log('로그인한 유저아이디' + req.user.USERID)
+    console.log('로그인한 유저비밀번호' + req.user.USERPW)
 
 
     /* session 세팅 이전까지 사용할 하드코딩된 코드값 */
