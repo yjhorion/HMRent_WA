@@ -327,7 +327,196 @@ router.post('/CompQC/:ASSETNO', upload.array('IMGLIST'), authenticateToken, asyn
     }
 })
 
+/* 위치정보 저장을 위한 라우터 (3100:GET, 3101:POST) */
+router.get('/CompQC/LOCSET', /*authenticateToken,*/ async(req, res, next) => {
+    try {
+        
+    const { year, month, day, hour, minute, second } = getCurrentDateTime();
 
+    console.log('위치정보 전체조회');
+    console.log('로그인한 유저아이디' + req.user.USERID);
+    console.log('로그인한 유저비밀번호' + req.user.USERPW);
+
+
+    /* session 세팅 이전까지 사용할 하드코딩된 코드값 */
+    const Code = [
+        {
+            HR58: {
+            HR580003: '아산 차고지',
+            HR580004: '상품화센터',
+            HR580006: '본사',
+            HR580099: '기타',
+            HR580001: '하모니파크',
+            HR580002: '송도 차고지'
+          }
+        },
+        {
+          HR65: {
+            HR650001: '기본출고지',
+            HR650002: '아산출고지',
+            HR650005: '화성출고지',
+            HR650006: '광주출고지',
+            HR650003: '울산출고지',
+            HR650004: '칠곡출고지',
+            HR650007: '소하리출고지',
+            HR650008: '서산출고지'
+          }
+        }
+    ]
+
+    const reqCode = Code.map(item => {
+        const key = Object.keys(item)[0];
+        const values = Object.values(item[key]);
+
+        return { [key]: values };
+    })
+        const { STATUSREQ } = req.params
+
+        const sendingdata = JSON.stringify({
+            "request" : {
+                "DOCTRDCDE" : "3100",
+                "DOCPORTAL" : "M",
+                "DOCSNDDAT" : `${year}${month}${day}`,
+                "DOCSNDTIM" : `${hour}${minute}${second}`,
+                "RGTFLDUSR" : req.user.USERID,
+                "RGTFLDPWR" : req.user.USERPW
+            },
+            "data" : {
+            }
+        })
+
+        console.log("Encoded secret key : ", secret_key) // Base64 encoded key
+        console.log("Encoded Initial Vector : ", IV) // Base64 encoded IV
+
+        if (!secret_key) {
+            console.log("No Secret Key.");
+            return res.status(500).send('No Secret Key.');
+        }
+
+        const encryptedData = encrypt(sendingdata, secret_key, IV);
+        const decryptedData = decrypt(encryptedData, secret_key, IV);
+
+        console.log("암호화 값 : ", encryptedData);
+        console.log("복호화 값 : ", decryptedData)
+
+        /* ERP에 암호화된 데이터를 보내는 부분 */
+
+        let decryptedresponse
+
+        const response = await axios.post(testServerUrl, encryptedData, {
+            headers: {
+                'Content-Type': 'text/plain'
+            }
+        });
+
+        decryptedresponse = decrypt(response.data, secret_key, IV);
+        console.log("Response received:", response.data);
+        console.log("복호화 된 응답값 :", decryptedresponse);
+
+        /* 프론트에 데이터를 보내는 부분. stringify 되었던 데이터를 parse 해서 json형식으로 보내줌 */
+        res.send({
+            data: JSON.parse(decryptedresponse), reqCode
+        })
+
+    } catch (error) {
+        console.error('통신 에러: ', error.message);
+        res.status(500).send('통신 에러');
+    }
+});
+
+
+router.post('/CompQC/LOCSET/:ASSETNO', /*authenticateToken,*/ async (req, res, next) => { // multerS3를 통한 이미지 업로드는 INQC에서 참조하여 구성할 것.
+    try {
+
+            const { ASSETNO } = req.params;
+            console.log('ASSETNO : ', ASSETNO);
+
+            const { ENTRYLOCATION, DETAILLOCATION } = req.body;
+            const { year, month, day, hour, minute, second } = getCurrentDateTime();
+            console.log('Current DateTime : ', `${year}-${month}-${day} ${hour}:${minute}:${second}`)
+
+
+            // const { reqCode, USERID, USERPW } = req.session;
+
+            console.log('위치정보 POST');
+            console.log('로그인한 유저아이디' + req.user.USERID);
+            console.log('로그인한 유저비밀번호' + req.user.USERPW);
+
+            /* session 세팅 이전까지 사용할 하드코딩된 코드값 */
+            const reqCode = [
+                {
+                  HR58: {
+                    HR580003: '아산 차고지',
+                    HR580004: '상품화센터',
+                    HR580006: '본사',
+                    HR580099: '기타',
+                    HR580001: '하모니파크',
+                    HR580002: '송도 차고지'
+                  }
+                },
+                {
+                  HR65: {
+                    HR650001: '기본출고지',
+                    HR650002: '아산출고지',
+                    HR650005: '화성출고지',
+                    HR650006: '광주출고지',
+                    HR650003: '울산출고지',
+                    HR650004: '칠곡출고지',
+                    HR650007: '소하리출고지',
+                    HR650008: '서산출고지'
+                  }
+                }
+              ]
+              
+
+            /* 프론트에서 받은 차고지 데이터를 코드로 치환 */
+            const EntryCode = findKeyByValue(reqCode, ENTRYLOCATION);
+            console.log('EntryCode', EntryCode);
+
+
+
+            const sendingdata = JSON.stringify({
+                "request" : {
+                    "DOCTRDCDE" : "3101",
+                    "DOCPORTAL" : "M",
+                    "DOCSNDDAT" :  `${year}${month}${day}`,
+                    "DOCSNDTIM" : `${hour}${minute}${second}`,
+                    "RGTFLDUSR" : req.user.USERID,
+                    "RGTFLDPWR" : req.user.USERPW
+                },
+                "data" : {
+                    "ASSETNO" : ASSETNO,
+                    "ENTRYLOCATION" : EntryCode, // 로그인 시 json형태로 오는 값을, 바탕으로 프론트에서 stringdata를 받으면, 해당 value에 상응하는 키값으로 치환하여 데이터 보낼 것.
+                    "DETAILLOCATION" : DETAILLOCATION
+                }
+            })
+
+
+        const encryptedData = encrypt(sendingdata, secret_key, IV);
+        const decryptedData = decrypt(encryptedData, secret_key, IV);
+
+        console.log("암호화 값 : ", encryptedData);
+        console.log("복호화 값 : ", decryptedData);
+
+        const response = await axios.post(testServerUrl, encryptedData, {
+            headers: {
+                'Content-Type': 'text/plain'
+            }
+        });
+
+        const decryptedresponse = decrypt(response.data, secret_key, IV);
+        console.log("Response received:", response.data);
+        console.log("복호화 된 응답값 :", decryptedresponse);
+
+        /* 응답값이 0000 (처리완료)가 아니라면, 업로드한 이미지를 롤백(삭제)하는 부분 */
+        return res.status(201).send({
+            data: JSON.parse(decryptedresponse),
+        })  
+
+    } catch (error) {
+        return res.status(500).send('통신 에러');
+    }
+})
 
 
 
