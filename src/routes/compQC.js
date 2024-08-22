@@ -5,7 +5,8 @@ const { prisma } = require('../utils/prisma/index.js');
 const axios = require('axios');
 const crypto= require('crypto');
 const iconv = require('iconv-lite');
-const getCurrentDateTime = require('../utils/Time/DateTime.js')
+const getCurrentDateTime = require('../utils/Time/DateTime.js');
+const jwt = require('jsonwebtoken');
 
 const router = express.Router()
 require('dotenv').config();
@@ -57,11 +58,29 @@ function decrypt(encrypted, key, iv) {
     return iconv.decode(decrypted, 'euc-kr');
 }
 
+// jwt 토근값에서 아이디 비밀번호 가져오기
+const authenticateToken = (req, res, next) => {
+    const authHeader = req.headers['authorization'];
+    const token = authHeader && authHeader.split(' ')[1];
+    if (!token) return res.sendStatus(401);
+
+    jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, user) => {
+        if (err) return res.sendStatus(403);
+        req.user = user;
+        next();
+    });
+};
+
 /* COMP-QC GET (3000) */
-router.get('/CompQC/:STATUSREQ', async (req, res, next) => {
+router.get('/CompQC/:STATUSREQ', authenticateToken, async(req, res, next) => {
     try {
         
     const { year, month, day, hour, minute, second } = getCurrentDateTime();
+
+    console.log('COMPQC 전체조회');
+    console.log('로그인한 유저아이디' + req.user.USERID);
+    console.log('로그인한 유저비밀번호' + req.user.USERPW);
+
 
     /* session 세팅 이전까지 사용할 하드코딩된 코드값 */
     const Code = [
@@ -103,8 +122,8 @@ router.get('/CompQC/:STATUSREQ', async (req, res, next) => {
                 "DOCPORTAL" : "M",
                 "DOCSNDDAT" : `${year}${month}${day}`,
                 "DOCSNDTIM" : `${hour}${minute}${second}`,
-                "RGTFLDUSR" : "H202404010",//req.session.USERID,
-                "RGTFLDPWR" : "!Ekdzhd123"//req.session.USERPW
+                "RGTFLDUSR" : req.user.USERID,
+                "RGTFLDPWR" : req.user.USERPW
             },
             "data" : {
                 "REQSTATUS" : STATUSREQ // 상품화를 의미하는 STATUS값 - 문서(3000) 참조
@@ -171,7 +190,7 @@ function findKeyByValue(sessionCode, value) {
     return null; // 값이 없을 경우 null 반환
 }
 
-router.post('/CompQC/:ASSETNO', upload.array('IMGLIST'), async (req, res, next) => { // multerS3를 통한 이미지 업로드는 INQC에서 참조하여 구성할 것.
+router.post('/CompQC/:ASSETNO', upload.array('IMGLIST'), authenticateToken, async (req, res, next) => { // multerS3를 통한 이미지 업로드는 INQC에서 참조하여 구성할 것.
     try {
 
             // if (!req.files || !req.files.length) {
@@ -196,6 +215,10 @@ router.post('/CompQC/:ASSETNO', upload.array('IMGLIST'), async (req, res, next) 
                 KEYTOTAL = 1
             }
             // const { reqCode, USERID, USERPW } = req.session;
+
+            console.log('COMPQC POST');
+            console.log('로그인한 유저아이디' + req.user.USERID);
+            console.log('로그인한 유저비밀번호' + req.user.USERPW);
 
             /* session 세팅 이전까지 사용할 하드코딩된 코드값 */
             const reqCode = [
@@ -248,8 +271,8 @@ router.post('/CompQC/:ASSETNO', upload.array('IMGLIST'), async (req, res, next) 
                     "DOCPORTAL" : "M",
                     "DOCSNDDAT" :  `${year}${month}${day}`,
                     "DOCSNDTIM" : `${hour}${minute}${second}`,
-                    "RGTFLDUSR" : "H202404010",//USERID,
-                    "RGTFLDPWR" : "!Ekdzhd123"//USERPW
+                    "RGTFLDUSR" : req.user.USERID,
+                    "RGTFLDPWR" : req.user.USERPW
                 },
                 "data" : {
                     "ASSETNO" : ASSETNO,

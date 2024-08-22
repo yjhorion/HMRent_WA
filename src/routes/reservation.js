@@ -6,6 +6,7 @@ const axios = require('axios');
 const crypto= require('crypto');
 const iconv = require('iconv-lite');
 const getCurrentDateTime = require('../utils/Time/DateTime.js');
+const jwt = require('jsonwebtoken');
 
 
 require('dotenv').config();
@@ -35,7 +36,7 @@ function decrypt(encrypted, key, iv) {
     return iconv.decode(decrypted, 'euc-kr');
 }
 
-/* 토큰 */
+// jwt 토근값에서 아이디 비밀번호 가져오기
 const authenticateToken = (req, res, next) => {
     const authHeader = req.headers['authorization'];
     const token = authHeader && authHeader.split(' ')[1];
@@ -50,10 +51,14 @@ const authenticateToken = (req, res, next) => {
 
 
 /* (5000) 예약해제대상<차량> 조회  */
-router.get('/reservation', async (req, res, next) => {
+router.get('/reservation', authenticateToken, async (req, res, next) => {
     try {
         const { year, month, day, hour, minute, second } = getCurrentDateTime()
         // const { USERID, USERPW } = req.session.user
+
+        console.log('reservation 전체조회');
+        console.log('로그인한 유저아이디' + req.user.USERID);
+        console.log('로그인한 유저비밀번호' + req.user.USERPW);
 
         const sendingdata = JSON.stringify({
             "request" : {
@@ -61,8 +66,8 @@ router.get('/reservation', async (req, res, next) => {
                 "DOCPORTAL" : "M",
                 "DOCSNDDAT" : `${year}${month}${day}`,
                 "DOCSNDTIM" : `${hour}${minute}${second}`,
-                "RGTFLDUSR" : "H202404010",//USERID,
-                "RGTFLDPWR" : "!Ekdzhd123" //USERPW
+                "RGTFLDUSR" : req.user.USERID,
+                "RGTFLDPWR" : req.user.USERPW
             },
             "data" : {
 
@@ -111,12 +116,16 @@ router.get('/reservation', async (req, res, next) => {
 })
 
 /* (5001) 예약해제 집행 */
-router.post('/reservation/:ASSETNO', async (req, res, next) => {
+router.post('/reservation/:ASSETNO', authenticateToken, async (req, res, next) => {
     try {
         const { year, month, day, hour, minute, second } = getCurrentDateTime();
         // const { USERID, USERPW } = req.session.user;
 
         const { ASSETNO } = req.params;
+
+        console.log('INQCNEW 전체조회');
+        console.log('로그인한 유저아이디' + req.user.USERID);
+        console.log('로그인한 유저비밀번호' + req.user.USERPW);
 
         const sendingdata = JSON.stringify({
             "request" : {
@@ -124,8 +133,8 @@ router.post('/reservation/:ASSETNO', async (req, res, next) => {
                 "DOCPORTAL" : "M",
                 "DOCSNDDAT" : `${year}${month}${day}`,
                 "DOCSNDTIM" : `${hour}${minute}${second}`,
-                "RGTFLDUSR" : "H202404010",// USERID,
-                "RGTFLDPWR" : "!Ekdzhd123" // USERPW, 
+                "RGTFLDUSR" : req.user.USERID,
+                "RGTFLDPWR" : req.user.USERPW 
             },
             "data" : {
                 "ASSETNO" : ASSETNO

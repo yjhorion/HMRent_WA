@@ -7,6 +7,7 @@ const getCurrentDateTime = require('../utils/Time/DateTime.js');
 const crypto= require('crypto');
 const iconv = require('iconv-lite');
 const axios = require('axios');
+const jwt = require('jsonwebtoken');
 // const { getDeviceType } = require('../utils/DEVICEDETECTOR/devicedetector.js');
 
 router = express.Router()
@@ -58,10 +59,23 @@ function decrypt(encrypted, key, iv) {
     return iconv.decode(decrypted, 'euc-kr');
 }
 
+// jwt 토근값에서 아이디 비밀번호 가져오기
+const authenticateToken = (req, res, next) => {
+    const authHeader = req.headers['authorization'];
+    const token = authHeader && authHeader.split(' ')[1];
+    if (!token) return res.sendStatus(401);
+
+    jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, user) => {
+        if (err) return res.sendStatus(403);
+        req.user = user;
+        next();
+    });
+};
+
 
 
 /* 회수차량 조회 */
-router.get('/retrieval', async (req, res, next) => {
+router.get('/retrieval', authenticateToken, async (req, res, next) => {
     try{
         const { year, month, day, hour, minute, second } = getCurrentDateTime();
 
@@ -75,14 +89,18 @@ router.get('/retrieval', async (req, res, next) => {
         //console.log('시작일',QRDATBEG)
         //console.log('종료일',QRDATEND)
 
+        console.log('회수차량 조회');
+        console.log('로그인한 유저아이디' + req.user.USERID);
+        console.log('로그인한 유저비밀번호' + req.user.USERPW);
+
         const sendingdata = JSON.stringify({
             "request" : {
                 "DOCTRDCDE" : "4000",
                 "DOCPORTAL" : "M",
                 "DOCSNDDAT" : `${year}${month}${day}`,
                 "DOCSNDTIM" : `${hour}24${minute}${second}`,
-                "RGTFLDUSR" : "H202404010",//req.session.user.USERID,
-                "RGTFLDPWR" : "!Ekdzhd123" //req.session.user.USERPW
+                "RGTFLDUSR" : req.user.USERID,
+                "RGTFLDPWR" : req.user.USERPW
             },
             "data" : {
                 "RETSTS" : "", // 회수완료여부 null - 전체 , "A" - 회수완료 , "B" - 회수요청
@@ -127,11 +145,15 @@ router.get('/retrieval', async (req, res, next) => {
 })
 
 /* 회수대상 이미지 업로드, 비고수정 */
-router.post('/retrieval/:ASSETNO/:SEQNO', upload.array('IMGLIST'), async (req, res, next) => {
+router.post('/retrieval/:ASSETNO/:SEQNO', upload.array('IMGLIST'), authenticateToken, async (req, res, next) => {
     try{
         const { year, month, day, hour, minute, second } = getCurrentDateTime();
         const { ASSETNO, SEQNO } = req.params;
         const { BIGO } = req.body;
+
+        console.log('회수대상 이미지 업로드');
+        console.log('로그인한 유저아이디' + req.user.USERID);
+        console.log('로그인한 유저비밀번호' + req.user.USERPW);
 
         console.log(`-- 받아온 정보 --
                     자산번호 : ${ASSETNO}, 순번 : ${SEQNO}, 비고 : ${BIGO}`);
@@ -145,8 +167,8 @@ router.post('/retrieval/:ASSETNO/:SEQNO', upload.array('IMGLIST'), async (req, r
                 "DOCPORTAL" : "M",
                 "DOCSNDDAT" : `${year}${month}${day}`,
                 "DOCSNDTIM" : `${hour}24${minute}${second}`,
-                "RGTFLDUSR" : "H202404010",//req.session.user.USERID,
-                "RGTFLDPWR" : "!Ekdzhd123" //req.session.user.USERPW
+                "RGTFLDUSR" : req.user.USERID,
+                "RGTFLDPWR" : req.user.USERPW
             },
             "data" : {
                 "ASSETNO" : ASSETNO,            // 자산번호

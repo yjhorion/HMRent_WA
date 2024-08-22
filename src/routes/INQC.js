@@ -86,13 +86,14 @@ const authenticateToken = (req, res, next) => {
 
 
 /* INQC GET(2000) */
-router.get('/INQCNEW', authenticateToken,async(req, res, next) =>  {
+router.get('/INQCNEW', authenticateToken, async(req, res, next) =>  {
     try {
 
     const { year, month, day, hour, minute, second } = getCurrentDateTime();
 
-    console.log('로그인한 유저아이디' + req.user.USERID)
-    console.log('로그인한 유저비밀번호' + req.user.USERPW)
+    console.log('INQCNEW 전체조회');
+    console.log('로그인한 유저아이디' + req.user.USERID);
+    console.log('로그인한 유저비밀번호' + req.user.USERPW);
 
 
     /* session 세팅 이전까지 사용할 하드코딩된 코드값 */
@@ -196,10 +197,14 @@ router.get('/INQCNEW', authenticateToken,async(req, res, next) =>  {
 
 
 /* INQC GET(2100) */
-router.get('/INQCOLD', async(req, res, next) =>  {
+router.get('/INQCOLD', authenticateToken, async(req, res, next) =>  {
     try {
 
     const { year, month, day, hour, minute, second } = getCurrentDateTime();
+
+    console.log('INQCOLD 전체조회');
+    console.log('USERID : ' + req.user.USERID);
+    console.log('USERPW : ' + req.user.USERPW);
 
     /* session 세팅 이전까지 사용할 하드코딩된 코드값 */
     const Code = [
@@ -240,8 +245,8 @@ router.get('/INQCOLD', async(req, res, next) =>  {
                 "DOCPORTAL" : "M",
                 "DOCSNDDAT" : `${year}${month}${day}`,
                 "DOCSNDTIM" : `${hour}${minute}${second}`,
-                "RGTFLDUSR" : "H202404010",//req.session.USERID,
-                "RGTFLDPWR" : "!Ekdzhd123"//req.session.USERPW
+                "RGTFLDUSR" : req.user.USERID,
+                "RGTFLDPWR" : req.user.USERPW
             },
             "data" : {
             }
@@ -300,11 +305,15 @@ router.get('/INQCOLD', async(req, res, next) =>  {
 
 
 /* INQC POST(2001) */
-router.post('/INQCNEW', upload.array('IMGLIST'), async(req, res, next) =>  {
+router.post('/INQCNEW', upload.array('IMGLIST'), authenticateToken, async(req, res, next) =>  {
     try {
 
     const { ASSETNO, MILEAGE, DEPARTLOCATION, ENTRYLOCATION, DETAILLOCATION } = req.body;
     const { year, month, day, hour, minute, second } = getCurrentDateTime();
+
+    console.log('INQCNEW POST 접근');
+    console.log('USERID : ' + req.user.USERID);
+    console.log('USERPW : ' + req.user.USERPW);
 
     /* session 세팅 이전까지 사용할 하드코딩된 코드값 */
     const reqCode = [
@@ -363,8 +372,8 @@ router.post('/INQCNEW', upload.array('IMGLIST'), async(req, res, next) =>  {
                 "DOCPORTAL" : "M",
                 "DOCSNDDAT" : `${year}${month}${day}`,
                 "DOCSNDTIM" : `${hour}${minute}${second}`,
-                "RGTFLDUSR" : "H202404010",//req.session.USERID,
-                "RGTFLDPWR" : "!Ekdzhd123"//req.session.USERPW
+                "RGTFLDUSR" : req.user.USERID,
+                "RGTFLDPWR" : req.user.USERPW
             },
             "data" : {
                 "ASSETNO" : ASSETNO,
@@ -434,11 +443,15 @@ router.post('/INQCNEW', upload.array('IMGLIST'), async(req, res, next) =>  {
 
 
 /* INQC POST(2101) */
-router.post('/INQCOLD',  upload.array('IMGLIST'), async(req, res, next) =>  {
+router.post('/INQCOLD',  upload.array('IMGLIST'), authenticateToken, async(req, res, next) =>  {
     try {
 
     const { ASSETNO, SEQNO, MILEAGE, ENTRYLOCATION, DETAILLOCATION } = req.body;
     const { year, month, day, hour, minute, second } = getCurrentDateTime();
+
+    console.log('INQCNEW POST 접근');
+    console.log('USERID : ' + req.user.USERID);
+    console.log('USERPW : ' + req.user.USERPW);
 
     /* session 세팅 이전까지 사용할 하드코딩된 코드값 */
     const Code = [
@@ -492,8 +505,8 @@ router.post('/INQCOLD',  upload.array('IMGLIST'), async(req, res, next) =>  {
                 "DOCPORTAL" : "M",
                 "DOCSNDDAT" : `${year}${month}${day}`,
                 "DOCSNDTIM" : `${hour}${minute}${second}`,
-                "RGTFLDUSR" : "H202404010",//req.session.USERID,
-                "RGTFLDPWR" : "!Ekdzhd123"//req.session.USERPW
+                "RGTFLDUSR" : req.user.USERID,
+                "RGTFLDPWR" : req.user.USERPW
             },
             "data" : {
                 "ASSETNO" : ASSETNO,
