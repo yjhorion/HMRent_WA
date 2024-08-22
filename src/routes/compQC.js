@@ -182,7 +182,7 @@ router.get('/CompQC/:STATUSREQ', authenticateToken, async(req, res, next) => {
 
         /* 프론트에 데이터를 보내는 부분. stringify 되었던 데이터를 parse 해서 json형식으로 보내줌 */
         res.send({
-            data: mappedResponse, reqCode
+            data: parsedResponse, reqCode
         })
 
     } catch (error) {
