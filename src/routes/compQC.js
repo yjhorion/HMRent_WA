@@ -333,10 +333,14 @@ router.get('/LOCSET', /*authenticateToken,*/ async(req, res, next) => {
         
     const { year, month, day, hour, minute, second } = getCurrentDateTime();
 
+    /*
+
     console.log('위치정보 전체조회');
     console.log('로그인한 유저아이디' + req.user.USERID);
     console.log('로그인한 유저비밀번호' + req.user.USERPW);
 
+    */
+    
 
     /* session 세팅 이전까지 사용할 하드코딩된 코드값 */
     const Code = [
@@ -438,9 +442,12 @@ router.post('/LOCSET/:ASSETNO', /*authenticateToken,*/ async (req, res, next) =>
 
             // const { reqCode, USERID, USERPW } = req.session;
 
+            /*
             console.log('위치정보 POST');
             console.log('로그인한 유저아이디' + req.user.USERID);
             console.log('로그인한 유저비밀번호' + req.user.USERPW);
+            */
+
 
             /* session 세팅 이전까지 사용할 하드코딩된 코드값 */
             const reqCode = [
