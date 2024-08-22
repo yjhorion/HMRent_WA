@@ -70,9 +70,22 @@ function findKeyByValue(sessionCode, value) {
     return null; // 값이 없을 경우 null 반환
 }
 
+// jwt 토근값에서 아이디 비밀번호 가져오기
+const authenticateToken = (req, res, next) => {
+    const authHeader = req.headers['authorization'];
+    const token = authHeader && authHeader.split(' ')[1];
+    if (!token) return res.sendStatus(401);
+
+    jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, user) => {
+        if (err) return res.sendStatus(403);
+        req.user = user;
+        next();
+    });
+};
+
 
 /* INQC GET(2000) */
-router.get('/INQCNEW', async(req, res, next) =>  {
+router.get('/INQCNEW', authenticateToken,async(req, res, next) =>  {
     try {
 
     const { year, month, day, hour, minute, second } = getCurrentDateTime();
@@ -117,8 +130,8 @@ router.get('/INQCNEW', async(req, res, next) =>  {
                 "DOCPORTAL" : "M",
                 "DOCSNDDAT" : `${year}${month}${day}`,
                 "DOCSNDTIM" : `${hour}${minute}${second}`,
-                "RGTFLDUSR" : "H202404010",//req.session.USERID,
-                "RGTFLDPWR" : "!Ekdzhd123"//req.session.USERPW
+                "RGTFLDUSR" : req.user.USERID,//"H202404010",//req.session.USERID,
+                "RGTFLDPWR" : req.user.USERPW//"!Ekdzhd123"//req.session.USERPW
             },
             "data" : {}
         })
