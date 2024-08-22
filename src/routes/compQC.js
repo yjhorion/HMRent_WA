@@ -180,6 +180,8 @@ router.get('/CompQC/:STATUSREQ', authenticateToken, async(req, res, next) => {
             throw new Error('REPT 배열이 없거나 잘못된 형식입니다.');
         }
 
+        console.log('-----------------------------------------------프론트에 보내는 데이터 : ' + parsedResponse);
+
         /* 프론트에 데이터를 보내는 부분. stringify 되었던 데이터를 parse 해서 json형식으로 보내줌 */
         res.send({
             data: parsedResponse, reqCode
