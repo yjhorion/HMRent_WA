@@ -72,6 +72,14 @@ const authenticateToken = (req, res, next) => {
     });
 };
 
+// 날자 조작을 위한 헬퍼 함수
+function addMonths(date, months) {
+    const d = new Date(date);
+    d.setMonth(d.getMonth() + months );
+
+    // 월값이 음수나 12 이상의 경우, setMonth가 자동으로 연도를 조정해 줌
+    return d;
+}
 
 
 /* 회수차량 조회 */
@@ -79,15 +87,16 @@ router.get('/retrieval', authenticateToken, async (req, res, next) => {
     try{
         const { year, month, day, hour, minute, second } = getCurrentDateTime();
 
-        console.log('-------------------------회수차량 조회-------------------------')
+        // 현재 날짜 기준으로 -3개월과 +1개월의 날자를 꼐산
+        const currentDate = new Date(year, month - 1, day); // 월은 0부터 시작하므로 -1
+        const startDate = addMonths(currentDate, -3); // -3개월
+        const endDate = addMonths(currentDate, 1); // +1개월
 
-        /* (QRDATBEG =< QRDATEND) 조건으로 validation 필요 */
+        const QRDATBEG = req.params.QRDATBEG || `${startDate.getFullYear()}${(startDate.getMonth() + 1).toString().padStart(2, '0')}${startDate.getDate().toString().padStart(2, '0')}`;
+        const QRDATEND = req.params.QRDATND || `${endDate.getFullYear()}${(endDate.getMonth() + 1).toString().padStart(2, '0')}${endDate.getDate().toString().padStart(2, '0')}`;
 
-        const QRDATBEG = req.params.QRDATBEG || `${year-1}${month}${day}`; // 적절한 기간이 정해지면, 날자값에서 -value를 해준 값으로 조회 시작일을 지정해줄 것. 현재는 '11111111'값으로 최대조회중
-        const QRDATEND = req.params.QRDATND || `${year+1}${month}${day}`;
-
-        //console.log('시작일',QRDATBEG)
-        //console.log('종료일',QRDATEND)
+        console.log('시작일',QRDATBEG)
+        console.log('종료일',QRDATEND)
 
         console.log('회수차량 조회');
         console.log('로그인한 유저아이디' + req.user.USERID);

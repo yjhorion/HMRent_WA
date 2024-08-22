@@ -382,8 +382,8 @@ router.get('/LOCSET', /*authenticateToken,*/ async(req, res, next) => {
                 "DOCPORTAL" : "M",
                 "DOCSNDDAT" : `${year}${month}${day}`,
                 "DOCSNDTIM" : `${hour}${minute}${second}`,
-                "RGTFLDUSR" : req.user.USERID,
-                "RGTFLDPWR" : req.user.USERPW
+                "RGTFLDUSR" : "H202404010", //req.user.USERID,
+                "RGTFLDPWR" : "!Ekdzhd123"  //req.user.USERPW
             },
             "data" : {
             }
@@ -488,8 +488,8 @@ router.post('/LOCSET/:ASSETNO', /*authenticateToken,*/ async (req, res, next) =>
                     "DOCPORTAL" : "M",
                     "DOCSNDDAT" :  `${year}${month}${day}`,
                     "DOCSNDTIM" : `${hour}${minute}${second}`,
-                    "RGTFLDUSR" : req.user.USERID,
-                    "RGTFLDPWR" : req.user.USERPW
+                    "RGTFLDUSR" : "H202404010",//req.user.USERID,
+                    "RGTFLDPWR" : "!Ekdzhd123" //req.user.USERPW
                 },
                 "data" : {
                     "ASSETNO" : ASSETNO,
