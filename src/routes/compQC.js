@@ -160,25 +160,27 @@ router.get('/CompQC/:STATUSREQ', authenticateToken, async(req, res, next) => {
                 const entryLocation = item.ENTRYLOCATION;
                 let newEntryLocation = entryLocation;
 
-                // Code 배열을 순회하며 ENTRYLOCATION의 값을 찾고 치환
-                Code.forEach(locationSet => {
-                    const locationType = Object.keys(locationSet)[0];
-                    const locations = locationSet[locationType];
-                    if (locations.hasOwnProperty(entryLocation)) {
-                        newEntryLocation = locations[entryLocation];
-                    }
-                });
-
-                // 기존 데이터에 치환된 값을 적용
-                return {
-                    ...item,
-                    ENTRYLOCATION: newEntryLocation
-                };
-            });
-        } else {
-            console.error('REPT 배열이 없거나 잘못된 형식입니다.');
-            throw new Error('REPT 배열이 없거나 잘못된 형식입니다.');
+        // Code 배열을 순회하며 ENTRYLOCATION의 값을 찾고 치환
+        for (let i = 0; i < Code.length; i++) {
+            const locationSet = Code[i];
+            const locationType = Object.keys(locationSet)[0];
+            const locations = locationSet[locationType];
+            if (locations.hasOwnProperty(entryLocation)) {
+                newEntryLocation = locations[entryLocation];
+                break;  // 첫 번째로 매핑된 값을 사용하고 루프를 종료
+            }
         }
+
+        // 기존 데이터에 치환된 값을 적용
+        return {
+            ...item,
+            ENTRYLOCATION: newEntryLocation
+        };
+    });
+} else {
+    console.error('REPT 배열이 없거나 잘못된 형식입니다.');
+    throw new Error('REPT 배열이 없거나 잘못된 형식입니다.');
+}
 
         console.log('-----------------------------------------------프론트에 보내는 데이터 : ' + JSON.stringify(parsedResponse, null, 2));
 
