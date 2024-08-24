@@ -228,7 +228,7 @@ function findValueByKey(sessionCode, keyToFind) {
 }
 
 
-router.get('/CompQC/:STATUSREQ', authenticateToken, async(req, res, next) => {
+router.get('/CompQC/:STATUSREQ', authenticateToken, async (req, res, next) => {
     try {
         const { year, month, day, hour, minute, second } = getCurrentDateTime();
 
@@ -289,11 +289,9 @@ router.get('/CompQC/:STATUSREQ', authenticateToken, async(req, res, next) => {
         const decryptedresponse = decrypt(response.data, secret_key, IV);
         const parsedResponse = JSON.parse(decryptedresponse);
 
-        // 중복된 데이터를 ASSETNO를 기준으로 필터링하여 제거
         if (parsedResponse.data && Array.isArray(parsedResponse.data.REPT)) {
-            const uniqueREPT = Array.from(new Map(parsedResponse.data.REPT.map(item => [item.ASSETNO, item])).values());
-
-            parsedResponse.data.REPT = uniqueREPT.map(item => {
+            // 매핑 수행
+            const mappedREPT = parsedResponse.data.REPT.map(item => {
                 const entryLocation = item.ENTRYLOCATION;
                 const newEntryLocation = findValueByKey(Code, entryLocation);
                 return {
@@ -301,6 +299,19 @@ router.get('/CompQC/:STATUSREQ', authenticateToken, async(req, res, next) => {
                     ENTRYLOCATION: newEntryLocation
                 };
             });
+
+            // 매핑 이후 중복 제거
+            const uniqueREPT = Array.from(
+                new Map(
+                    mappedREPT.map(item => [
+                        `${item.STATUS}-${item.ENTRYLOCATION}-${item.KEYQUANT}-${item.ASSETNO}`,
+                        item
+                    ])
+                ).values()
+            );
+
+            // 중복이 제거된 데이터를 다시 할당
+            parsedResponse.data.REPT = uniqueREPT;
         } else {
             console.error('REPT 배열이 없거나 잘못된 형식입니다.');
             throw new Error('REPT 배열이 없거나 잘못된 형식입니다.');
@@ -317,6 +328,7 @@ router.get('/CompQC/:STATUSREQ', authenticateToken, async(req, res, next) => {
         res.status(500).send('통신 에러');
     }
 });
+
 
 
 
