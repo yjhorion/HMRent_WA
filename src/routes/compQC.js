@@ -289,16 +289,16 @@ router.get('/CompQC/:STATUSREQ', authenticateToken, async (req, res, next) => {
         const decryptedresponse = decrypt(response.data, secret_key, IV);
         const parsedResponse = JSON.parse(decryptedresponse);
 
-        if (parsedResponse.data && Array.isArray(parsedResponse.data.REPT)) {
-            // 매핑 수행
-            const mappedREPT = parsedResponse.data.REPT.map(item => {
-                const entryLocation = item.ENTRYLOCATION;
-                const newEntryLocation = findValueByKey(Code, entryLocation);
-                return {
-                    ...item,
-                    ENTRYLOCATION: newEntryLocation
-                };
-            });
+        // if (parsedResponse.data && Array.isArray(parsedResponse.data.REPT)) {
+        //     // 매핑 수행
+        //     const mappedREPT = parsedResponse.data.REPT.map(item => {
+        //         const entryLocation = item.ENTRYLOCATION;
+        //         const newEntryLocation = findValueByKey(Code, entryLocation);
+        //         return {
+        //             ...item,
+        //             ENTRYLOCATION: newEntryLocation
+        //         };
+        //     });
 
             // 중복 제거 - JSON 문자열 변환 후 필터링
             const uniqueREPT = mappedREPT.filter((value, index, self) =>
