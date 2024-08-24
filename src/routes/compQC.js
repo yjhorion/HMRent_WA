@@ -293,7 +293,7 @@ router.get('/CompQC/:STATUSREQ', authenticateToken, async(req, res, next) => {
         if (parsedResponse.data && Array.isArray(parsedResponse.data.REPT)) {
             const uniqueREPT = parsedResponse.data.REPT.filter((item, index, self) =>
                 index === self.findIndex((t) => (
-                    t.ASSETNO === item.ASSETNO && t.ENTRYLOCATION === item.ENTRYLOCATION
+                    t.ASSETNO === item.ASSETNO
                 ))
             );
 
