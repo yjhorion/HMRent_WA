@@ -273,7 +273,7 @@ router.get('/CompQC/:STATUSREQ', authenticateToken, async(req, res, next) => {
                 "RGTFLDPWR": req.user.USERPW
             },
             "data": {
-                "REQSTATUS": STATUSREQ // 상품화를 의미하는 STATUS값 - 문서(3000) 참조
+                "REQSTATUS": STATUSREQ
             }
         });
 
@@ -289,18 +289,13 @@ router.get('/CompQC/:STATUSREQ', authenticateToken, async(req, res, next) => {
         const decryptedresponse = decrypt(response.data, secret_key, IV);
         const parsedResponse = JSON.parse(decryptedresponse);
 
-        // 중복된 데이터를 필터링하여 제거하는 로직
+        // 중복된 데이터를 ASSETNO를 기준으로 필터링하여 제거
         if (parsedResponse.data && Array.isArray(parsedResponse.data.REPT)) {
-            const uniqueREPT = parsedResponse.data.REPT.filter((item, index, self) =>
-                index === self.findIndex((t) => (
-                    t.ASSETNO === item.ASSETNO
-                ))
-            );
+            const uniqueREPT = Array.from(new Map(parsedResponse.data.REPT.map(item => [item.ASSETNO, item])).values());
 
             parsedResponse.data.REPT = uniqueREPT.map(item => {
                 const entryLocation = item.ENTRYLOCATION;
                 const newEntryLocation = findValueByKey(Code, entryLocation);
-
                 return {
                     ...item,
                     ENTRYLOCATION: newEntryLocation
@@ -322,6 +317,7 @@ router.get('/CompQC/:STATUSREQ', authenticateToken, async(req, res, next) => {
         res.status(500).send('통신 에러');
     }
 });
+
 
 
 
