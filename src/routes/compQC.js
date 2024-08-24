@@ -300,19 +300,19 @@ router.get('/CompQC/:STATUSREQ', authenticateToken, async (req, res, next) => {
         //         };
         //     });
 
-            // 중복 제거 - JSON 문자열 변환 후 필터링
-            const uniqueREPT = mappedREPT.filter((value, index, self) =>
-                index === self.findIndex((t) => (
-                    JSON.stringify(t) === JSON.stringify(value)
-                ))
-            );
+        //     // 중복 제거 - JSON 문자열 변환 후 필터링
+        //     const uniqueREPT = mappedREPT.filter((value, index, self) =>
+        //         index === self.findIndex((t) => (
+        //             JSON.stringify(t) === JSON.stringify(value)
+        //         ))
+        //     );
 
-            // 중복이 제거된 데이터를 다시 할당
-            parsedResponse.data.REPT = uniqueREPT;
-        } else {
-            console.error('REPT 배열이 없거나 잘못된 형식입니다.');
-            throw new Error('REPT 배열이 없거나 잘못된 형식입니다.');
-        }
+        //     // 중복이 제거된 데이터를 다시 할당
+        //     parsedResponse.data.REPT = uniqueREPT;
+        // } else {
+        //     console.error('REPT 배열이 없거나 잘못된 형식입니다.');
+        //     throw new Error('REPT 배열이 없거나 잘못된 형식입니다.');
+        // }
 
         console.log('-----------------------------------------------프론트에 보내는 데이터 : ' + JSON.stringify(parsedResponse, null, 2));
 
