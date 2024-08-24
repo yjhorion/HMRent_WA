@@ -236,7 +236,6 @@ router.get('/CompQC/:STATUSREQ', authenticateToken, async(req, res, next) => {
         console.log('로그인한 유저아이디' + req.user.USERID);
         console.log('로그인한 유저비밀번호' + req.user.USERPW);
 
-        /* session 세팅 이전까지 사용할 하드코딩된 코드값 */
         const Code = [
             {
                 HR58: {
@@ -278,18 +277,8 @@ router.get('/CompQC/:STATUSREQ', authenticateToken, async(req, res, next) => {
             }
         });
 
-        console.log("Encoded secret key : ", secret_key); // Base64 encoded key
-        console.log("Encoded Initial Vector : ", IV); // Base64 encoded IV
-
-        if (!secret_key) {
-            console.log("No Secret Key.");
-            return res.status(500).send('No Secret Key.');
-        }
-
         const encryptedData = encrypt(sendingdata, secret_key, IV);
         const decryptedData = decrypt(encryptedData, secret_key, IV);
-
-        /* ERP에 암호화된 데이터를 보내는 부분 */
 
         const response = await axios.post(testServerUrl, encryptedData, {
             headers: {
@@ -300,13 +289,18 @@ router.get('/CompQC/:STATUSREQ', authenticateToken, async(req, res, next) => {
         const decryptedresponse = decrypt(response.data, secret_key, IV);
         const parsedResponse = JSON.parse(decryptedresponse);
 
-        // ENTRYLOCATION 값을 매핑된 값으로 치환하는 로직
+        // 중복된 데이터를 필터링하여 제거하는 로직
         if (parsedResponse.data && Array.isArray(parsedResponse.data.REPT)) {
-            parsedResponse.data.REPT = parsedResponse.data.REPT.map(item => {
+            const uniqueREPT = parsedResponse.data.REPT.filter((item, index, self) =>
+                index === self.findIndex((t) => (
+                    t.ASSETNO === item.ASSETNO && t.ENTRYLOCATION === item.ENTRYLOCATION
+                ))
+            );
+
+            parsedResponse.data.REPT = uniqueREPT.map(item => {
                 const entryLocation = item.ENTRYLOCATION;
                 const newEntryLocation = findValueByKey(Code, entryLocation);
 
-                // 기존 데이터에 치환된 값을 적용
                 return {
                     ...item,
                     ENTRYLOCATION: newEntryLocation
@@ -319,7 +313,6 @@ router.get('/CompQC/:STATUSREQ', authenticateToken, async(req, res, next) => {
 
         console.log('-----------------------------------------------프론트에 보내는 데이터 : ' + JSON.stringify(parsedResponse, null, 2));
 
-        /* 프론트에 데이터를 보내는 부분. stringify 되었던 데이터를 parse 해서 json형식으로 보내줌 */
         res.send({
             data: parsedResponse
         });
@@ -329,6 +322,7 @@ router.get('/CompQC/:STATUSREQ', authenticateToken, async(req, res, next) => {
         res.status(500).send('통신 에러');
     }
 });
+
 
 
 /* 위치정보 저장을 위한 라우터 (3100:GET, 3101:POST) */
