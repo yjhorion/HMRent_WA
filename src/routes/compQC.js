@@ -300,14 +300,11 @@ router.get('/CompQC/:STATUSREQ', authenticateToken, async (req, res, next) => {
                 };
             });
 
-            // 매핑 이후 중복 제거
-            const uniqueREPT = Array.from(
-                new Map(
-                    mappedREPT.map(item => [
-                        `${item.STATUS}-${item.ENTRYLOCATION}-${item.KEYQUANT}-${item.ASSETNO}`,
-                        item
-                    ])
-                ).values()
+            // 중복 제거 - JSON 문자열 변환 후 필터링
+            const uniqueREPT = mappedREPT.filter((value, index, self) =>
+                index === self.findIndex((t) => (
+                    JSON.stringify(t) === JSON.stringify(value)
+                ))
             );
 
             // 중복이 제거된 데이터를 다시 할당
@@ -328,6 +325,7 @@ router.get('/CompQC/:STATUSREQ', authenticateToken, async (req, res, next) => {
         res.status(500).send('통신 에러');
     }
 });
+
 
 
 
