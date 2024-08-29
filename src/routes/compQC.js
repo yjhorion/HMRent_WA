@@ -7,6 +7,7 @@ const crypto= require('crypto');
 const iconv = require('iconv-lite');
 const getCurrentDateTime = require('../utils/Time/DateTime.js');
 const jwt = require('jsonwebtoken');
+const sharp = require('sharp');
 
 const router = express.Router()
 require('dotenv').config();
@@ -328,13 +329,6 @@ router.get('/CompQC/:STATUSREQ', authenticateToken, async (req, res, next) => {
 
 router.post('/CompQC/:ASSETNO', upload.array('IMGLIST'), authenticateToken, async (req, res, next) => { // multerS3를 통한 이미지 업로드는 INQC에서 참조하여 구성할 것.
     try {
-
-            // if (!req.files || !req.files.length) {
-            //     return res.status(400).send({
-            //         message : "이미지없음"
-            //     })
-            // }
-
             const { ASSETNO } = req.params;
             console.log('ASSETNO : ', ASSETNO);
             const { year, month, day, hour, minute, second } = getCurrentDateTime();
@@ -387,13 +381,27 @@ router.post('/CompQC/:ASSETNO', upload.array('IMGLIST'), authenticateToken, asyn
             const EntryCode = findKeyByValue(reqCode, ENTRYLOCATION);
             console.log('EntryCode', EntryCode);
 
-            // let uploadedFilesInfo = [];
-            // if (req.files && req.files.length > 0) {
+            // 이미지 리사이징 작업 (비율유지)
+            const resizedImages = await Promise.all(
+                req.files.map(async (file) => {
+                    const resizedBuffer = await sharp(file.buffer)
+                        .resize({
+                            width: 800, // 가로 800px
+                            withoutEnlargement : true // 원본보다 큰 경우는 확대하지 않음
+                        })
+                        .toBuffer();
+
+                    return {
+                        ...file,
+                        buffer: resizedBuffer,
+                    };
+                })
+            )
                 
 
-                //console.log('---------------------req.files---------------------: ', req.files);
-    
-                const uploadedFilesInfo = req.files ? await uploadImages(req.files) : [];
+
+                // S3에 업로드
+                const uploadedFilesInfo = resizedBuffer ? await uploadImages(resizedBuffer) : [];
                 if (!uploadedFilesInfo.length) {
                     console.log('이미지 0개')
                 }
