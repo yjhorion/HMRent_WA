@@ -710,7 +710,7 @@ router.get('/GPSchk', async (req, res, next) => {
                 "DOCSNDDAT": `${year}${month}${day}`,
                 "DOCSNDTIM": `${hour}${minute}${second}`,
                 "RGTFLDUSR": 'H202404010',//req.user.USERID,
-                "RGTFLDPWR": '!Ekdzhd12'//req.user.USERPW
+                "RGTFLDPWR": '!Ekdzhd123'//req.user.USERPW
             },
             "data": {
             }
