@@ -401,7 +401,7 @@ router.post('/CompQC/:ASSETNO', upload.array('IMGLIST'), authenticateToken, asyn
 
 
                 // S3에 업로드
-                const uploadedFilesInfo = resizedBuffer ? await uploadImages(resizedBuffer) : [];
+                const uploadedFilesInfo = resizedImages ? await uploadImages(resizedImages) : [];
                 if (!uploadedFilesInfo.length) {
                     console.log('이미지 0개')
                 }
