@@ -315,7 +315,7 @@ router.get('/CompQC/:STATUSREQ', authenticateToken, async (req, res, next) => {
             throw new Error('REPT 배열이 없거나 잘못된 형식입니다.');
         }
 
-        console.log('-----------------------------------------------프론트에 보내는 데이터 : ' + JSON.stringify(parsedResponse, null, 2));
+        //console.log('-----------------------------------------------프론트에 보내는 데이터 : ' + JSON.stringify(parsedResponse, null, 2));
 
         res.send({
             data: parsedResponse
