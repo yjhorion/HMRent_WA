@@ -674,7 +674,7 @@ router.post('/LOCSET/:ASSETNO', /*authenticateToken,*/ async (req, res, next) =>
 })
 
 
-router.get('/CompQC/GPSchk', async (req, res, next) => {
+router.get('/GPSchk', async (req, res, next) => {
     try {
         const { year, month, day, hour, minute, second } = getCurrentDateTime();
 
