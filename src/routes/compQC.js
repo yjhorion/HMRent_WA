@@ -674,6 +674,74 @@ router.post('/LOCSET/:ASSETNO', /*authenticateToken,*/ async (req, res, next) =>
 })
 
 
+router.get('/CompQC/GPSchk', async (req, res, next) => {
+    try {
+        const { year, month, day, hour, minute, second } = getCurrentDateTime();
+
+        const Code = [
+            {
+                HR58: {
+                    HR580003: '아산 차고지',
+                    HR580004: '상품화센터',
+                    HR580006: '본사',
+                    HR580099: '기타',
+                    HR580001: '하모니파크',
+                    HR580002: '송도 차고지'
+                }
+            },
+            {
+                HR65: {
+                    HR650001: '기본출고지',
+                    HR650002: '아산출고지',
+                    HR650005: '화성출고지',
+                    HR650006: '광주출고지',
+                    HR650003: '울산출고지',
+                    HR650004: '칠곡출고지',
+                    HR650007: '소하리출고지',
+                    HR650008: '서산출고지'
+                }
+            }
+        ];
+
+        const sendingdata = JSON.stringify({
+            "request": {
+                "DOCTRDCDE": "2200",
+                "DOCPORTAL": "M",
+                "DOCSNDDAT": `${year}${month}${day}`,
+                "DOCSNDTIM": `${hour}${minute}${second}`,
+                "RGTFLDUSR": 'H202404010',//req.user.USERID,
+                "RGTFLDPWR": '!Ekdzhd123'//req.user.USERPW
+            },
+            "data": {
+            }
+        });
+
+        const encryptedData = encrypt(sendingdata, secret_key, IV);
+        const decryptedData = decrypt(encryptedData, secret_key, IV);
+
+        const response = await axios.post(testServerUrl, encryptedData, {
+            headers: {
+                'Content-Type': 'text/plain'
+            }
+        });
+
+        const decryptedresponse = decrypt(response.data, secret_key, IV);
+        const parsedResponse = JSON.parse(decryptedresponse);
+
+        //console.log('-----------------------------------------------프론트에 보내는 데이터 : ' + JSON.stringify(parsedResponse, null, 2));
+
+        res.send({
+            data: parsedResponse
+        });
+
+    } catch (error) {
+        console.error('통신 에러: ', error.message);
+        res.status(500).send('통신 에러');
+    }
+});
+
+
+
 // ///////////////////////////
 
 
