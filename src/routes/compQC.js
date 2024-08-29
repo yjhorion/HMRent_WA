@@ -381,22 +381,22 @@ router.post('/CompQC/:ASSETNO', upload.array('IMGLIST'), authenticateToken, asyn
             const EntryCode = findKeyByValue(reqCode, ENTRYLOCATION);
             console.log('EntryCode', EntryCode);
 
-            // 이미지 리사이징 작업 (비율유지)
-            const resizedImages = await Promise.all(
-                req.files.map(async (file) => {
-                    const resizedBuffer = await sharp(file.buffer)
-                        .resize({
-                            width: 800, // 가로 800px
-                            withoutEnlargement : true // 원본보다 큰 경우는 확대하지 않음
-                        })
-                        .toBuffer();
+            // // 이미지 리사이징 작업 (비율유지)
+            // const resizedImages = await Promise.all(
+            //     req.files.map(async (file) => {
+            //         const resizedBuffer = await sharp(file.buffer)
+            //             .resize({
+            //                 width: 800, // 가로 800px
+            //                 withoutEnlargement : true // 원본보다 큰 경우는 확대하지 않음
+            //             })
+            //             .toBuffer();
 
-                    return {
-                        ...file,
-                        buffer: resizedBuffer,
-                    };
-                })
-            )
+            //         return {
+            //             ...file,
+            //             buffer: resizedBuffer,
+            //         };
+            //     })
+            // )
                 
 
 
