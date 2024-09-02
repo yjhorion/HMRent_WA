@@ -6,6 +6,7 @@ const crypto = require('crypto');
 const iconv = require('iconv-lite');
 const getCurrentDateTime = require('../utils/Time/DateTime.js');
 const jwt = require('jsonwebtoken');
+const sharp = require('sharp');
 
 router = express.Router()
 require('dotenv').config();
@@ -296,14 +297,6 @@ router.get('/INQCOLD', authenticateToken, async(req, res, next) =>  {
 
 
 
-
-
-
-
-
-
-
-
 /* INQC POST(2001) */
 router.post('/INQCNEW', upload.array('IMGLIST'), authenticateToken, async(req, res, next) =>  {
     try {
@@ -359,13 +352,32 @@ router.post('/INQCNEW', upload.array('IMGLIST'), authenticateToken, async(req, r
         }
         console.log('EntryCode', EntryCode);
 
-        const uploadedFilesInfo = await uploadImages(req.files);
+        
+        // 이미지 리사이징 작업 (비율유지)
+        const resizedImages = await Promise.all(
+            req.files.map(async (file) => {
+                const resizedBuffer = await sharp(file.buffer)
+                .resize({
+                    width: 800, // 가로 800px
+                    withoutEnlargement: true // 원본보다 큰 경우는 확대하지 않음
+                })
+                .toBuffer();
+                
+                return {
+                    ...file,
+                    buffer: resizedBuffer,
+                };
+            })
+        );
+        
+        // S3에 리사이징된 이미지 업로드
+        const uploadedFilesInfo = resizedImages.length ? await uploadImages(resizedImages) : [];
         if (!uploadedFilesInfo.length) {
-            return res.status(400).json({ message : '이미지 0개'})
+            console.log('이미지 0개');
         }
 
-        console.log(uploadedFilesInfo);
-                
+        console.log('---------------------uploaded files info--------------------- : ', uploadedFilesInfo);
+
         const sendingdata = JSON.stringify({
             "request" : {
                 "DOCTRDCDE" : "2001",
@@ -479,13 +491,31 @@ router.post('/INQCOLD',  upload.array('IMGLIST'), authenticateToken, async(req, 
             }
         ]
         
-        // const uploadedFilesInfo = await uploadImages(req.files);
-        // console.log('Uploaded Files Info: ', uploadedFilesInfo);
 
-        const uploadedFilesInfo = await uploadImages(req.files);
+        // 이미지 리사이징 작업 (비율유지)
+        const resizedImages = await Promise.all(
+            req.files.map(async (file) => {
+                const resizedBuffer = await sharp(file.buffer)
+                .resize({
+                    width: 800, // 가로 800px
+                    withoutEnlargement: true // 원본보다 큰 경우는 확대하지 않음
+                })
+                .toBuffer();
+                
+                return {
+                    ...file,
+                    buffer: resizedBuffer,
+                };
+            })
+        );
+        
+        // S3에 리사이징된 이미지 업로드
+        const uploadedFilesInfo = resizedImages.length ? await uploadImages(resizedImages) : [];
         if (!uploadedFilesInfo.length) {
-            return res.status(400).json({ message : '이미지 0개'})
+            console.log('이미지 0개');
         }
+
+        console.log('---------------------uploaded files info--------------------- : ', uploadedFilesInfo);
 
         const reqCode = Code.map(item => {
             const key = Object.keys(item)[0];

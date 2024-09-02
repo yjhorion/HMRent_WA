@@ -17,8 +17,7 @@ const s3 = new AWS.S3({
 const date = format(new Date(), 'yyyyMM');
 
 const bucketName = S3BUCKETNAME;
-/* 회수차량 조회에 대한 파일경로 재설정할것(ERP에서 구현되는대로) */
-const folderPath = `../hmrdevbucket/HR380019/${date}/`;   /// 운영계 : `..hmrbucket/HR380019/${date}/`,   개발계 : `../hmrdevbucket/HR380019/${date}`
+const folderPath = `../hmrdevbucket/HR380019/${date}/`; // 운영계: `..hmrbucket/HR380019/${date}/`, 개발계: `../hmrdevbucket/HR380019/${date}/`
 
 // 파일명과 파일 사이즈를 저장할 배열
 let uploadedFilesInfo = [];
@@ -49,7 +48,8 @@ async function uploadImages(files) {
                 return; // 변환 실패 시 현재 파일을 건너뜁니다.
             }
         } else {
-            fileName += fileExtension; // 원래 파일의 확장자를 사용
+            // 일반 이미지 파일의 경우, 파일의 확장자를 유지하거나 기본 확장자 지정
+            fileName += fileExtension || '.jpg'; // 파일 확장자가 없으면 기본적으로 .jpg 사용
         }
 
         const params = {
@@ -76,7 +76,7 @@ async function uploadImages(files) {
         return uploadedFilesInfo;
     } catch (error) {
         // 에러 발생 시 롤백
-        console.log('롤백진행');
+        console.log('롤백 진행');
         await rollbackUploadedFiles();
         throw error; // 에러를 다시 던져 호출자에게 알림
     }

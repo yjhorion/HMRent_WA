@@ -8,6 +8,7 @@ const crypto= require('crypto');
 const iconv = require('iconv-lite');
 const axios = require('axios');
 const jwt = require('jsonwebtoken');
+const sharp = require('sharp');
 // const { getDeviceType } = require('../utils/DEVICEDETECTOR/devicedetector.js');
 
 router = express.Router()
@@ -167,8 +168,30 @@ router.post('/retrieval/:ASSETNO/:SEQNO', upload.array('IMGLIST'), authenticateT
         console.log(`-- 받아온 정보 --
                     자산번호 : ${ASSETNO}, 순번 : ${SEQNO}, 비고 : ${BIGO}`);
 
-        const uploadedFilesInfo = await uploadImages(req.files);
-        console.log(`업로드 이미지 갯수 : ${uploadedFilesInfo.length}`);
+        // 이미지 리사이징 작업 (비율유지)
+        const resizedImages = await Promise.all(
+            req.files.map(async (file) => {
+                const resizedBuffer = await sharp(file.buffer)
+                    .resize({
+                        width: 800, // 가로 800px
+                        withoutEnlargement: true // 원본보다 큰 경우는 확대하지 않음
+                    })
+                    .toBuffer();
+
+                return {
+                    ...file,
+                    buffer: resizedBuffer,
+                };
+            })
+        );
+
+        // S3에 리사이징된 이미지 업로드
+        const uploadedFilesInfo = resizedImages.length ? await uploadImages(resizedImages) : [];
+        if (!uploadedFilesInfo.length) {
+            console.log('이미지 0개');
+        }
+
+        console.log('---------------------uploaded files info--------------------- : ', uploadedFilesInfo);
 
         const sendingdata = JSON.stringify({
             "request" : {
