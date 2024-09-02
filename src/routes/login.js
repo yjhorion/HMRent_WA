@@ -16,6 +16,7 @@ const generateAccessToken = (user) => {
     return jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '12h' });
 };
 
+// jwt 토근값에서 아이디 비밀번호 가져오기
 const authenticateToken = (req, res, next) => {
     const authHeader = req.headers['authorization'];
     const token = authHeader && authHeader.split(' ')[1];
