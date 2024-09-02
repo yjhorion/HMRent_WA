@@ -526,7 +526,7 @@ router.post('/INQCOLD',  upload.array('IMGLIST'), authenticateToken, async(req, 
 
         /* 프론트에서 받은 차고지 데이터를 코드로 치환 */
         const EntryCode = findKeyByValue(reqCode, ENTRYLOCATION);
-        console.log('EntryCode', EntryCode);
+        // console.log('EntryCode', EntryCode);
 
                 
         const sendingdata = JSON.stringify({
@@ -556,8 +556,8 @@ router.post('/INQCOLD',  upload.array('IMGLIST'), authenticateToken, async(req, 
         const encryptedData = encrypt(sendingdata, secret_key, IV);
         const decryptedData = decrypt(encryptedData, secret_key, IV);
 
-        console.log("암호화 값 : ", encryptedData);
-        console.log("복호화 값 : ", decryptedData);
+        // console.log("암호화 값 : ", encryptedData);
+        // console.log("복호화 값 : ", decryptedData);
 
         /* ERP에 암호화된 데이터를 보내는 부분 */
 
@@ -570,7 +570,7 @@ router.post('/INQCOLD',  upload.array('IMGLIST'), authenticateToken, async(req, 
         });
 
         decryptedresponse = decrypt(response.data, secret_key, IV);
-        console.log("Response received:", response.data);
+        // console.log("Response received:", response.data);
         console.log("복호화 된 응답값 :", decryptedresponse);
 
                 /* 응답값이 0000 (처리완료)가 아니라면, 업로드한 이미지를 롤백(삭제)하는 부분 */
