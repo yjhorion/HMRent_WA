@@ -156,37 +156,51 @@ router.get('/retrieval', authenticateToken, async (req, res, next) => {
 
 /* 회수대상 이미지 업로드, 비고수정 */
 router.post('/retrieval/:ASSETNO/:SEQNO', upload.array('IMGLIST'), authenticateToken, async (req, res, next) => {
-    try{
+    try {
         const { year, month, day, hour, minute, second } = getCurrentDateTime();
         const { ASSETNO, SEQNO } = req.params;
         const { BIGO } = req.body;
 
         console.log('회수대상 이미지 업로드');
-        console.log('로그인한 유저아이디' + req.user.USERID);
-        console.log('로그인한 유저비밀번호' + req.user.USERPW);
+        console.log('로그인한 유저아이디: ' + req.user.USERID);
+        console.log('로그인한 유저비밀번호: ' + req.user.USERPW);
 
         console.log(`-- 받아온 정보 --
-                    자산번호 : ${ASSETNO}, 순번 : ${SEQNO}, 비고 : ${BIGO}`);
+                    자산번호: ${ASSETNO}, 순번: ${SEQNO}, 비고: ${BIGO}`);
 
         // 이미지 리사이징 작업 (비율유지)
         const resizedImages = await Promise.all(
             req.files.map(async (file) => {
-                const resizedBuffer = await sharp(file.buffer)
-                    .resize({
-                        width: 800, // 가로 800px
-                        withoutEnlargement: true // 원본보다 큰 경우는 확대하지 않음
-                    })
-                    .toBuffer();
+                try {
+                    const resizedBuffer = await sharp(file.buffer)
+                        .resize({
+                            width: 800, // 가로 800px
+                            withoutEnlargement: true // 원본보다 큰 경우는 확대하지 않음
+                        })
+                        .toBuffer();
 
-                return {
-                    ...file,
-                    buffer: resizedBuffer,
-                };
+                    return {
+                        ...file,
+                        buffer: resizedBuffer,
+                    };
+                } catch (error) {
+                    console.error(`리사이징 실패: ${error.message}`);
+                    return null; // 리사이징 실패 시 null 반환
+                }
             })
         );
 
+        // 리사이징된 이미지가 null인 경우를 로그로 남김
+        resizedImages.forEach((image, index) => {
+            if (image === null) {
+                console.error(`파일 인덱스 ${index}: 리사이징 실패`);
+            }
+        });
+
         // S3에 리사이징된 이미지 업로드
-        const uploadedFilesInfo = resizedImages.length ? await uploadImages(resizedImages) : [];
+        const uploadedFilesInfo = resizedImages.filter(image => image !== null).length
+            ? await uploadImages(resizedImages.filter(image => image !== null))
+            : [];
         if (!uploadedFilesInfo.length) {
             console.log('이미지 0개');
         }
@@ -194,60 +208,60 @@ router.post('/retrieval/:ASSETNO/:SEQNO', upload.array('IMGLIST'), authenticateT
         console.log('---------------------uploaded files info--------------------- : ', uploadedFilesInfo);
 
         const sendingdata = JSON.stringify({
-            "request" : {
-                "DOCTRDCDE" : "4001",
-                "DOCPORTAL" : "M",
-                "DOCSNDDAT" : `${year}${month}${day}`,
-                "DOCSNDTIM" : `${hour}24${minute}${second}`,
-                "RGTFLDUSR" : req.user.USERID,
-                "RGTFLDPWR" : req.user.USERPW
+            "request": {
+                "DOCTRDCDE": "4001",
+                "DOCPORTAL": "M",
+                "DOCSNDDAT": `${year}${month}${day}`,
+                "DOCSNDTIM": `${hour}24${minute}${second}`,
+                "RGTFLDUSR": req.user.USERID,
+                "RGTFLDPWR": req.user.USERPW
             },
-            "data" : {
-                "ASSETNO" : ASSETNO,            // 자산번호
-                "SEQNO" : SEQNO,                // 순번
-                "BIGO" : BIGO,                  // 비고
-                "IMGLIST" : uploadedFilesInfo  // 이미지
+            "data": {
+                "ASSETNO": ASSETNO,            // 자산번호
+                "SEQNO": SEQNO,                // 순번
+                "BIGO": BIGO,                  // 비고
+                "IMGLIST": uploadedFilesInfo  // 이미지
             }
-        })
+        });
 
         console.log(uploadedFilesInfo);
 
         if (!secret_key) {
-            console.log("No Secret Key.")
-            return res.status(500).send('No Secret Key. 암호화 문제')
+            console.log("No Secret Key.");
+            return res.status(500).send('No Secret Key. 암호화 문제');
         }
 
         const encryptedData = encrypt(sendingdata, secret_key, IV);
         const decryptedData = decrypt(encryptedData, secret_key, IV);
 
-        console.log("암호화 값 : ", encryptedData);
-        console.log("복호화 값 : ", decryptedData);
+        console.log("암호화 값: ", encryptedData);
+        console.log("복호화 값: ", decryptedData);
 
         /* ERP에 암호화된 데이터를 보내는 부분 */
 
-        let decryptedresponse
+        let decryptedresponse;
 
         const response = await axios.post(testServerUrl, encryptedData, {
             headers: {
-                'Content-Type' : 'text/plain'
+                'Content-Type': 'text/plain'
             }
         });
 
         decryptedresponse = decrypt(response.data, secret_key, IV);
         console.log("Response received:", response.data);
-        console.log("복호화 된 응답값 :", decryptedresponse);
+        console.log("복호화 된 응답값:", decryptedresponse);
 
         /* 프론트에 데이터를 보내는 부분. 응답값이 0000 (처리완료)가 아니라면 롤백, else, stringify 되었던 데이터를 parse 해서 json로 치환한 후 보내줌 */
-        if (JSON.parse(decryptedresponse).result.CODE !== "0000"){
+        if (JSON.parse(decryptedresponse).result.CODE !== "0000") {
             console.log(`-----롤백 진행----- 
-                        진행사유 : ${decryptedresponse}`);
+                        진행사유: ${decryptedresponse}`);
             await rollbackUploadedFiles();
             return res.status(410).send({
                 data: JSON.parse(decryptedresponse)
-            })
+            });
         } else {
             res.send({
-                data : JSON.parse(decryptedresponse)
+                data: JSON.parse(decryptedresponse)
             });
         }
 
@@ -258,6 +272,6 @@ router.post('/retrieval/:ASSETNO/:SEQNO', upload.array('IMGLIST'), authenticateT
         await rollbackUploadedFiles();
         console.log('이미지 롤백 완료');
     }
-})
+});
 
 module.exports = router;
