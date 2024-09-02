@@ -6,7 +6,6 @@ const crypto = require('crypto');
 const iconv = require('iconv-lite');
 const getCurrentDateTime = require('../utils/Time/DateTime.js');
 const jwt = require('jsonwebtoken');
-const sharp = require('sharp');
 
 router = express.Router()
 require('dotenv').config();
@@ -297,6 +296,14 @@ router.get('/INQCOLD', authenticateToken, async(req, res, next) =>  {
 
 
 
+
+
+
+
+
+
+
+
 /* INQC POST(2001) */
 router.post('/INQCNEW', upload.array('IMGLIST'), authenticateToken, async(req, res, next) =>  {
     try {
@@ -352,32 +359,13 @@ router.post('/INQCNEW', upload.array('IMGLIST'), authenticateToken, async(req, r
         }
         console.log('EntryCode', EntryCode);
 
-        
-        // 이미지 리사이징 작업 (비율유지)
-        const resizedImages = await Promise.all(
-            req.files.map(async (file) => {
-                const resizedBuffer = await sharp(file.buffer)
-                .resize({
-                    width: 800, // 가로 800px
-                    withoutEnlargement: true // 원본보다 큰 경우는 확대하지 않음
-                })
-                .toBuffer();
-                
-                return {
-                    ...file,
-                    buffer: resizedBuffer,
-                };
-            })
-        );
-        
-        // S3에 리사이징된 이미지 업로드
-        const uploadedFilesInfo = resizedImages.length ? await uploadImages(resizedImages) : [];
+        const uploadedFilesInfo = await uploadImages(req.files);
         if (!uploadedFilesInfo.length) {
-            console.log('이미지 0개');
+            return res.status(400).json({ message : '이미지 0개'})
         }
 
-        console.log('---------------------uploaded files info--------------------- : ', uploadedFilesInfo);
-
+        console.log(uploadedFilesInfo);
+                
         const sendingdata = JSON.stringify({
             "request" : {
                 "DOCTRDCDE" : "2001",
@@ -491,31 +479,13 @@ router.post('/INQCOLD',  upload.array('IMGLIST'), authenticateToken, async(req, 
             }
         ]
         
+        // const uploadedFilesInfo = await uploadImages(req.files);
+        // console.log('Uploaded Files Info: ', uploadedFilesInfo);
 
-        // 이미지 리사이징 작업 (비율유지)
-        const resizedImages = await Promise.all(
-            req.files.map(async (file) => {
-                const resizedBuffer = await sharp(file.buffer)
-                .resize({
-                    width: 800, // 가로 800px
-                    withoutEnlargement: true // 원본보다 큰 경우는 확대하지 않음
-                })
-                .toBuffer();
-                
-                return {
-                    ...file,
-                    buffer: resizedBuffer,
-                };
-            })
-        );
-        
-        // S3에 리사이징된 이미지 업로드
-        const uploadedFilesInfo = resizedImages.length ? await uploadImages(resizedImages) : [];
+        const uploadedFilesInfo = await uploadImages(req.files);
         if (!uploadedFilesInfo.length) {
-            console.log('이미지 0개');
+            return res.status(400).json({ message : '이미지 0개'})
         }
-
-        console.log('---------------------uploaded files info--------------------- : ', uploadedFilesInfo);
 
         const reqCode = Code.map(item => {
             const key = Object.keys(item)[0];
@@ -526,7 +496,7 @@ router.post('/INQCOLD',  upload.array('IMGLIST'), authenticateToken, async(req, 
 
         /* 프론트에서 받은 차고지 데이터를 코드로 치환 */
         const EntryCode = findKeyByValue(reqCode, ENTRYLOCATION);
-        // console.log('EntryCode', EntryCode);
+        console.log('EntryCode', EntryCode);
 
                 
         const sendingdata = JSON.stringify({
@@ -556,8 +526,8 @@ router.post('/INQCOLD',  upload.array('IMGLIST'), authenticateToken, async(req, 
         const encryptedData = encrypt(sendingdata, secret_key, IV);
         const decryptedData = decrypt(encryptedData, secret_key, IV);
 
-        // console.log("암호화 값 : ", encryptedData);
-        // console.log("복호화 값 : ", decryptedData);
+        console.log("암호화 값 : ", encryptedData);
+        console.log("복호화 값 : ", decryptedData);
 
         /* ERP에 암호화된 데이터를 보내는 부분 */
 
@@ -570,7 +540,7 @@ router.post('/INQCOLD',  upload.array('IMGLIST'), authenticateToken, async(req, 
         });
 
         decryptedresponse = decrypt(response.data, secret_key, IV);
-        // console.log("Response received:", response.data);
+        console.log("Response received:", response.data);
         console.log("복호화 된 응답값 :", decryptedresponse);
 
                 /* 응답값이 0000 (처리완료)가 아니라면, 업로드한 이미지를 롤백(삭제)하는 부분 */

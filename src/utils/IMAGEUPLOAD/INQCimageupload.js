@@ -17,7 +17,7 @@ const s3 = new AWS.S3({
 const date = format(new Date(), 'yyyyMM');
 
 const bucketName = S3BUCKETNAME;
-const folderPath = `../hmrdevbucket/HR380016/${date}/`; // 운영계: `..hmrbucket/HR380016/${date}/`, 개발계: `../hmrdevbucket/HR380016/${date}/`
+const folderPath = `../hmrdevbucket/HR380016/${date}/`; /// 운영계 : `..hmrbucket/HR380016/${date}/`,   개발계 : `../hmrdevbucket/HR380016/${date}`
 
 // 파일명과 파일 사이즈를 저장할 배열
 let uploadedFilesInfo = [];
@@ -31,32 +31,25 @@ async function uploadImages(files) {
     const uploadPromises = files.map(async (file) => {
         let fileName = getRandomFileName();
         const fileSizeInKB = Math.floor(file.size / 1024);
+
+        // 원래 파일의 확장자 추출
+        const fileExtension = path.extname(file.originalname).toLowerCase();
         let buffer = file.buffer;
         let contentType = file.mimetype;
-        let fileExtension = path.extname(file.originalname).toLowerCase();
 
         // HEIF 파일을 JPEG로 변환
         if (file.mimetype === 'image/heif' || file.mimetype === 'image/heic') {
             try {
                 buffer = await sharp(file.buffer).toFormat('jpeg').toBuffer();
                 contentType = 'image/jpeg';
-                fileExtension = '.jpg'; // JPEG 확장자로 변경
+                fileName += '.jpg'; // JPEG 확장자로 변경
             } catch (error) {
                 console.error(`HEIF 파일 변환 중 에러 발생: ${error.message}`);
                 return; // 변환 실패 시 현재 파일을 건너뜁니다.
             }
-        } else if (file.mimetype.startsWith('image/')) {
-            // 일반 이미지 파일의 경우 확장자 추가
-            if (!fileExtension) {
-                fileExtension = '.jpg'; // 기본적으로 JPG 확장자 추가
-            }
         } else {
-            console.error('지원되지 않는 파일 포맷입니다.');
-            return; // 지원되지 않는 파일 포맷일 경우 현재 파일을 건너뜁니다.
+            fileName += fileExtension; // 원래 파일의 확장자를 사용
         }
-
-        // 최종 파일 이름 생성
-        fileName += fileExtension;
 
         const params = {
             Bucket: bucketName,

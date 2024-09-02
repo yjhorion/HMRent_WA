@@ -327,98 +327,111 @@ router.get('/CompQC/:STATUSREQ', authenticateToken, async (req, res, next) => {
     }
 });
 
-router.post('/CompQC/:ASSETNO', upload.array('IMGLIST'), authenticateToken, async (req, res, next) => { 
+router.post('/CompQC/:ASSETNO', upload.array('IMGLIST'), authenticateToken, async (req, res, next) => { // multerS3를 통한 이미지 업로드는 INQC에서 참조하여 구성할 것.
     try {
-        const { ASSETNO } = req.params;
-        console.log('ASSETNO : ', ASSETNO);
-        const { year, month, day, hour, minute, second } = getCurrentDateTime();
-        console.log('Current DateTime : ', `${year}-${month}-${day} ${hour}:${minute}:${second}`);
+            const { ASSETNO } = req.params;
+            console.log('ASSETNO : ', ASSETNO);
+            const { year, month, day, hour, minute, second } = getCurrentDateTime();
+            console.log('Current DateTime : ', `${year}-${month}-${day} ${hour}:${minute}:${second}`)
 
-        let { MILEAGE, ENTRYLOCATION, DETAILLOCATION, KEYQUANT, KEYTOTAL, KEYLOCATION } = req.body;
-        console.log('Received body : ', req.body);
+            let { MILEAGE, ENTRYLOCATION, DETAILLOCATION, KEYQUANT, KEYTOTAL, KEYLOCATION } = req.body;
+            console.log('Recieved body : ', req.body);
 
-        if (!KEYQUANT) KEYQUANT = 1;
-        if (!KEYTOTAL) KEYTOTAL = 1;
-
-        console.log('COMPQC POST');
-        console.log('로그인한 유저아이디' + req.user.USERID);
-        console.log('로그인한 유저비밀번호' + req.user.USERPW);
-
-        const reqCode = [
-            {
-              HR58: {
-                HR580003: '아산 차고지',
-                HR580004: '상품화센터',
-                HR580006: '본사',
-                HR580099: '기타',
-                HR580001: '하모니파크',
-                HR580002: '송도 차고지'
-              }
-            },
-            {
-              HR65: {
-                HR650001: '기본출고지',
-                HR650002: '아산출고지',
-                HR650005: '화성출고지',
-                HR650006: '광주출고지',
-                HR650003: '울산출고지',
-                HR650004: '칠곡출고지',
-                HR650007: '소하리출고지',
-                HR650008: '서산출고지'
-              }
+            if (!KEYQUANT) {
+                KEYQUANT = 1
             }
-        ];
 
-        const EntryCode = findKeyByValue(reqCode, ENTRYLOCATION);
-        console.log('EntryCode', EntryCode);
+            if (!KEYTOTAL) {
+                KEYTOTAL = 1
+            }
+            // const { reqCode, USERID, USERPW } = req.session;
 
-        // 이미지 리사이징 작업 (비율유지)
-        const resizedImages = await Promise.all(
-            req.files.map(async (file) => {
-                const resizedBuffer = await sharp(file.buffer)
-                    .resize({
-                        width: 800, // 가로 800px
-                        withoutEnlargement: true // 원본보다 큰 경우는 확대하지 않음
-                    })
-                    .toBuffer();
+            console.log('COMPQC POST');
+            console.log('로그인한 유저아이디' + req.user.USERID);
+            console.log('로그인한 유저비밀번호' + req.user.USERPW);
 
-                return {
-                    ...file,
-                    buffer: resizedBuffer,
-                };
+            /* session 세팅 이전까지 사용할 하드코딩된 코드값 */
+            const reqCode = [
+                {
+                  HR58: {
+                    HR580003: '아산 차고지',
+                    HR580004: '상품화센터',
+                    HR580006: '본사',
+                    HR580099: '기타',
+                    HR580001: '하모니파크',
+                    HR580002: '송도 차고지'
+                  }
+                },
+                {
+                  HR65: {
+                    HR650001: '기본출고지',
+                    HR650002: '아산출고지',
+                    HR650005: '화성출고지',
+                    HR650006: '광주출고지',
+                    HR650003: '울산출고지',
+                    HR650004: '칠곡출고지',
+                    HR650007: '소하리출고지',
+                    HR650008: '서산출고지'
+                  }
+                }
+              ]
+              
+
+            /* 프론트에서 받은 차고지 데이터를 코드로 치환 */
+            const EntryCode = findKeyByValue(reqCode, ENTRYLOCATION);
+            console.log('EntryCode', EntryCode);
+
+            // // 이미지 리사이징 작업 (비율유지)
+            // const resizedImages = await Promise.all(
+            //     req.files.map(async (file) => {
+            //         const resizedBuffer = await sharp(file.buffer)
+            //             .resize({
+            //                 width: 800, // 가로 800px
+            //                 withoutEnlargement : true // 원본보다 큰 경우는 확대하지 않음
+            //             })
+            //             .toBuffer();
+
+            //         return {
+            //             ...file,
+            //             buffer: resizedBuffer,
+            //         };
+            //     })
+            // )
+                
+
+
+                // S3에 업로드
+                const uploadedFilesInfo = req.files ? await uploadImages(req.files) : [];
+                if (!uploadedFilesInfo.length) {
+                    console.log('이미지 0개')
+                }
+            // }
+
+                console.log('---------------------uploaded files info--------------------- : ', uploadedFilesInfo);
+
+            const sendingdata = JSON.stringify({
+                "request" : {
+                    "DOCTRDCDE" : "3001",
+                    "DOCPORTAL" : "M",
+                    "DOCSNDDAT" :  `${year}${month}${day}`,
+                    "DOCSNDTIM" : `${hour}${minute}${second}`,
+                    "RGTFLDUSR" : req.user.USERID,
+                    "RGTFLDPWR" : req.user.USERPW
+                },
+                "data" : {
+                    "ASSETNO" : ASSETNO,
+                    "MILEAGE" : MILEAGE,
+                    "ENTRYLOCATION" : EntryCode, // 로그인 시 json형태로 오는 값을, 바탕으로 프론트에서 stringdata를 받으면, 해당 value에 상응하는 키값으로 치환하여 데이터 보낼 것.
+                    "DETAILLOCATION" : DETAILLOCATION,
+                    "KEYQUANT" : KEYQUANT, // 이 값도 전달받은 값으로 전달. (일관되게 string datatype으로 전달)
+                    "KEYTOTAL" : KEYTOTAL, // 프론트와 백에서 (보유수량 =< 총수량) 조건에 맞는 값인지 validate
+                    "KEYLOCATION" : KEYLOCATION,
+                    "IMGLIST" : uploadedFilesInfo
+                }
             })
-        );
 
-        // S3에 리사이징된 이미지 업로드
-        const uploadedFilesInfo = resizedImages.length ? await uploadImages(resizedImages) : [];
-        if (!uploadedFilesInfo.length) {
-            console.log('이미지 0개');
-        }
+            console.log(uploadedFilesInfo);
 
-        console.log('---------------------uploaded files info--------------------- : ', uploadedFilesInfo);
-
-        const sendingdata = JSON.stringify({
-            "request": {
-                "DOCTRDCDE": "3001",
-                "DOCPORTAL": "M",
-                "DOCSNDDAT": `${year}${month}${day}`,
-                "DOCSNDTIM": `${hour}${minute}${second}`,
-                "RGTFLDUSR": req.user.USERID,
-                "RGTFLDPWR": req.user.USERPW
-            },
-            "data": {
-                "ASSETNO": ASSETNO,
-                "MILEAGE": MILEAGE,
-                "ENTRYLOCATION": EntryCode,
-                "DETAILLOCATION": DETAILLOCATION,
-                "KEYQUANT": KEYQUANT,
-                "KEYTOTAL": KEYTOTAL,
-                "KEYLOCATION": KEYLOCATION,
-                "IMGLIST": uploadedFilesInfo
-            }
-        });
-
-        console.log(uploadedFilesInfo);
 
         const encryptedData = encrypt(sendingdata, secret_key, IV);
         const decryptedData = decrypt(encryptedData, secret_key, IV);
@@ -436,27 +449,27 @@ router.post('/CompQC/:ASSETNO', upload.array('IMGLIST'), authenticateToken, asyn
         console.log("Response received:", response.data);
         console.log("복호화 된 응답값 :", decryptedresponse);
 
+        /* 응답값이 0000 (처리완료)가 아니라면, 업로드한 이미지를 롤백(삭제)하는 부분 */
         if (JSON.parse(decryptedresponse).result.CODE !== "0000"){
-            await rollbackUploadedFiles();
+            await rollbackUploadedFiles()
             return res.status(410).send({
                 data: JSON.parse(decryptedresponse),
-            });
+            })
         } else {
             return res.status(201).send({
                 data: JSON.parse(decryptedresponse),
-            });
-        }
+            })
+        }        
 
     } catch (error) {
-        await rollbackUploadedFiles();
+        await rollbackUploadedFiles() // 이부분이 잘 작동할지 테스트를 아직 못함. 응답서버가 꺼져있다던지 하는경우에 테스트 필요.
         console.error('통신에러: ', error.message);
         console.log('이미지 롤백 시작');
         await rollbackUploadedFiles();
         console.log('이미지 롤백 완료');
         return res.status(500).send('통신 에러');
     }
-});
-
+})
 
 
 
