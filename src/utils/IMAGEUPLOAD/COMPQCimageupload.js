@@ -15,9 +15,8 @@ const s3 = new AWS.S3({
 });
 
 const date = format(new Date(), 'yyyyMM');
-
 const bucketName = S3BUCKETNAME;
-const folderPath = `../hmrdevbucket/HR380009/${date}/`;   /// 운영계 : `..hmrbucket/HR380009/${date}/`,   개발계 : `../hmrdevbucket/HR380009/${date}`
+const folderPath = `../hmrdevbucket/HR380009/${date}/`; // 운영계: `..hmrbucket/HR380009/${date}/`, 개발계: `../hmrdevbucket/HR380009/${date}`
 
 // 파일명과 파일 사이즈를 저장할 배열
 let uploadedFilesInfo = [];
@@ -31,25 +30,32 @@ async function uploadImages(files) {
     const uploadPromises = files.map(async (file) => {
         let fileName = getRandomFileName();
         const fileSizeInKB = Math.floor(file.size / 1024);
-
-        // 원래 파일의 확장자 추출
-        const fileExtension = path.extname(file.originalname).toLowerCase();
         let buffer = file.buffer;
         let contentType = file.mimetype;
+        let fileExtension = path.extname(file.originalname).toLowerCase() || '.jpg'; // 기본 확장자 설정
 
-        // HEIF 파일을 JPEG로 변환
+        // 파일 포맷 처리
         if (file.mimetype === 'image/heif' || file.mimetype === 'image/heic') {
             try {
                 buffer = await sharp(file.buffer).toFormat('jpeg').toBuffer();
                 contentType = 'image/jpeg';
-                fileName += '.jpg'; // JPEG 확장자로 변경
+                fileExtension = '.jpg'; // JPEG 확장자로 변경
             } catch (error) {
                 console.error(`HEIF 파일 변환 중 에러 발생: ${error.message}`);
                 return; // 변환 실패 시 현재 파일을 건너뜁니다.
             }
+        } else if (file.mimetype.startsWith('image/')) {
+            // 이미지 파일 포맷에 맞는 확장자 추가
+            if (!fileExtension) {
+                fileExtension = '.jpg'; // 기본적으로 JPG 확장자 추가
+            }
         } else {
-            fileName += fileExtension; // 원래 파일의 확장자를 사용
+            console.error('지원되지 않는 파일 포맷입니다.');
+            return; // 지원되지 않는 파일 포맷일 경우 현재 파일을 건너뜁니다.
         }
+
+        // 최종 파일 이름 생성
+        fileName += fileExtension;
 
         const params = {
             Bucket: bucketName,
@@ -75,7 +81,7 @@ async function uploadImages(files) {
         return uploadedFilesInfo;
     } catch (error) {
         // 에러 발생 시 롤백
-        console.log('롤백진행');
+        console.log('롤백 진행');
         await rollbackUploadedFiles();
         throw error; // 에러를 다시 던져 호출자에게 알림
     }
