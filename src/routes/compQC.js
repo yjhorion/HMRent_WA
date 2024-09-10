@@ -733,8 +733,8 @@ router.post('/GPSchk/:ASSETNO/:SEQNO', async (req, res, next) => {
             "data": {
                 ASSETNO,    // 자산번호
                 SEQNO,      // 탁송순번
-                IGNCTRLCHK,  // 시동제어(정상) 여부
-                FULCTRLCHK,  // 점검완료여부
+                CNTCHKYON:IGNCTRLCHK,  // 시동제어(정상) 여부
+                CARCHKYON:FULCTRLCHK,  // 점검완료여부
                 CARCHKDAT   // 점검일자
             }
         });
