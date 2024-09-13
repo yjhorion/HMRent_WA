@@ -626,6 +626,7 @@ router.post('/LOCSET/:ASSETNO', /*authenticateToken,*/ async (req, res, next) =>
 
             /* 프론트에서 받은 차고지 데이터를 코드로 치환 */
             const EntryCode = findKeyByValue(reqCode, ENTRYLOCATION);
+            console.log('----------EntryLOCDAT :', ENTRYLOCATION);
             console.log('----------EntryCode :', EntryCode);
 
 
@@ -650,7 +651,6 @@ router.post('/LOCSET/:ASSETNO', /*authenticateToken,*/ async (req, res, next) =>
         const encryptedData = encrypt(sendingdata, secret_key, IV);
         const decryptedData = decrypt(encryptedData, secret_key, IV);
 
-        console.log("암호화 값 : ", encryptedData);
         console.log("복호화 값 : ", decryptedData);
 
         const response = await axios.post(testServerUrl, encryptedData, {
