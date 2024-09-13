@@ -546,8 +546,8 @@ router.get('/LOCSET', /*authenticateToken,*/ async(req, res, next) => {
             return res.status(500).send('No Secret Key.');
         }
 
-        // const encryptedData = encrypt(sendingdata, secret_key, IV);
-        // const decryptedData = decrypt(encryptedData, secret_key, IV);
+        const encryptedData = encrypt(sendingdata, secret_key, IV);
+        const decryptedData = decrypt(encryptedData, secret_key, IV);
 
         console.log("암호화 값 : ", encryptedData);
         console.log("복호화 값 : ", decryptedData)
