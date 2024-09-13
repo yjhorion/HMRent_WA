@@ -626,7 +626,6 @@ router.post('/LOCSET/:ASSETNO', /*authenticateToken,*/ async (req, res, next) =>
 
             /* 프론트에서 받은 차고지 데이터를 코드로 치환 */
             const EntryCode = findKeyByValue(reqCode, ENTRYLOCATION);
-            console.log('----------EntryLocation :', ENTRYLOCATION);
             console.log('----------EntryCode :', EntryCode);
 
 
@@ -720,7 +719,7 @@ router.post('/GPSchk/:ASSETNO/:SEQNO', async (req, res, next) => {
     try {
         const { year, month, day, hour, minute, second } = getCurrentDateTime();
         const { ASSETNO, SEQNO } = req.params;
-        const { CNTCHKYON, CARCHKYON, CARCHKDAT} = req.body;
+        const { IGNCTRLCHK, FULCTRLCHK, CARCHKDAT} = req.body;
 
         const sendingdata = JSON.stringify({
             "request": {
@@ -734,8 +733,8 @@ router.post('/GPSchk/:ASSETNO/:SEQNO', async (req, res, next) => {
             "data": {
                 ASSETNO,    // 자산번호
                 SEQNO,      // 탁송순번
-                CNTCHKYON,  // 시동제어(정상) 여부
-                CARCHKYON,  // 점검완료여부
+                CNTCHKYON:IGNCTRLCHK,  // 시동제어(정상) 여부
+                CARCHKYON:FULCTRLCHK,  // 점검완료여부
                 CARCHKDAT   // 점검일자
             }
         });
