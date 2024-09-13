@@ -479,6 +479,7 @@ router.post('/CompQC/:ASSETNO', upload.array('IMGLIST'), authenticateToken, asyn
 router.get('/LOCSET', /*authenticateToken,*/ async(req, res, next) => {
     try {
         
+        console.log('---------- LOCSET 조회 ----------')
     const { year, month, day, hour, minute, second } = getCurrentDateTime();
 
     /*
@@ -537,16 +538,16 @@ router.get('/LOCSET', /*authenticateToken,*/ async(req, res, next) => {
             }
         })
 
-        console.log("Encoded secret key : ", secret_key) // Base64 encoded key
-        console.log("Encoded Initial Vector : ", IV) // Base64 encoded IV
+        // console.log("Encoded secret key : ", secret_key) // Base64 encoded key
+        // console.log("Encoded Initial Vector : ", IV) // Base64 encoded IV
 
         if (!secret_key) {
             console.log("No Secret Key.");
             return res.status(500).send('No Secret Key.');
         }
 
-        const encryptedData = encrypt(sendingdata, secret_key, IV);
-        const decryptedData = decrypt(encryptedData, secret_key, IV);
+        // const encryptedData = encrypt(sendingdata, secret_key, IV);
+        // const decryptedData = decrypt(encryptedData, secret_key, IV);
 
         console.log("암호화 값 : ", encryptedData);
         console.log("복호화 값 : ", decryptedData)
@@ -562,8 +563,8 @@ router.get('/LOCSET', /*authenticateToken,*/ async(req, res, next) => {
         });
 
         decryptedresponse = decrypt(response.data, secret_key, IV);
-        console.log("Response received:", response.data);
-        console.log("복호화 된 응답값 :", decryptedresponse);
+        // console.log("Response received:", response.data);
+        // console.log("복호화 된 응답값 :", decryptedresponse);
 
         /* 프론트에 데이터를 보내는 부분. stringify 되었던 데이터를 parse 해서 json형식으로 보내줌 */
         res.send({
