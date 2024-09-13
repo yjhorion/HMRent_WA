@@ -626,6 +626,7 @@ router.post('/LOCSET/:ASSETNO', /*authenticateToken,*/ async (req, res, next) =>
 
             /* 프론트에서 받은 차고지 데이터를 코드로 치환 */
             const EntryCode = findKeyByValue(reqCode, ENTRYLOCATION);
+            console.log('----------EntryLocation :', ENTRYLOCATION);
             console.log('----------EntryCode :', EntryCode);
 
 
