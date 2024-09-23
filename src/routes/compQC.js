@@ -710,6 +710,8 @@ router.get('/GPSchk', async (req, res, next) => {
 
         //console.log('-----------------------------------------------프론트에 보내는 데이터 : ' + JSON.stringify(parsedResponse, null, 2));
 
+        console.log(parsedResponse);
+
         res.send({
             data: parsedResponse
         });

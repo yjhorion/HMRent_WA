@@ -190,12 +190,6 @@ router.get('/INQCNEW', authenticateToken, async(req, res, next) =>  {
 
 
 
-
-
-
-
-
-
 /* INQC GET(2100) */
 router.get('/INQCOLD', authenticateToken, async(req, res, next) =>  {
     try {
@@ -293,15 +287,6 @@ router.get('/INQCOLD', authenticateToken, async(req, res, next) =>  {
         res.status(500).send('통신 에러');
     }
 });
-
-
-
-
-
-
-
-
-
 
 
 /* INQC POST(2001) */
@@ -431,13 +416,6 @@ router.post('/INQCNEW', upload.array('IMGLIST'), authenticateToken, async(req, r
         console.log('이미지 롤백 완료');
     }
 });
-
-
-
-
-
-
-
 
 
 
