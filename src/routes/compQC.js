@@ -588,6 +588,9 @@ router.post('/LOCSET/:ASSETNO', /*authenticateToken,*/ async (req, res, next) =>
             const { year, month, day, hour, minute, second } = getCurrentDateTime();
             console.log('Current DateTime : ', `${year}-${month}-${day} ${hour}:${minute}:${second}`)
 
+            console.log('ENTRYLOCATION : ' + ENTRYLOCATION);
+            console.log('DETAILLOCATION : ' + DETAILLOCATION);
+
 
             // const { reqCode, USERID, USERPW } = req.session;
 
