@@ -578,7 +578,7 @@ router.get('/LOCSET', /*authenticateToken,*/ async(req, res, next) => {
 });
 
 
-router.post('/LOCSET/:ASSETNO', /*authenticateToken,*/ async (req, res, next) => { // multerS3를 통한 이미지 업로드는 INQC에서 참조하여 구성할 것.
+router.post('/LOCSET/:ASSETNO', upload.none(), /*authenticateToken,*/ async (req, res, next) => { 
     try {
 
             const { ASSETNO } = req.params;
