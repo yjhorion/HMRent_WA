@@ -758,9 +758,17 @@ router.post('/GPSchk/:ASSETNO/:SEQNO', async (req, res, next) => {
 
         //console.log('-----------------------------------------------프론트에 보내는 데이터 : ' + JSON.stringify(parsedResponse, null, 2));
 
-        res.send({
-            data: parsedResponse
-        });
+                /* 응답값이 0000 (처리완료)가 아니라면, 업로드한 이미지를 롤백(삭제)하는 부분 */
+                if (parsedResponse.result.CODE !== "0000"){
+                    await rollbackUploadedFiles()
+                    return res.status(410).send({
+                        data: parsedResponse,
+                    })
+                } else {
+                    return res.status(201).send({
+                        data: parsedResponse,
+                    })
+                };        
 
     } catch (error) {
         console.error('통신 에러: ', error.message);
